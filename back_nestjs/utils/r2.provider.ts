@@ -1,0 +1,18 @@
+import { Provider } from '@nestjs/common';
+import { S3Client } from '@aws-sdk/client-s3';
+
+export const R2_CLIENT = 'R2_CLIENT';
+
+export const R2Provider: Provider = {
+  provide: R2_CLIENT,
+  useFactory: () => {
+    return new S3Client({
+      region: 'auto',
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      },
+    });
+  },
+};
