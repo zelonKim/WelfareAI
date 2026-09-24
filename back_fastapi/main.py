@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from schemas import ConsultRequest, ConsultResponse
 from openai import OpenAI
 from dotenv import load_dotenv
+import uvicorn
 
 load_dotenv()
 
@@ -13,7 +14,7 @@ client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 @app.get("/")
 def read_root():
-    return {"message": "AI Consulting Service is running"}
+    return {"message": "AI server is running"}
 
 
 @app.post("/consult", response_model=ConsultResponse)
