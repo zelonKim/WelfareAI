@@ -43,10 +43,11 @@ model User {
   joinedCommunities CommunityMember[] // 내가 참가자로 들어간 모임
   chatMessages      ChatMessage[] // 내가 전송한 커뮤니티 채팅 메시지
 
-  savedPlaces   MapBookmark[] // 내가 북마크한 복지 지도 장소 목록
-  savedPolicies PolicyBookmark[] // 내가 북마크한 복지 정책 목록
-  aiConsultings AiConsulting[] // 내 AI 상담 내역
-  welfarePlaces WelfarePlace[]
+  savedPlaces    MapBookmark[] // 내가 북마크한 복지 지도 장소 목록
+  savedPolicies  PolicyBookmark[] // 내가 북마크한 복지 정책 목록
+  aiConsultings  AiConsulting[] // 내 AI 상담 내역
+  welfarePlaces  WelfarePlace[]
+  crisisComments CrisisComment[]
 
   @@unique([provider, socialId])
 }
@@ -65,19 +66,40 @@ model CrisisReport {
   id        String       @id @default(uuid())
   title     String
   content   String
+  address   String // 도로명 주소
   latitude  Float? // 위기 발생 위치 (위도)
   longitude Float? // 위기 발생 위치 (경도)
-  address   String? // 도로명 주소
   images    String[] // 제보 이미지 URL
   status    CrisisStatus @default(PENDING)
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  comments CrisisComment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status])
+}
+
+model CrisisComment {
+  id      String @id @default(uuid())
+  content String 
+
+  // 제보글과의 관계 (1:N)
+  reportId String
+  report   CrisisReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  // 작성자와의 관계 (1:N)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reportId])
+  @@index([userId])
 }
 
 // ==========================================

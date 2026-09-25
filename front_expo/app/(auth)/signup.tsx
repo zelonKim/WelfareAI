@@ -1,5 +1,5 @@
 import Colors from "@/constants/Colors";
-import { useSignup } from "@/hooks/useSignup";
+import { useSignup } from "@/hooks/auth/useSignup";
 import { useRouter } from "expo-router";
 import {
   Check,

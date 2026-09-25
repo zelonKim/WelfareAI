@@ -1,12 +1,14 @@
 import {
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateCrisisReportDto } from './dto/create-crisis-report.dto';
 import { UpdateCrisisReportDto } from './dto/update-crisis-report.dto';
 import { CrisisStatus } from '@prisma/client';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Injectable()
 export class CrisisReportService {
@@ -72,8 +74,21 @@ export class CrisisReportService {
           select: {
             id: true,
             nickname: true,
-            email: true,
             profileImage: true,
+          },
+        },
+        comments: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                nickname: true,
+                profileImage: true,
+              },
+            },
           },
         },
       },
@@ -152,5 +167,52 @@ export class CrisisReportService {
       where: { id: reportId },
       data: { status },
     });
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////
+
+  async createComment(
+    reportId: string,
+    userId: string,
+    createCommentDto: CreateCommentDto,
+  ) {
+    const { content } = createCommentDto;
+
+    // 1. 해당 위기 제보글이 존재하는지 먼저 확인
+    const reportExists = await this.prisma.crisisReport.findUnique({
+      where: { id: reportId },
+    });
+
+    if (!reportExists) {
+      throw new NotFoundException('존재하지 않거나 삭제된 제보글입니다.');
+    }
+
+    try {
+      // 2. 댓글 생성 (Prisma)
+      const newComment = await this.prisma.crisisComment.create({
+        data: {
+          content,
+          reportId,
+          userId,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              nickname: true,
+              profileImage: true,
+            },
+          },
+        },
+      });
+
+      return newComment;
+    } catch (error) {
+      console.log('댓글 등록 중 오류 발생:', error);
+      throw new InternalServerErrorException(
+        '댓글 등록 중 오류가 발생했습니다.',
+      );
+    }
   }
 }

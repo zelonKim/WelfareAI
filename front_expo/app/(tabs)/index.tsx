@@ -1,8 +1,8 @@
 import { getConsultings } from "@/api/consult/getConsultings";
 import Colors from "@/constants/Colors";
 import { quickPrompts } from "@/constants/quickPrompts";
-import { useCreateConsulting } from "@/hooks/useCreateConsulting";
-import { useDeleteConsulting } from "@/hooks/useDeleteConsulting";
+import { useCreateConsulting } from "@/hooks/consult/useCreateConsulting";
+import { useDeleteConsulting } from "@/hooks/consult/useDeleteConsulting";
 import { ConsultingItem } from "@/types/consult/ConsultingItem";
 import { Message } from "@/types/consult/Message";
 import { useQuery } from "@tanstack/react-query";
@@ -124,7 +124,7 @@ export default function AIConsultScreen() {
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
           <View style={styles.aiBadge}>
-            <BotMessageSquare size={22} color="#FF7F66" />
+            <BotMessageSquare size={23} color="#FF7F66" />
           </View>
           <Text style={styles.headerTitle}>AI 복지 상담</Text>
         </View>
@@ -329,15 +329,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   aiBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 24,
     backgroundColor: "rgba(255, 127, 102, 0.15)",
     justifyContent: "center",
     alignItems: "center",
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     color: "#1A3A3A",
   },

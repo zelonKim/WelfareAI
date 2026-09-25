@@ -41,10 +41,10 @@ export class UserController {
     return this.userService.deleteAccount(userId);
   }
 
-  // 4. 프로필 이미지 업로드
-  @Post('profile-image')
-  @UseInterceptors(FileInterceptor('profile_image'))
-  async uploadProfileImage(
+  // 4. 이미지 업로드
+  @Post('image')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @GetUser('id') userId: string,
   ) {
@@ -52,7 +52,7 @@ export class UserController {
       throw new BadRequestException('업로드할 이미지 파일이 없습니다.');
     }
 
-    const imageUrl = await this.userService.uploadProfileImage(userId, file);
+    const imageUrl = await this.userService.uploadImage(userId, file);
 
     return {
       success: true,

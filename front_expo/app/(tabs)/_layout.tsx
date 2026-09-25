@@ -53,7 +53,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="crisis"
+        name="crisisReport"
         options={{
           title: "제보",
           tabBarIcon: ({ color, focused }) => (

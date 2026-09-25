@@ -17,8 +17,9 @@ import { UpdateCrisisStatusDto } from './dto/update-crisis-status.dto';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
-@Controller('crisis-reports')
+@Controller('crisis-report')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CrisisReportController {
   constructor(private readonly crisisReportService: CrisisReportService) {}
@@ -70,5 +71,18 @@ export class CrisisReportController {
     @Body() dto: UpdateCrisisStatusDto,
   ) {
     return this.crisisReportService.updateReportStatus(reportId, dto.status);
+  }
+
+  @Post(':id/comment')
+  async createComment(
+    @Param('id') reportId: string,
+    @GetUser('id') userId: string,
+    @Body() createCommentDto: CreateCommentDto,
+  ) {
+    return this.crisisReportService.createComment(
+      reportId,
+      userId,
+      createCommentDto,
+    );
   }
 }

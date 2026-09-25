@@ -114,12 +114,12 @@ export class UserService {
 
   ////////////////////////////////////
 
-  async uploadProfileImage(
+  async uploadImage(
     userId: string,
     file: Express.Multer.File,
   ): Promise<string> {
     const fileExtension = file.originalname.split('.').pop() || 'jpg';
-    const fileName = `profiles/${userId}-${Date.now()}.${fileExtension}`;
+    const fileName = `${userId}-${Date.now()}.${fileExtension}`;
 
     try {
       await this.s3Client.send(
@@ -135,7 +135,7 @@ export class UserService {
     } catch (error) {
       console.error('R2 Upload Error:', error);
       throw new InternalServerErrorException(
-        '프로필 이미지 업로드 중 오류가 발생했습니다.',
+        '이미지 업로드 중 오류가 발생했습니다.',
       );
     }
   }
