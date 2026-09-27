@@ -215,4 +215,28 @@ export class CrisisReportService {
       );
     }
   }
+
+  ////////////////////////////////////////////////////////////////////
+
+  async deleteComment(userId: string, commentId: string) {
+    const comment = await this.prisma.crisisComment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('댓글을 찾을 수 없습니다.');
+    }
+
+    // 2. 작성자 본인 확인
+    if (comment.userId !== userId) {
+      throw new ForbiddenException('자신의 댓글만 삭제할 수 있습니다.');
+    }
+
+    // 3. 댓글 삭제
+    await this.prisma.crisisComment.delete({
+      where: { id: commentId },
+    });
+
+    return { message: '댓글이 성공적으로 삭제되었습니다.' };
+  }
 }

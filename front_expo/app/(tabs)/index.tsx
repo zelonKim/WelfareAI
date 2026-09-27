@@ -1,6 +1,6 @@
 import { getConsultings } from "@/api/consult/getConsultings";
+import { AutoPrompts } from "@/constants/AutoPrompts";
 import Colors from "@/constants/Colors";
-import { quickPrompts } from "@/constants/quickPrompts";
 import { useCreateConsulting } from "@/hooks/consult/useCreateConsulting";
 import { useDeleteConsulting } from "@/hooks/consult/useDeleteConsulting";
 import { ConsultingItem } from "@/types/consult/ConsultingItem";
@@ -37,6 +37,10 @@ export default function AIConsultScreen() {
 
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+
+  // useEffect(() => {
+  //   router.push("/login");
+  // }, []);
 
   useEffect(() => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -144,7 +148,7 @@ export default function AIConsultScreen() {
         {/* 2. 대화 목록 영역 */}
         {isFetchingHistory ? (
           <View style={styles.loadingCenter}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <ActivityIndicator size="large" color={Colors.point} />
             <Text style={styles.loadingText}>
               이전 상담 내역을 가져오는 중...
             </Text>
@@ -216,7 +220,7 @@ export default function AIConsultScreen() {
                 <View
                   style={[styles.bubble, styles.aiBubble, styles.loadingBubble]}
                 >
-                  <ActivityIndicator size="small" color="#FF7F66" />
+                  <ActivityIndicator size="small" color={Colors.point} />
                   <Text style={styles.aiLoadingText}>
                     AI가 관련 복지 정책을 찾아보고 있어요...
                   </Text>
@@ -231,10 +235,10 @@ export default function AIConsultScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={styles.quickPromptScroll}
+            style={styles.autoPromptScroll}
             contentContainerStyle={styles.quickPromptContainer}
           >
-            {quickPrompts.map((prompt, index) => (
+            {AutoPrompts.map((prompt, index) => (
               <TouchableOpacity
                 key={index}
                 style={styles.quickChip}
@@ -428,7 +432,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 16,
   },
-  quickPromptScroll: {
+  autoPromptScroll: {
     maxHeight: 36,
     marginBottom: 8,
   },

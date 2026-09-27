@@ -15,7 +15,6 @@ import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 export class CommunityService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // 1. 커뮤니티 포스트 생성
   async createPost(hostId: string, dto: CreateCommunityPostDto) {
     const post = await this.prisma.communityPost.create({
       data: {
@@ -25,6 +24,12 @@ export class CommunityService {
         content: dto.content,
         images: dto.images || [],
         maxMembers: dto.maxMembers,
+        members: {
+          create: {
+            userId: hostId,
+            status: CommunityMemberStatus.APPROVED,
+          },
+        },
       },
     });
 
@@ -36,7 +41,7 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 2. 전체 조회 (타입 필터링 선택적 적용: VOLUNTEER / SELF_HELP)
+  // 2. 모임 조회
   async getAllPosts(type?: CommunityType) {
     return this.prisma.communityPost.findMany({
       where: type ? { type } : {},
@@ -51,7 +56,11 @@ export class CommunityService {
           },
         },
         _count: {
-          select: { members: true }, // 현재 참여 멤버 수 집계
+          select: {
+            members: {
+              where: { status: 'APPROVED' },
+            },
+          },
         },
       },
     });
@@ -59,7 +68,7 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 3. 상세 조회
+  // 3. 모임 상세 조회
   async getPostById(postId: string) {
     const post = await this.prisma.communityPost.findUnique({
       where: { id: postId },
@@ -96,7 +105,7 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 4. 변경 (부분 수정)
+  // 4. 모임 변경
   async updatePost(
     hostId: string,
     postId: string,

@@ -11,8 +11,8 @@ export const useCreateCrisisReport = () => {
     mutationFn: (dto: CreateCrisisReportDto) => createCrisisReport(dto),
     onSuccess: (data) => {
       Alert.alert("접수 완료 🦊", data.message);
-      queryClient.invalidateQueries({ queryKey: ["crisis-reports"] });
-      queryClient.invalidateQueries({ queryKey: ["crisis-reports", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["crisisReports"] });
+      queryClient.invalidateQueries({ queryKey: ["crisisReports", "me"] });
     },
     onError: (error) => {
       Alert.alert(

@@ -1,6 +1,6 @@
 import Colors from "@/constants/Colors";
-import { CrisisReportModalProps } from "@/types/crisisReport/CrisisReportModalProps";
-import { Camera, MapPin, X } from "lucide-react-native";
+import { CommunityModalProps } from "@/types/community/CommunityModalProps";
+import { HeartHandshake, MessagesCircle, X } from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
@@ -14,29 +14,22 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { ImageItem } from "./ImageItem";
 
-export default function CrisisReportModal({
+export default function CommunityModal({
+  modalType,
   visible,
   onClose,
   title,
   setTitle,
   content,
   setContent,
-  address,
-  setAddress,
-  setLatitude,
-  setLongitude,
-  images,
-  setImages,
-  uploadImageMutation,
-  uploadImagePending = false,
-  createReportPending = false,
-  handleGetCurrentLocation,
-  handlePickImage,
-  handleRemoveImage,
-  handleCreateReport,
-}: CrisisReportModalProps) {
+  notice,
+  setNotice,
+  communityType,
+  setCommunityType,
+  createCommunityPending = false,
+  handleCreateCommunity,
+}: CommunityModalProps) {
   return (
     <Modal
       visible={visible}
@@ -52,7 +45,9 @@ export default function CrisisReportModal({
           <View style={styles.modalContentCard}>
             {/* 헤더 */}
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>위기 이웃 제보하기</Text>
+              <Text style={styles.modalTitle}>
+                {modalType === "tabs" ? "모임 만들기" : "모임 수정하기"}
+              </Text>
               <TouchableOpacity
                 style={styles.closeIconButton}
                 onPress={onClose}
@@ -68,24 +63,83 @@ export default function CrisisReportModal({
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
-              {/* 1. 제보 제목 */}
+              {modalType === "tabs" && setCommunityType && (
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>모임 성격</Text>
+                  <View style={styles.typeSelectorRow}>
+                    <TouchableOpacity
+                      style={[
+                        styles.typeOptionCard,
+                        communityType === "SELF_HELP" &&
+                          styles.typeOptionCardActive,
+                      ]}
+                      activeOpacity={0.8}
+                      onPress={() => setCommunityType("SELF_HELP")}
+                    >
+                      <MessagesCircle
+                        size={18}
+                        color={
+                          communityType === "SELF_HELP" ? "#FF6C4B" : "#8E99A3"
+                        }
+                      />
+                      <Text
+                        style={[
+                          styles.typeOptionText,
+                          communityType === "SELF_HELP" &&
+                            styles.typeOptionTextActive,
+                        ]}
+                      >
+                        소통 모임
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.typeOptionCard,
+                        communityType === "VOLUNTEER" &&
+                          styles.typeOptionCardActive,
+                      ]}
+                      activeOpacity={0.8}
+                      onPress={() => setCommunityType("VOLUNTEER")}
+                    >
+                      <HeartHandshake
+                        size={18}
+                        color={
+                          communityType === "VOLUNTEER" ? "#FF6C4B" : "#8E99A3"
+                        }
+                      />
+                      <Text
+                        style={[
+                          styles.typeOptionText,
+                          communityType === "VOLUNTEER" &&
+                            styles.typeOptionTextActive,
+                        ]}
+                      >
+                        봉사 모임
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+
+              {/* 2. 모임 제목 */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>제목</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="예: 단전/단수가 의심되는 가구 제보"
+                  placeholder="예: 치매 어르신 가족 소통방"
                   placeholderTextColor="#A0A0A0"
                   value={title}
                   onChangeText={setTitle}
                 />
               </View>
 
-              {/* 2. 상세 내용 */}
+              {/* 3. 상세 내용 */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>상세 내용</Text>
+                <Text style={styles.label}>내용</Text>
                 <TextInput
                   style={[styles.input, styles.textArea]}
-                  placeholder="위기 상황에 대해 자세히 적어주세요."
+                  placeholder="모임 내용에 대해 적어주세요."
                   placeholderTextColor="#A0A0A0"
                   multiline
                   textAlignVertical="top"
@@ -94,75 +148,20 @@ export default function CrisisReportModal({
                 />
               </View>
 
-              {/* 3. 위치 정보 */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>위치</Text>
-                <View style={styles.locationInputRow}>
+              {modalType === "detail" && (
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>공지사항</Text>
                   <TextInput
-                    style={[styles.input, { flex: 1 }]}
-                    placeholder="위치를 입력해주세요"
+                    style={[styles.input, styles.textArea]}
+                    placeholder="공지사항에 대해 입력해주세요."
                     placeholderTextColor="#A0A0A0"
-                    value={address}
-                    onChangeText={setAddress}
+                    multiline
+                    textAlignVertical="top"
+                    value={notice}
+                    onChangeText={setNotice}
                   />
-                  <TouchableOpacity
-                    style={styles.locationBtn}
-                    onPress={() =>
-                      handleGetCurrentLocation({
-                        setLatitude,
-                        setLongitude,
-                        setAddress,
-                      })
-                    }
-                    activeOpacity={0.7}
-                  >
-                    <MapPin size={16} color="#FFFFFF" />
-                    <Text style={styles.locationBtnText}>현위치</Text>
-                  </TouchableOpacity>
                 </View>
-              </View>
-
-              {/* 4. 사진 업로드 */}
-              <View style={styles.inputGroup}>
-                <View style={styles.labelRow}>
-                  <Text style={styles.label}>현장 사진 </Text>
-                  <Text style={styles.label}>({images.length})</Text>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.imagePickerRow}
-                >
-                  <TouchableOpacity
-                    disabled={uploadImagePending}
-                    onPress={() =>
-                      handlePickImage({
-                        setImages,
-                        uploadImageMutation,
-                      })
-                    }
-                    style={styles.addImageBtn}
-                    activeOpacity={0.7}
-                  >
-                    {uploadImagePending ? (
-                      <ActivityIndicator size="small" color="#6E8B8B" />
-                    ) : (
-                      <>
-                        <Camera size={22} color="#6E8B8B" />
-                        <Text style={styles.addImageText}>사진 추가</Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-
-                  {images.map((uri, index) => (
-                    <ImageItem
-                      key={`${uri}-${index}`}
-                      uri={uri}
-                      onRemove={() => handleRemoveImage(index)}
-                    />
-                  ))}
-                </ScrollView>
-              </View>
+              )}
 
               {/* 버튼 영역 */}
               <View style={styles.modalButtonRow}>
@@ -176,16 +175,18 @@ export default function CrisisReportModal({
                 <TouchableOpacity
                   style={[
                     styles.submitButton,
-                    createReportPending && styles.disabledButton,
+                    createCommunityPending && styles.disabledButton,
                   ]}
-                  onPress={handleCreateReport}
-                  disabled={createReportPending}
+                  onPress={handleCreateCommunity}
+                  disabled={createCommunityPending}
                   activeOpacity={0.7}
                 >
-                  {createReportPending ? (
+                  {createCommunityPending ? (
                     <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
-                    <Text style={styles.submitButtonText}>제출하기</Text>
+                    <Text style={styles.submitButtonText}>
+                      {modalType === "tabs" ? "개설하기" : "보완하기"}
+                    </Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
   locationBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.point,
+    backgroundColor: "#6E8B8B",
     paddingHorizontal: 12,
     borderRadius: 8,
     gap: 4,
@@ -341,5 +342,34 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: "#CBD5E1",
+  },
+  typeSelectorRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  typeOptionCard: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: "#F2F5F6",
+    borderWidth: 1.5,
+    borderColor: "transparent",
+    gap: 6,
+  },
+  typeOptionCardActive: {
+    backgroundColor: "#FFEFEA",
+    borderColor: "#FF6C4B",
+  },
+  typeOptionText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#8E99A3",
+  },
+  typeOptionTextActive: {
+    color: "#FF6C4B",
+    fontWeight: "700",
   },
 });

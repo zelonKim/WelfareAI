@@ -85,4 +85,12 @@ export class CrisisReportController {
       createCommentDto,
     );
   }
+
+  @Delete('comment/:commentId')
+  async deleteComment(
+    @GetUser('id') userId: string,
+    @Param('commentId') commentId: string,
+  ) {
+    return this.crisisReportService.deleteComment(userId, commentId);
+  }
 }

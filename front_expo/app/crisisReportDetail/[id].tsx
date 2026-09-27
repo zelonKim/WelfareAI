@@ -1,18 +1,27 @@
-import { client } from "@/api/client";
+import { getCrisisReportById } from "@/api/crisisReport/getCrisisReportById";
 import { getMyInfo } from "@/api/user/getMyInfo";
+import CrisisReportModal from "@/components/CrisisReportModal";
 import Colors from "@/constants/Colors";
+import { useUploadImage } from "@/hooks/common/useUploadImage";
+import { useCreateCrisisComment } from "@/hooks/crisisReport/useCreateCrisisComment";
+import { useDeleteCrisisComment } from "@/hooks/crisisReport/useDeleteCrisisComment";
+import { useDeleteCrisisReport } from "@/hooks/crisisReport/useDeleteCrisisReport";
+import { useUpdateCrisisReport } from "@/hooks/crisisReport/useUpdateCrisisReport";
 import { CrisisReportDetail } from "@/types/crisisReport/CrisisReportDetail";
 import { UserProfile } from "@/types/user/UserProfile";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { handleGetCurrentLocation } from "@/utils/handleGetCurrentLocation";
+import { handlePickImage } from "@/utils/handlePickImage";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ChevronLeft,
   Clock,
   MapPin,
-  MessageSquare,
   MoreVertical,
   Send,
+  Trash,
 } from "lucide-react-native";
+import { MessageCircleMore } from "lucide-react-native/icons";
 import React, { useState } from "react";
 import {
   ActionSheetIOS,
@@ -34,42 +43,30 @@ export default function CrisisReportDetailPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  // 모달 열림 상태
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 폼 입력 상태들
+  const [title, setTitle] = useState<string>("");
+  const [content, setContent] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [latitude, setLatitude] = useState<number | undefined>(undefined);
+  const [longitude, setLongitude] = useState<number | undefined>(undefined);
+  const [images, setImages] = useState<string[]>([]);
+
   const [commentInput, setCommentInput] = useState("");
 
   /////////////////////////////////////////////////////////////////////////////////
 
-  // 1. 댓글 작성 Mutation
-  const createCommentMutation = useMutation({
-    mutationFn: async (content: string) => {
-      return await client.post(`/crisis-report/${id}/comment`, { content });
-    },
-    onSuccess: () => {
-      setCommentInput("");
-      queryClient.invalidateQueries({ queryKey: ["crisisReport", id] });
-    },
-    onError: () => {
-      Alert.alert("오류", "댓글 등록에 실패했습니다.");
-    },
-  });
-
-  const handleSendComment = () => {
-    if (!commentInput.trim()) return;
-    createCommentMutation.mutate(commentInput.trim());
-  };
-
-  /////////////////////////////////////////////////////////////////////////////////
-
-  // 2. 제보 상세 데이터 조회
+  // 제보 상세 조회
   const {
     data: report,
     isLoading,
     isError,
   } = useQuery<CrisisReportDetail>({
     queryKey: ["crisisReport", id],
-    queryFn: async () => {
-      const res = await client.get(`/crisis-report/${id}`);
-      return res.data;
-    },
+    queryFn: () => getCrisisReportById(id),
     enabled: !!id,
   });
 
@@ -80,7 +77,6 @@ export default function CrisisReportDetailPage() {
     queryFn: getMyInfo,
   });
 
-  // 작성자 여부 확인
   const isAuthor = myInfo?.id === report?.user.id;
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -96,34 +92,109 @@ export default function CrisisReportDetailPage() {
         },
         (buttonIndex) => {
           if (buttonIndex === 1) {
-            handleEdit(); // 수정하기 함수
+            handleEditReport(); // 수정하기 함수
           } else if (buttonIndex === 2) {
-            handleDelete(); // 삭제하기 함수
+            handleDeleteReport(); // 삭제하기 함수
           }
         },
       );
     } else {
       Alert.alert("제보 관리", "원하시는 작업을 선택해주세요.", [
         { text: "취소", style: "cancel" },
-        { text: "수정하기", onPress: handleEdit },
-        { text: "삭제하기", onPress: handleDelete, style: "destructive" },
+        { text: "수정하기", onPress: handleEditReport },
+        { text: "삭제하기", onPress: handleDeleteReport, style: "destructive" },
       ]);
     }
   };
 
-  const handleEdit = () => {
-    // 수정 모달 페이지
+  /////////////////////////////////////////////////////////////////////////////////
+
+  const { mutate: uploadImageMutation, isPending: uploadImagePending } =
+    useUploadImage();
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleDelete = () => {
+  /////////////////////////////////////////////////////////////////////////////////
+
+  // 제보 수정
+  const { mutate: updateReportMutation, isPending: updateReportPending } =
+    useUpdateCrisisReport({
+      id,
+      onSuccessCallback: () => setIsModalOpen(false),
+    });
+
+  const handleEditReport = () => {
+    if (!report) return;
+    setTitle(report.title ?? "");
+    setContent(report.content ?? "");
+    setAddress(report.address ?? "");
+    setLatitude(report.latitude);
+    setLongitude(report.longitude);
+    setImages(report.images ?? []);
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateReport = () => {
+    updateReportMutation({
+      title,
+      content,
+      address,
+      latitude,
+      longitude,
+      images,
+    });
+  };
+
+  /////////////////////////////////////////////////////////////////////////////////
+
+  // 제보 삭제
+  const { mutate: deleteReportMutation, isPending: deleteReportPending } =
+    useDeleteCrisisReport();
+
+  const handleDeleteReport = () => {
     Alert.alert("제보 삭제", "정말 삭제하시겠습니까?", [
       { text: "취소", style: "cancel" },
       {
         text: "삭제",
         style: "destructive",
         onPress: () => {
-          // 삭제 Mutation 호출
+          deleteReportMutation(id);
         },
+      },
+    ]);
+  };
+
+  /////////////////////////////////////////////////////////////////////////////////
+
+  // 댓글 작성
+  const { mutate: createCommentMutation, isPending: createCommentPending } =
+    useCreateCrisisComment({
+      reportId: id,
+      onSuccessCallback: () => setCommentInput(""),
+    });
+
+  const handleSendComment = () => {
+    if (!commentInput.trim()) return;
+    createCommentMutation(commentInput.trim());
+  };
+
+  /////////////////////////////////////////////////////////////////////////////////
+
+  // 댓글 삭제
+  const { mutate: deleteCommentMutation, isPending: deleteCommentPending } =
+    useDeleteCrisisComment({
+      reportId: id,
+    });
+
+  const handleDeleteComment = (commentId: string) => {
+    Alert.alert("댓글 삭제", "정말 이 댓글을 삭제하시겠습니까?", [
+      { text: "취소", style: "cancel" },
+      {
+        text: "삭제",
+        style: "destructive",
+        onPress: () => deleteCommentMutation(commentId),
       },
     ]);
   };
@@ -133,7 +204,7 @@ export default function CrisisReportDetailPage() {
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#6E8B8B" />
+        <ActivityIndicator size="large" color={Colors.point} />
       </View>
     );
   }
@@ -251,7 +322,7 @@ export default function CrisisReportDetailPage() {
 
           {/* 댓글 섹션 */}
           <View style={styles.commentSectionHeader}>
-            <MessageSquare size={18} color="#1A1A1A" />
+            <MessageCircleMore size={20} color={Colors.point} />
             <Text style={styles.commentSectionTitle}>
               댓글 ({report.comments ? report.comments.length : 0})
             </Text>
@@ -265,9 +336,17 @@ export default function CrisisReportDetailPage() {
                   <Text style={styles.commentAuthor}>
                     {comment.user?.nickname || "사용자"}
                   </Text>
-                  <Text style={styles.commentDate}>
+                  {/* <Text style={styles.commentDate}>
                     {new Date(comment.createdAt).toLocaleDateString("ko-KR")}
-                  </Text>
+                  </Text> */}
+                  {comment.user.id === myInfo?.id && (
+                    <TouchableOpacity
+                      onPress={() => handleDeleteComment(comment.id)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <Trash size={16} color={Colors.inactive} />
+                    </TouchableOpacity>
+                  )}
                 </View>
                 <Text style={styles.commentContent}>{comment.content}</Text>
               </View>
@@ -292,19 +371,41 @@ export default function CrisisReportDetailPage() {
           <TouchableOpacity
             style={[
               styles.sendButton,
-              (!commentInput.trim() || createCommentMutation.isPending) &&
+              (!commentInput.trim() || createCommentPending) &&
                 styles.sendButtonDisabled,
             ]}
             onPress={handleSendComment}
-            disabled={!commentInput.trim() || createCommentMutation.isPending}
+            disabled={!commentInput.trim() || createCommentPending}
           >
-            {createCommentMutation.isPending ? (
+            {createCommentPending ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
               <Send size={18} color="#FFFFFF" />
             )}
           </TouchableOpacity>
         </View>
+
+        <CrisisReportModal
+          visible={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={title}
+          setTitle={setTitle}
+          content={content}
+          setContent={setContent}
+          address={address}
+          setAddress={setAddress}
+          setLatitude={setLatitude}
+          setLongitude={setLongitude}
+          images={images}
+          setImages={setImages}
+          uploadImageMutation={uploadImageMutation}
+          uploadImagePending={uploadImagePending}
+          createReportPending={updateReportPending}
+          handleGetCurrentLocation={handleGetCurrentLocation}
+          handlePickImage={handlePickImage}
+          handleRemoveImage={handleRemoveImage}
+          handleCreateReport={handleUpdateReport}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -421,7 +522,7 @@ const styles = StyleSheet.create({
   commentSectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
     marginBottom: 16,
   },
   commentSectionTitle: {

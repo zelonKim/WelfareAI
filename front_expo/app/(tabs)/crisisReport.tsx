@@ -104,7 +104,7 @@ export default function CrisisReportScreen() {
     isRefetching: allReportsRefetching,
     refetch: allReportsRefetch,
   } = useQuery<CrisisReport[]>({
-    queryKey: ["crisis-reports", "all"],
+    queryKey: ["crisisReports", "all"],
     queryFn: getAllCrisisReports,
   });
 
@@ -115,7 +115,7 @@ export default function CrisisReportScreen() {
     isRefetching: myReportsRefetching,
     refetch: myReportsRefetch,
   } = useQuery<CrisisReport[]>({
-    queryKey: ["crisis-reports", "my"],
+    queryKey: ["crisisReports", "my"],
     queryFn: getMyCrisisReports,
   });
 
@@ -126,7 +126,7 @@ export default function CrisisReportScreen() {
   const refetch = activeTab === "all" ? allReportsRefetch : myReportsRefetch;
 
   const handleCardPress = (id: string) => {
-    router.push(`/CrisisReport/${id}`);
+    router.push(`/crisisReportDetail/${id}`);
   };
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ export default function CrisisReportScreen() {
       {/* 로딩 / 목록 영역 */}
       {isPending ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={Colors.point} />
         </View>
       ) : (
         <FlatList

@@ -5,13 +5,15 @@ export interface CrisisReportDetail {
   title: string;
   content: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
   status: "PENDING" | "IN_PROGRESS" | "RESOLVED";
-  images: string[];
+  images?: string[];
   createdAt: string;
   user: {
     id: string;
     nickname: string;
     profileImage?: string;
   };
-  comments: Comment[];
+  comments?: Comment[];
 }

@@ -85,7 +85,7 @@ model CrisisReport {
 
 model CrisisComment {
   id      String @id @default(uuid())
-  content String 
+  content String
 
   // 제보글과의 관계 (1:N)
   reportId String
@@ -118,6 +118,7 @@ model CommunityPost {
   content    String
   images     String[]
   maxMembers Int?
+  notice     String?
 
   hostId String
   host   User   @relation("AuthoredCommunities", fields: [hostId], references: [id], onDelete: Cascade)
@@ -149,7 +150,7 @@ model CommunityMember {
   status   CommunityMemberStatus @default(PENDING)
   joinedAt DateTime              @default(now())
 
-  @@unique([postId, userId]) // 중복 참여 방지
+  @@unique([postId, userId])
 }
 
 model ChatMessage {

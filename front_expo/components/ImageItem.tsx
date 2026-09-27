@@ -1,8 +1,8 @@
-import { X } from "lucide-react-native"; // 사용 중인 아이콘 패키지에 맞게 import
+import { Image } from "expo-image";
+import { X } from "lucide-react-native"; 
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Image,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -15,6 +15,8 @@ interface ImageItemProps {
 
 export const ImageItem = ({ uri, onRemove }: ImageItemProps) => {
   const [loading, setLoading] = useState(true);
+
+  if (!uri) return null;
 
   return (
     <View style={styles.imagePreviewContainer}>
@@ -29,6 +31,7 @@ export const ImageItem = ({ uri, onRemove }: ImageItemProps) => {
         style={styles.imagePreview}
         onLoadStart={() => setLoading(true)} // 로딩 시작
         onLoadEnd={() => setLoading(false)} // 로딩 완료 (성공/실패 모두)
+        onError={() => setLoading(false)} // 에러 발생 시에도 로딩 해제
       />
 
       {/* 삭제 버튼 */}

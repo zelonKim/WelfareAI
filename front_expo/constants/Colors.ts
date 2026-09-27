@@ -7,12 +7,13 @@ export const Colors = {
   primaryDark: "#122B2B",
 
   point: "#FF7F66",
+  pointCard: "#FFEFEA",
   inactive: "#6E8B8B",
 
   aiPoint: "#059669",
   aiSparkle: "#10B981",
 
-  text: "#1F2937",
+  text: "#1A252C",
   muted: "#A3B8B8",
   subText: "#6B7280",
 

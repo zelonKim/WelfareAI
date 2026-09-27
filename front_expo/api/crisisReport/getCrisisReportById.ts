@@ -1,7 +1,9 @@
-import { CrisisReport } from "@/types/crisisReport/CrisisReport";
+import { CrisisReportDetail } from "@/types/crisisReport/CrisisReportDetail";
 import { client } from "../client";
 
-export const getReportById = async (id: string): Promise<CrisisReport> => {
-  const { data } = await client.get<CrisisReport>(`/crisis-report/${id}`);
+export const getCrisisReportById = async (
+  id: string,
+): Promise<CrisisReportDetail> => {
+  const { data } = await client.get<CrisisReportDetail>(`/crisis-report/${id}`);
   return data;
 };

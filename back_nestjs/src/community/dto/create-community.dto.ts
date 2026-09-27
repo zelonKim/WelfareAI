@@ -26,12 +26,16 @@ export class CreateCommunityPostDto {
   content!: string;
 
   @IsOptional()
+  @IsString()
+  notice?: string;
+
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   images?: string[];
 
   @IsOptional()
   @IsInt({ message: '최대 인원수는 정수여야 합니다.' })
-  @Min(1, { message: '최대 인원수는 최소 1명 이상이어야 합니다.' })
+  @Min(2, { message: '최대 인원수는 최소 2명 이상이어야 합니다.' })
   maxMembers?: number;
 }

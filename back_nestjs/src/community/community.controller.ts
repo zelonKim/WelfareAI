@@ -22,7 +22,7 @@ import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
-  // 1. 게시글 생성
+  // 모임 생성
   @UseGuards(JwtAuthGuard)
   @Post()
   async createPost(
@@ -32,19 +32,19 @@ export class CommunityController {
     return this.communityService.createPost(hostId, dto);
   }
 
-  // 2. 게시글 전체 조회
+  // 모임 전체 조회
   @Get()
   async getAllPosts(@Query('type') type?: CommunityType) {
     return this.communityService.getAllPosts(type);
   }
 
-  // 3. 게시글 단일 조회
+  // 모임 단일 조회
   @Get(':id')
   async getPostById(@Param('id') postId: string) {
     return this.communityService.getPostById(postId);
   }
 
-  // 4. 게시글 변경
+  //  모임 변경
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async updatePost(
@@ -55,7 +55,7 @@ export class CommunityController {
     return this.communityService.updatePost(hostId, postId, dto);
   }
 
-  // 5. 게시글 삭제
+  // 모임 삭제
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deletePost(@GetUser('id') hostId: string, @Param('id') postId: string) {
