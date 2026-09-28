@@ -33,13 +33,15 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.10",
+    "react-native-maps": "1.27.2",
     "react-native-markdown-display": "^7.0.2",
     "react-native-reanimated": "4.2.1",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.23.0",
     "react-native-svg": "15.15.3",
     "react-native-web": "~0.21.0",
-    "react-native-worklets": "0.7.4"
+    "react-native-worklets": "0.7.4",
+    "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",

@@ -1,7 +1,6 @@
-import { CommunityType } from "@/types/community/CommunityPost";
-
-export const CommunityTabs: { label: string; value: CommunityType }[] = [
+export const CommunityTabs = [
   { label: "전체 모임", value: "ALL" },
-  { label: "소통 모임", value: "SELF_HELP" },
-  { label: "봉사 모임", value: "VOLUNTEER" },
-];
+  { label: "나의 모임", value: "MY" },
+] as const;
+
+export type TabType = (typeof CommunityTabs)[number]["value"];

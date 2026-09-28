@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 24,
-    backgroundColor: "rgba(255, 127, 102, 0.15)",
+    backgroundColor: "#FFEFEA",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
   activeTab: { backgroundColor: Colors.card },
   tabText: { fontSize: 13, color: "#6E8B8B", fontWeight: "600" },
-  activeTabText: { color: "#1A3A3A", fontWeight: "700" },
+  activeTabText: { color: Colors.primary, fontWeight: "700" },
   listContent: { paddingHorizontal: 20, paddingBottom: 40 },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   reportCard: {

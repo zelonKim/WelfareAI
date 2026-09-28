@@ -264,7 +264,6 @@ export default function CommunityDetailScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* 상단 네비게이션 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => router.back()}

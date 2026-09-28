@@ -3,8 +3,8 @@ export const Colors = {
   card: "#FFFFFF",
 
   primary: "#1A3A3A",
-  primaryLight: "#DCFCE7",
   primaryDark: "#122B2B",
+  primaryLight: "rgba(22, 101, 52, 0.12)",
 
   point: "#FF7F66",
   pointCard: "#FFEFEA",

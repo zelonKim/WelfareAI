@@ -14,7 +14,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { CreateCommunityPostDto } from './dto/create-community.dto';
 import { UpdateCommunityPostDto } from './dto/update-community.dto';
-import { CommunityType } from '@prisma/client';
+
 import { UpdateMemberStatusDto } from './dto/update-member-status.dto';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 
@@ -34,8 +34,15 @@ export class CommunityController {
 
   // 모임 전체 조회
   @Get()
-  async getAllPosts(@Query('type') type?: CommunityType) {
-    return this.communityService.getAllPosts(type);
+  async getAllPosts() {
+    return this.communityService.getAllPosts();
+  }
+
+  // 나의 모임 조회
+  @UseGuards(JwtAuthGuard)
+  @Get('my')
+  async getMyPosts(@GetUser('id') userId: string) {
+    return await this.communityService.getMyPosts(userId);
   }
 
   // 모임 단일 조회

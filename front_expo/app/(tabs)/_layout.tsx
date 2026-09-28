@@ -2,7 +2,7 @@ import Colors from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
-import { BotMessageSquare } from "lucide-react-native";
+import { BotMessageSquare, Settings } from "lucide-react-native";
 import { Platform, StyleSheet, View } from "react-native";
 
 export default function TabLayout() {
@@ -53,6 +53,20 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
+        name="mypage"
+        options={{
+          title: "설정",
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              style={[styles.iconContainer, focused && styles.activeIconBg]}
+            >
+              <Settings size={22} color={color} />
+            </View>
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="crisisReport"
         options={{
           title: "제보",
@@ -61,20 +75,6 @@ export default function TabLayout() {
               style={[styles.iconContainer, focused && styles.activeIconBg]}
             >
               <Feather name="bell" size={22} color={color} />
-            </View>
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="map"
-        options={{
-          title: "지도",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              style={[styles.iconContainer, focused && styles.activeIconBg]}
-            >
-              <Feather name="map-pin" size={22} color={color} />
             </View>
           ),
         }}

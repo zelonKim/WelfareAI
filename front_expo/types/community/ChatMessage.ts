@@ -1,11 +1,9 @@
+import { ChatUser } from "./ChatUser";
+
 export interface ChatMessage {
   id: string;
-  content: string;
+  message: string;
   createdAt: string;
   userId: string;
-  user?: {
-    id: string;
-    nickname: string;
-    profileImage?: string;
-  };
+  user: ChatUser
 }

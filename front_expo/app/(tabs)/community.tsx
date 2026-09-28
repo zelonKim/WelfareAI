@@ -1,9 +1,9 @@
-import { getCommunityPosts } from "@/api/community/getCommunityPosts";
+import { getAllCommunityPosts } from "@/api/community/getAllCommunityPosts";
+import { getMyCommunityPosts } from "@/api/community/getMyCommunityPosts";
 import { CommunityItem } from "@/components/CommunityItem";
 import CommunityModal from "@/components/CommunityModal";
 import Colors from "@/constants/Colors";
 import { CommunityTabs } from "@/constants/CommunityTabs";
-import { useUploadImage } from "@/hooks/common/useUploadImage";
 import { useCreateCommunity } from "@/hooks/community/useCreateCommunity";
 import { CommunityType } from "@/types/community/CommunityPost";
 import { Feather } from "@expo/vector-icons";
@@ -31,9 +31,9 @@ export default function CommunityScreen() {
   const [communityType, setCommunityType] =
     useState<CommunityType>("SELF_HELP");
 
-  const [selectedType, setSelectedType] = useState<CommunityType>("ALL");
-
   // 모임 게시글 조회
+  const [selectedType, setSelectedType] = useState<"ALL" | "MY">("ALL");
+
   const {
     data: posts = [],
     isPending,
@@ -42,7 +42,12 @@ export default function CommunityScreen() {
     isRefetching,
   } = useQuery({
     queryKey: ["communityPosts", selectedType],
-    queryFn: () => getCommunityPosts(selectedType),
+    queryFn: () => {
+      if (selectedType === "MY") {
+        return getMyCommunityPosts();
+      }
+      return getAllCommunityPosts();
+    },
   });
 
   //////////////////////////////////////////////////////////////////////////
@@ -94,7 +99,6 @@ export default function CommunityScreen() {
     setImages([]);
   };
 
-
   //////////////////////////////////////////////////////////////////////////
 
   return (
@@ -113,6 +117,7 @@ export default function CommunityScreen() {
           <View style={styles.segmentedControl}>
             {CommunityTabs.map((tab) => {
               const isActive = selectedType === tab.value;
+
               return (
                 <TouchableOpacity
                   key={tab.value}
@@ -244,7 +249,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   segmentButtonActive: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.card,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
@@ -258,7 +263,7 @@ const styles = StyleSheet.create({
   },
   segmentTextActive: {
     fontWeight: "700",
-    color: "#1A252C",
+    color: Colors.primary,
   },
 
   listContent: {

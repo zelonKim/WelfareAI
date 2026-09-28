@@ -42,9 +42,8 @@ export class CommunityService {
   ////////////////////////////////////////////////////////////////////////////////
 
   // 2. 모임 조회
-  async getAllPosts(type?: CommunityType) {
+  async getAllPosts() {
     return this.prisma.communityPost.findMany({
-      where: type ? { type } : {},
       orderBy: { createdAt: 'desc' },
       include: {
         host: {
@@ -62,6 +61,52 @@ export class CommunityService {
             },
           },
         },
+      },
+    });
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  // 나의 모임 목록 조회 (PENDING, APPROVED 상태인 모임)
+  async getMyPosts(userId: string) {
+    return this.prisma.communityPost.findMany({
+      where: {
+        OR: [
+          { hostId: userId },
+          {
+            members: {
+              some: {
+                userId,
+                status: {
+                  in: [
+                    CommunityMemberStatus.PENDING,
+                    CommunityMemberStatus.APPROVED,
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        host: {
+          select: {
+            id: true,
+            nickname: true,
+            email: true,
+            profileImage: true,
+          },
+        },
+        _count: {
+          select: {
+            members: {
+              where: { status: 'APPROVED' },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }
@@ -131,7 +176,7 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 5. 삭제
+  // 5. 모임 삭제
   async deletePost(hostId: string, postId: string) {
     const post = await this.getPostById(postId);
 
