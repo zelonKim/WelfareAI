@@ -154,7 +154,7 @@ export default function CommunityChatScreen() {
           >
             <ArrowLeft size={24} color="#1A202C" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>모임 채팅방</Text>
+          <Text style={styles.headerTitle}>모임 대화방</Text>
           <View style={{ width: 24 }} />
         </View>
 

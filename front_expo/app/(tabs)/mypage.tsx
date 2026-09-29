@@ -1,8 +1,10 @@
-import Colors from "@/constants/Colors";
-import { Feather } from "@expo/vector-icons";
-import React, { useState } from "react";
+import * as ImagePicker from "expo-image-picker";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Image,
+  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -11,429 +13,768 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+// import * as Notifications from 'expo-notifications';
+import { client } from "@/api/client";
+import { removeAccessToken } from "@/api/token";
+import { getMyInfo } from "@/api/user/getMyInfo";
+import { BlockModal } from "@/components/BlockModal";
+import { ProfileEditModal } from "@/components/ProfileEditModal"; // 경로에 맞춰 수정
+import { ReportModal } from "@/components/ReportModal";
+import Colors from "@/constants/Colors";
+import { UserProfile } from "@/types/user/UserProfile";
+import { Ionicons } from "@expo/vector-icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
+import { User } from "lucide-react-native";
+
+interface UpdateProfileDto {
+  profileImage?: string;
+  nickname?: string;
+}
+
+////////////////////////////////////////////////////////////////////////
 
 export default function MyPageScreen() {
-  // 알림 설정 상태
-  const [pushNotification, setPushNotification] = useState(true);
-  const [dDayAlert, setDDayAlert] = useState(true);
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
-  // 사용자 관심 카테고리 (예시)
-  const [userCategories] = useState<string[]>([
-    "생활지원",
-    "주거",
-    "청년",
-    "일자리",
-  ]);
+  // 모달 상태 및 모달 내 입력값 상태
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+  const [nicknameInput, setNicknameInput] = useState("");
+  const [profileImage, setProfileImage] = useState("");
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [targetUserId, setTargetUserId] = useState<string>("");
 
-  const handleEditProfile = () => {
+  // 모달 안에서 임시로 선택된 이미지 객체
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+
+  const [isPushEnabled, setIsPushEnabled] = useState(false);
+
+  // 내 정보 조회 (useQuery)
+  const { data: myInfo, isPending: myInfoPending } = useQuery<UserProfile>({
+    queryKey: ["myInfo"],
+    queryFn: getMyInfo,
+  });
+
+  useEffect(() => {
+    if (myInfo) {
+      setNicknameInput(myInfo.nickname || "");
+      setProfileImage(myInfo.profileImage || "");
+    }
+  }, [myInfo]);
+
+  ////////////////////////////////////////////////////////////////////////
+
+  // 모달 열기
+  const handleOpenEditModal = () => {
+    setNicknameInput(myInfo?.nickname || "");
+    setProfileImage(myInfo?.profileImage || "");
+    setSelectedImageUri(null); // 선택했던 임시 이미지 초기화
+    setIsEditModalOpen(true);
+  };
+
+  // 모달 닫기
+  const handleCloseEditModal = () => {
+    setSelectedImageUri(null);
+    setIsEditModalOpen(false);
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+
+  // 2. 모달 내에서 이미지 고르기 (업로드는 하지 않고, 미리보기만 설정)
+  const handlePickModalImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("권한 필요", "사진첩 접근 권한이 필요합니다.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setSelectedImageUri(result.assets[0].uri);
+    }
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+
+  // 3. 프로필 수정 Mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (dto: UpdateProfileDto) => {
+      const res = await client.patch("/user/profile", dto);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myInfo"] });
+      handleCloseEditModal();
+      Alert.alert("성공", "프로필이 변경되었습니다.");
+    },
+    onError: (error: any) => {
+      Alert.alert(
+        "오류",
+        error?.response?.data?.message || "프로필 변경에 실패했습니다.",
+      );
+    },
+  });
+
+  ////////////////////////////////////////////////////////////////////////
+
+  // 4. 모달 내 [저장] 버튼 눌렀을 때 전체 저장 로직
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveProfile = async () => {
+    if (nicknameInput.trim().length < 2 || nicknameInput.trim().length > 12) {
+      Alert.alert("알림", "닉네임은 2~12자 사이로 입력해 주세요.");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      let uploadedImageUrl = myInfo?.profileImage || undefined;
+
+      // 새 이미지가 선택되어 있다면 백엔드로 업로드 (POST /user/image)
+      if (selectedImageUri) {
+        const formData = new FormData();
+        const filename = selectedImageUri.split("/").pop() || "profile.jpg";
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+        formData.append("image", {
+          uri: selectedImageUri,
+          name: filename,
+          type,
+        } as any);
+
+        const imageRes = await client.post("/user/image", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (imageRes.data?.imageUrl) {
+          uploadedImageUrl = imageRes.data.imageUrl;
+        }
+      }
+
+      // 프로필 정보 서버로 전송 (PATCH /user/profile)
+      updateProfileMutation.mutate({
+        nickname: nicknameInput.trim(),
+        profileImage: uploadedImageUrl,
+      });
+    } catch (error) {
+      Alert.alert("오류", "이미지 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+
+  // 푸시 토큰 저장
+  const updatePushTokenMutation = useMutation({
+    mutationFn: async (pushToken: string) => {
+      const res = await client.patch("/user/push-token", { pushToken });
+      return res.data;
+    },
+    onSuccess: () => setIsPushEnabled(true),
+    onError: () => {
+      setIsPushEnabled(false);
+      Alert.alert("오류", "푸시 토큰 등록에 실패했습니다.");
+    },
+  });
+
+  ////////////////////////////////////////////////////////////////////////
+
+  // 푸시 토큰 삭제
+  const deletePushTokenMutation = useMutation({
+    mutationFn: async () => {
+      const res = await client.delete("/user/push-token");
+      return res.data;
+    },
+    onSuccess: () => setIsPushEnabled(false),
+    onError: () => {
+      setIsPushEnabled(true);
+      Alert.alert("오류", "푸시 토큰 삭제에 실패했습니다.");
+    },
+  });
+
+  ////////////////////////////////////////////////////////////////////////
+
+  // 푸시 알림 토글
+  const handleTogglePush = async (value: boolean) => {
+    if (value) {
+      // const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("권한 필요", "알림 권한이 거부되었습니다.");
+        return;
+      }
+      // const tokenData = await Notifications.getExpoPushTokenAsync();
+      // updatePushTokenMutation.mutate(tokenData.data);
+    } else {
+      deletePushTokenMutation.mutate();
+    }
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+
+  // 회원 탈퇴 Mutation
+  const deleteAccountMutation = useMutation({
+    mutationFn: async () => {
+      const res = await client.delete("/user/account");
+      return res.data;
+    },
+    onSuccess: async () => {
+      Alert.alert("완료", "회원 탈퇴가 처리되었습니다.");
+      queryClient.clear();
+      await removeAccessToken();
+      router.replace("/(auth)/login");
+    },
+    onError: () => {
+      Alert.alert("오류", "회원 탈퇴 처리 중 오류가 발생했습니다.");
+    },
+  });
+
+  // 회원 탈퇴 핸들러
+  const handleDeleteAccount = () => {
     Alert.alert(
-      "프로필 수정",
-      "프로필 및 사용자 정보 수정 화면으로 이동합니다.",
+      "회원 탈퇴",
+      "정말로 탈퇴하시겠습니까? 계정 정보는 복구할 수 없습니다.",
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "탈퇴하기",
+          style: "destructive",
+          onPress: () => deleteAccountMutation.mutate(),
+        },
+      ],
     );
   };
 
-  const handleCategorySetting = () => {
-    Alert.alert(
-      "관심 분야 설정",
-      "관심 있는 복지 카테고리를 변경할 수 있습니다.",
-    );
+  ////////////////////////////////////////////////////////////////////////
+
+  // 로그아웃
+  const onPressLogout = async () => {
+    await removeAccessToken();
+    router.replace("/(auth)/login");
   };
+
+  const handleLogout = () => {
+    Alert.alert("로그아웃", "정말 로그아웃 하시겠습니까? ", [
+      { text: "취소", style: "cancel" },
+      {
+        text: "로그아웃",
+        style: "destructive",
+        onPress: onPressLogout,
+      },
+    ]);
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+
+  if (myInfoPending) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  // 모달 내 이미지 미리보기 경로
+  const modalPreviewUri = selectedImageUri
+    ? selectedImageUri
+    : myInfo?.profileImage;
+
+  ////////////////////////////////////////////////////////////////////////
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      {/* 헤더 타이틀 */}
-      <View style={styles.header}>
-        <View style={styles.headerTitleRow}>
-          <View style={styles.aiBadge}>
-            <Feather name="settings" size={22} color={Colors.point} />
-          </View>
-          <Text style={styles.headerTitle}>환경 설정</Text>
-        </View>
-      </View>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
       >
+        <Text style={styles.headerTitle}>환경 설정</Text>
+
         {/* 프로필 카드 */}
         <View style={styles.profileCard}>
-          <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>김</Text>
-          </View>
-          <View style={styles.profileInfo}>
-            <View style={styles.nameRow}>
-              <Text style={styles.userName}>김성진</Text>
-              <View style={styles.userBadge}>
-                <Text style={styles.userBadgeText}>일반 회장</Text>
-              </View>
-            </View>
-            <Text style={styles.userSubText}>관심 정책 알림 수신 중</Text>
-          </View>
           <TouchableOpacity
-            style={styles.editButton}
-            onPress={handleEditProfile}
+            style={styles.editProfileBtn}
+            onPress={handleOpenEditModal}
           >
-            <Text style={styles.editButtonText}>수정</Text>
+            <Text style={styles.editProfileBtnText}>변경하기</Text>
           </TouchableOpacity>
-        </View>
-
-        {/* 나의 활동 요약 (스크랩, 신청 내역 등) */}
-        <View style={styles.statsContainer}>
-          <TouchableOpacity style={styles.statItem} activeOpacity={0.7}>
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>스크랩 정책</Text>
-          </TouchableOpacity>
-          <View style={styles.statDivider} />
-          <TouchableOpacity style={styles.statItem} activeOpacity={0.7}>
-            <Text style={styles.statNumber}>3</Text>
-            <Text style={styles.statLabel}>D-Day 알림</Text>
-          </TouchableOpacity>
-          <View style={styles.statDivider} />
-          <TouchableOpacity style={styles.statItem} activeOpacity={0.7}>
-            <Text style={styles.statNumber}>5</Text>
-            <Text style={styles.statLabel}>최근 본 정책</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* 관심 카테고리 섹션 */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>나의 관심 카테고리</Text>
-            <TouchableOpacity onPress={handleCategorySetting}>
-              <Text style={styles.sectionAction}>설정</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.tagContainer}>
-            {userCategories.map((cate) => (
-              <View key={cate} style={styles.tag}>
-                <Text style={styles.tagText}>#{cate}</Text>
+          <View style={styles.avatarWrapper}>
+            {myInfo?.profileImage ? (
+              <Image
+                source={{ uri: myInfo.profileImage }}
+                style={styles.avatarImage}
+              />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <User size={50} color={Colors.primary} />
               </View>
-            ))}
+            )}
+          </View>
+
+          <View style={styles.profileDetails}>
+            <View style={styles.readOnlyForm}>
+              <View style={styles.nicknameRow}>
+                <Text style={styles.nicknameText}>{myInfo?.nickname}</Text>
+              </View>
+            </View>
+            <Text style={styles.emailText}>{myInfo?.email}</Text>
           </View>
         </View>
 
-        {/* 서비스 설정 섹션 */}
+        {/* 알림 설정 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>알림 설정</Text>
-          <View style={styles.settingCard}>
+          <Text style={styles.sectionTitle}>앱 설정</Text>
+
+          <View style={styles.card}>
+            {/* 1. 메시지 알림 수신 */}
             <View style={styles.settingRow}>
-              <View>
-                <Text style={styles.settingTitle}>맞춤 정책 혜택 알림</Text>
+              <View style={styles.leftContent}>
+                {/* 아이콘 + 제목을 가로 한 줄로 배치 */}
+                <View style={styles.titleRow}>
+                  <Ionicons
+                    name="notifications-outline"
+                    size={20}
+                    color={Colors.primary}
+                    style={styles.titleIcon}
+                  />
+                  <Text style={styles.settingTitle}>메시지 알림 수신</Text>
+                </View>
+                {/* 밑에 위치하는 부제목 */}
                 <Text style={styles.settingDesc}>
-                  새로운 관심 정책이 등록되면 알려드려요
+                  댓글 및 대화 알림을 받습니다
                 </Text>
               </View>
+
               <Switch
-                value={pushNotification}
-                onValueChange={setPushNotification}
-                trackColor={{ false: "#e5e7eb", true: "#93c5fd" }}
-                thumbColor={pushNotification ? "#2563eb" : "#f3f4f6"}
+                value={isPushEnabled}
+                onValueChange={handleTogglePush}
+                disabled={
+                  updatePushTokenMutation.isPending ||
+                  deletePushTokenMutation.isPending
+                }
               />
             </View>
 
+            {/* 끊기지 않고 가로 전체를 꽉 채우는 디바이더 */}
             <View style={styles.divider} />
 
-            <View style={styles.settingRow}>
-              <View>
-                <Text style={styles.settingTitle}>신청 기한 D-Day 알림</Text>
+            {/* 2. 후원하기 */}
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => {}}
+              activeOpacity={0.7}
+            >
+              <View style={styles.leftContent}>
+                <View style={styles.titleRow}>
+                  <Ionicons
+                    name="heart-outline"
+                    size={20}
+                    color="#E53E3E"
+                    style={styles.titleIcon}
+                  />
+                  <Text style={styles.settingTitle}>후원하기</Text>
+                </View>
                 <Text style={styles.settingDesc}>
-                  스크랩한 정책의 마감일을 놓치지 않게 알려드려요
+                  서비스 운영을 위해 후원합니다.
                 </Text>
               </View>
-              <Switch
-                value={dDayAlert}
-                onValueChange={setDDayAlert}
-                trackColor={{ false: "#e5e7eb", true: "#93c5fd" }}
-                thumbColor={dDayAlert ? "#2563eb" : "#f3f4f6"}
-              />
-            </View>
+              <Ionicons name="chevron-forward" size={18} color="#CBD5E0" />
+            </TouchableOpacity>
+
+            <View style={styles.divider} />
+
+            {/* 3. 신고하기 */}
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => setIsReportModalOpen(true)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.leftContent}>
+                <View style={styles.titleRow}>
+                  <Ionicons
+                    name="warning-outline"
+                    size={20}
+                    color="#DD6B20"
+                    style={styles.titleIcon}
+                  />
+                  <Text style={styles.settingTitle}>신고하기</Text>
+                </View>
+                <Text style={styles.settingDesc}>
+                  악성 댓글 및 대화를 신고합니다.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#CBD5E0" />
+            </TouchableOpacity>
+
+            <View style={styles.divider} />
+
+            {/* 4. 차단하기 */}
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => setIsBlockModalOpen(true)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.leftContent}>
+                <View style={styles.titleRow}>
+                  <Ionicons
+                    name="ban-outline"
+                    size={20}
+                    color="#718096"
+                    style={styles.titleIcon}
+                  />
+                  <Text style={styles.settingTitle}>차단하기</Text>
+                </View>
+                <Text style={styles.settingDesc}>
+                  악성 댓글 및 대화를 차단합니다.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#CBD5E0" />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* 기타 정보 섹션 */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>앱 정보 및 고객지원</Text>
-          <View style={styles.menuCard}>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
-              <Text style={styles.menuText}>공지사항</Text>
-              <Text style={styles.menuArrow}>›</Text>
-            </TouchableOpacity>
-            <View style={styles.divider} />
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
-              <Text style={styles.menuText}>자주 묻는 질문 (FAQ)</Text>
-              <Text style={styles.menuArrow}>›</Text>
-            </TouchableOpacity>
-            <View style={styles.divider} />
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
-              <Text style={styles.menuText}>약관 및 개인정보 처리방침</Text>
-              <Text style={styles.menuArrow}>›</Text>
-            </TouchableOpacity>
-            <View style={styles.divider} />
-            <View style={styles.menuItem}>
-              <Text style={styles.menuText}>앱 버전</Text>
-              <Text style={styles.versionText}>v1.0.0</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* 로그아웃 / 회원탈퇴 */}
-        <View style={styles.footerButtons}>
-          <TouchableOpacity activeOpacity={0.6}>
-            <Text style={styles.footerButtonText}>로그아웃</Text>
+        {/* 계정 관리 */}
+        <View style={styles.accountActions}>
+          <TouchableOpacity style={styles.actionBtn} onPress={handleLogout}>
+            <Text style={styles.logoutText}>로그아웃</Text>
+          </TouchableOpacity>
+          <Text style={styles.actionDivider}>|</Text>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={handleDeleteAccount}
+            disabled={deleteAccountMutation.isPending}
+          >
+            <Text style={styles.deleteAccountText}>회원탈퇴</Text>
           </TouchableOpacity>
         </View>
+
+        <BlockModal
+          visible={isBlockModalOpen}
+          onClose={() => setIsBlockModalOpen(false)}
+        />
+
+        <ReportModal
+          visible={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          reportedUserId={targetUserId}
+        />
+
+        {/* 프로필 수정 모달 (이미지 + 닉네임) */}
+        <ProfileEditModal
+          visible={isEditModalOpen}
+          initialNickname={myInfo?.nickname ?? ""}
+          initialAvatarUri={myInfo?.profileImage}
+          selectedImageUri={selectedImageUri}
+          isLoading={myInfoPending}
+          onClose={handleCloseEditModal}
+          onPickImage={handlePickModalImage}
+          onSave={handleSaveProfile}
+        />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+////////////////////////////////////////////////////////////////////////
+
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+  },
   safeArea: {
     flex: 1,
     backgroundColor: "#f8fafc",
   },
   container: {
     flex: 1,
-    marginTop: 12,
-    marginBottom: 90,
-    backgroundColor: "#f8fafc",
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(26, 58, 58, 0.06)",
-  },
-  headerTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  aiBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 24,
-    backgroundColor: "#FFEFEA",
-    justifyContent: "center",
-    alignItems: "center",
+    paddingBottom: 150,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "700",
-    color: "#1A3A3A",
+    color: "#0f172a",
+    marginVertical: 16,
   },
   profileCard: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#ffffff",
-    padding: 16,
     borderRadius: 16,
+    padding: 18,
+    alignItems: "center",
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
-    marginBottom: 16,
   },
-  avatarContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.pointCard,
+  avatarWrapper: {
+    marginBottom: 12,
+  },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  avatarPlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.primaryLight,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 14,
   },
   avatarText: {
-    fontSize: 18,
+    fontSize: 28,
     fontWeight: "700",
-    color: Colors.point,
+    color: "#2563eb",
   },
-  profileInfo: {
-    flex: 1,
+  profileDetails: {
+    width: "100%",
   },
-  nameRow: {
+  emailText: {
+    fontSize: 13,
+    color: "#64748b",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  readOnlyForm: {
+    alignItems: "center",
+  },
+  nicknameRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
+    marginBottom: 6,
   },
-  userName: {
-    fontSize: 17,
+  nicknameText: {
+    fontSize: 18,
     fontWeight: "700",
     color: "#1e293b",
   },
-  userBadge: {
+  editProfileBtn: {
+    position: "absolute",
+    top: 12,
+    right: 12,
     backgroundColor: "#f1f5f9",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
-  userBadgeText: {
+  editProfileBtnText: {
     fontSize: 11,
-    color: "#64748b",
-    fontWeight: "500",
+    color: "#475569",
+    fontWeight: "600",
   },
-  userSubText: {
+  bioText: {
     fontSize: 13,
-    color: "#64748b",
+    color: "#475569",
+    textAlign: "center",
     marginTop: 2,
   },
-  editButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: "#f1f5f9",
-  },
-  editButtonText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#475569",
-  },
-  statsContainer: {
-    flexDirection: "row",
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    paddingVertical: 16,
-    marginBottom: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: "center",
-  },
-  statNumber: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: Colors.point,
-    marginBottom: 2,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#64748b",
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: "#f1f5f9",
-    height: "60%",
-    alignSelf: "center",
-  },
   section: {
-    marginBottom: 24,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
-    color: "#334155",
-    marginBottom: 10,
+    color: "#475569",
+    marginBottom: 8,
   },
-  sectionAction: {
-    fontSize: 13,
-    color: Colors.primary,
-    fontWeight: "600",
-  },
-  tagContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  tag: {
-    backgroundColor: Colors.pointCard,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Colors.pointCard,
-  },
-  tagText: {
-    fontSize: 13,
-    color: Colors.point,
-    fontWeight: "500",
-  },
-  settingCard: {
-    backgroundColor: "#ffffff",
+  card: {
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 1,
+    marginHorizontal: 6,
+    marginVertical: 8,
   },
   settingRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 14.5,
+  },
+  leftContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+  // 큰제목 + 아이콘 한 줄 배치
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4, // 부제목과의 간격
+  },
+  titleIcon: {
+    marginLeft: 8,
+    marginRight: 6, // 아이콘과 제목 글자 사이 간격
   },
   settingTitle: {
-    fontSize: 14,
+    fontSize: 15,
+
     fontWeight: "600",
-    color: "#1e293b",
+    color: "#1A202C",
   },
   settingDesc: {
     fontSize: 12,
-    color: "#64748b",
-    marginTop: 2,
+    marginLeft: 10,
+    color: "#718096",
+    lineHeight: 16,
   },
+  // 끊기지 않고 가로로 길게 이어지는 디바이더
   divider: {
     height: 1,
-    backgroundColor: "#f1f5f9",
-    marginVertical: 12,
+    backgroundColor: "#EDF2F7",
+    width: "100%", // 좌우 여백 없이 카드 내부 전체 폭을 채움
   },
-  menuCard: {
+  accountActions: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+    marginTop: Platform.OS === "ios" ? 3 : -12,
+  },
+  actionBtn: {
+    padding: 6,
+  },
+  actionDivider: {
+    color: "#cbd5e1",
+  },
+  logoutText: {
+    fontSize: 13,
+    color: "#64748b",
+    textDecorationLine: "underline",
+  },
+  deleteAccountText: {
+    fontSize: 13,
+    color: "#ef4444",
+    textDecorationLine: "underline",
+  },
+
+  /* 모달 스타일 */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  modalContainer: {
+    width: "100%",
     backgroundColor: "#ffffff",
     borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
+    padding: 20,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 5,
   },
-  menuItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#0f172a",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  modalAvatarWrapper: {
+    alignSelf: "center",
+    position: "relative",
+    marginBottom: 16,
+  },
+  modalAvatarImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+  },
+  modalAvatarPlaceholder: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: Colors.primaryLight,
+    justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 12,
   },
-  menuText: {
+  cameraBadge: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#ffffff",
+    borderRadius: 14,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+  },
+  cameraIcon: {
+    fontSize: 12,
+  },
+  modalInputGroup: {
+    marginBottom: 14,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#64748b",
+    marginBottom: 6,
+  },
+  input: {
+    backgroundColor: "#f8fafc",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     fontSize: 14,
-    color: "#334155",
-    fontWeight: "500",
+    color: "#0f172a",
   },
-  menuArrow: {
-    fontSize: 16,
-    color: "#94a3b8",
+  bioInput: {
+    height: 80,
+    textAlignVertical: "top",
   },
-  versionText: {
-    fontSize: 13,
-    color: "#94a3b8",
-  },
-  footerButtons: {
-    alignItems: "center",
+  modalActionButtons: {
+    flexDirection: "row",
+    gap: 10,
     marginTop: 8,
   },
-  footerButtonText: {
-    fontSize: 13,
-    color: "#94a3b8",
-    textDecorationLine: "underline",
+  modalBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalCancelBtn: {
+    backgroundColor: "#f1f5f9",
+  },
+  modalCancelBtnText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#64748b",
+  },
+  modalSaveBtn: {
+    backgroundColor: Colors.point,
+  },
+  modalSaveBtnText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#ffffff",
   },
 });

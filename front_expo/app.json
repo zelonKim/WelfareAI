@@ -1,29 +1,40 @@
 {
   "expo": {
-    "name": "front_expo",
-    "slug": "front_expo",
+    "name": "WelfareAI",
+    "slug": "welfareai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontexpo",
+    "scheme": "welfareai",
     "userInterfaceStyle": "automatic",
+    "androidNavigationBar": {
+      "backgroundColor": "#F2F6F6",
+      "barStyle": "dark-content"
+    },
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#F2F6F6"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zelon.welfareai",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMicrophoneUsageDescription": "We need access to your microphone to record audio for voice messages and voice calls.",
+        "NSPhotoLibraryUsageDescription": "We need access to your photo library to set profile pictures and attach images to posts or chats."
+      }
     },
     "android": {
+      "package": "com.zelon.welfareai",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#F2F6F6",
+        "foregroundImage": "./assets/images/icon.png"
       },
       "softwareKeyboardLayoutMode": "resize",
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +44,31 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-image"
+      "expo-image",
+      "expo-apple-authentication",
+      "expo-web-browser",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.139186638108-pue8l2an00gop2e0hku7e8cakm49rm49"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#F2F6F6"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7fadc63b-e675-45c1-9d26-a04a39b07b90"
+      }
     }
   }
 }

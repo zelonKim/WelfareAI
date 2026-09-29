@@ -10,6 +10,8 @@ import { CommunityModule } from './community/community.module';
 import { PlaceModule } from './place/place.module';
 import { PolicyModule } from './policy/policy.module';
 import { ConsultingModule } from './consulting/consulting.module';
+import { ReportModule } from './report/report.module';
+import { BlockModule } from './block/block.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { ConsultingModule } from './consulting/consulting.module';
     PlaceModule,
     PolicyModule,
     ConsultingModule,
+    ReportModule,
+    BlockModule,
   ],
   controllers: [AppController],
   providers: [AppService],

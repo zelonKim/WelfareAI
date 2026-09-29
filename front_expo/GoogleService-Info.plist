@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>139186638108-pue8l2an00gop2e0hku7e8cakm49rm49.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.139186638108-pue8l2an00gop2e0hku7e8cakm49rm49</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>139186638108-gqmvqpff2vjpf00qgvmpoerk7gfga4hu.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBmUr5tRQQdkAaUrkhwdZqK3U5DfswrSD0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>139186638108</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.zelon.welfareai</string>
+	<key>PROJECT_ID</key>
+	<string>welfareai-76164</string>
+	<key>STORAGE_BUCKET</key>
+	<string>welfareai-76164.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:139186638108:ios:141439eb60360f95587ed9</string>
+</dict>
+</plist>

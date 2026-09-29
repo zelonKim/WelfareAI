@@ -49,6 +49,12 @@ model User {
   welfarePlaces  WelfarePlace[]
   crisisComments CrisisComment[]
 
+  sentReports     Report[] @relation("ReportReporter")
+  receivedReports Report[] @relation("ReportedUser")
+
+  blockerList Block[] @relation("BlockerRelation")
+  blockedList Block[] @relation("BlockedRelation")
+
   @@unique([provider, socialId])
 }
 
@@ -254,4 +260,66 @@ model AiConsulting {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+}
+
+// ==========================================
+// 신고하기 
+// ==========================================
+
+enum ReportReason {
+  SPAM // 불법 광고 및 도배
+  INAPPROPRIATE // 부적절한 콘텐츠
+  ABUSE // 욕설, 비방, 혐오 발언
+  IMPERSONATION // 사칭 및 허위 정보
+  OTHER // 기타
+}
+
+enum ReportStatus {
+  PENDING // 처리 대기 중
+  RESOLVED // 제재 완료
+  DISMISSED // 무효 기각 
+}
+
+model Report {
+  id String @id @default(uuid())
+
+  reporterId String?
+  reporter   User?   @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: SetNull)
+
+  reportedUserId String?
+  reportedUser   User?   @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
+
+  reason  ReportReason
+  details String
+  status  ReportStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([reporterId, reportedUserId, reason])
+  @@index([status])
+  @@index([reportedUserId])
+}
+
+// ==========================================
+// 차단하기 
+// ==========================================
+
+model Block {
+  id String @id @default(uuid())
+
+  // 차단을 실행한 유저
+  blockerId String
+  blocker   User   @relation("BlockerRelation", fields: [blockerId], references: [id], onDelete: Cascade)
+
+  // 차단당한 유저 
+  blockedId   String
+  blockedUser User   @relation("BlockedRelation", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  // 복합 유니크 제약: 동일 유저를 중복 차단할 수 없도록 보장
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
 }

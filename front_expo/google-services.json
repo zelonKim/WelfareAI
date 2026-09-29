@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "139186638108",
+    "project_id": "welfareai-76164",
+    "storage_bucket": "welfareai-76164.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139186638108:android:4d85f01fc33689f3587ed9",
+        "android_client_info": {
+          "package_name": "com.zelon.welfareai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "139186638108-gqmvqpff2vjpf00qgvmpoerk7gfga4hu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zelon.welfareai",
+            "certificate_hash": "35fd28bf1d8d2e042530296bda8be68190a7b656"
+          }
+        },
+        {
+          "client_id": "139186638108-bj6h9a6lkk7ra3ut2hvq8hlo0ip54kov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrujXHIN1HAbOlAUaB2X_ye_xJpAxgZJY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "139186638108-bj6h9a6lkk7ra3ut2hvq8hlo0ip54kov.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "139186638108-pue8l2an00gop2e0hku7e8cakm49rm49.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zelon.welfareai"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

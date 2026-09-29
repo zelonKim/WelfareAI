@@ -410,7 +410,7 @@ export default function CommunityDetailScreen() {
               {/* 2. 모임 채팅방 섹션 및 버튼 */}
               <View style={styles.chatSection}>
                 <View style={styles.chatHeaderRow}>
-                  <Text style={styles.sectionTitle}>💬 모임 채팅방</Text>
+                  <Text style={styles.sectionTitle}>💬 모임 대화방</Text>
                 </View>
 
                 <TouchableOpacity
@@ -420,7 +420,7 @@ export default function CommunityDetailScreen() {
                   }
                 >
                   <Text style={styles.goToChatRoomBtnText}>
-                    모임 채팅방 입장하기
+                    모임 대화방 입장하기
                   </Text>
                 </TouchableOpacity>
               </View>

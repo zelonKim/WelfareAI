@@ -74,7 +74,7 @@ export class PolicyService {
       const currentPage = Number(wantedList?.pageNo || pageNo);
       const rowsPerPage = Number(wantedList?.numOfRows || numOfRows);
 
-      // 목록 노드 파싱 
+      // 목록 노드 파싱
       const rawItems = wantedList?.servList || [];
       const items = Array.isArray(rawItems) ? rawItems : [rawItems];
 
@@ -111,49 +111,3 @@ export class PolicyService {
     }
   }
 }
-
-// 1. 정책 생성
-// async createPolicy(dto: CreatePolicyDto) {
-//   return this.prisma.welfarePolicy.create({
-//     data: dto,
-//   });
-// }
-
-// 3. 정책 단건 상세 조회
-// async getPolicyById(id: string) {
-//   const policy = await this.prisma.welfarePolicy.findUnique({
-//     where: { id },
-//     include: {
-//       _count: {
-//         select: { bookmarks: true },
-//       },
-//     },
-//   });
-
-//   if (!policy) {
-//     throw new NotFoundException('존재하지 않는 복지 정책입니다.');
-//   }
-
-//   return policy;
-// }
-
-// 4. 정책 수정
-// async updatePolicy(id: string, dto: UpdatePolicyDto) {
-//   await this.getPolicyById(id);
-
-//   return this.prisma.welfarePolicy.update({
-//     where: { id },
-//     data: dto,
-//   });
-// }
-
-// 5. 정책 삭제
-// async deletePolicy(id: string) {
-//   await this.getPolicyById(id);
-
-//   await this.prisma.welfarePolicy.delete({
-//     where: { id },
-//   });
-
-//   return { message: '복지 정책이 성공적으로 삭제되었습니다.' };
-// }
