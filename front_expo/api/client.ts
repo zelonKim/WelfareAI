@@ -7,7 +7,6 @@ export const client = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
 });
 
-
 client.interceptors.request.use(
   async (config) => {
     const token = await getAccessToken();
@@ -22,7 +21,6 @@ client.interceptors.request.use(
   },
 );
 
-
 client.interceptors.response.use(
   (response) => {
     return response;
@@ -35,7 +33,7 @@ client.interceptors.response.use(
       console.log("인증 만료 혹은 권한 없음");
       try {
         await SecureStore.deleteItemAsync("userToken");
-        // router.replace("/login");
+        router.replace("/login");
       } catch (storeError) {
         console.log("토큰 삭제 중 에러 발생:", storeError);
       }

@@ -1,5 +1,11 @@
+import { CustomAppleLoginButton } from "@/components/CustomAppleLoginButton";
+import { CustomGoogleLoginButton } from "@/components/CustomGoogleLoginButton";
 import Colors from "@/constants/Colors";
 import { useLogin } from "@/hooks/auth/useLogin";
+import { useSocialLogin } from "@/hooks/auth/useSocialLogin";
+import { handleAppleLogin } from "@/utils/handleAppleLogin";
+import { handleGoogleLogin } from "@/utils/handleGoogleLogin";
+
 import { useRouter } from "expo-router";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import React, { useState } from "react";
@@ -24,7 +30,8 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const { loginMutation, loginPending } = useLogin();
+  const { mutate: loginMutation, isPending: loginPending } = useLogin();
+
   const handleLogin = () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert("알림", "이메일과 비밀번호를 모두 입력해 주세요.");
@@ -32,6 +39,9 @@ export default function LoginScreen() {
     }
     loginMutation({ email: email.trim(), password });
   };
+
+  const { mutate: socialLoginMutation, isPending: socialLoginPending } =
+    useSocialLogin();
 
   //////////////////////////////////////////////////////////////////////
 
@@ -52,8 +62,8 @@ export default function LoginScreen() {
               resizeMode="contain"
             />
             <Text style={styles.title}>
-              <Text style={styles.textPoint}>W</Text>elfare
-              <Text style={styles.textPoint}>A</Text>I
+              <Text style={{ color: Colors.point }}>W</Text>elfare
+              <Text style={{ color: Colors.point }}>A</Text>I
             </Text>
             <Text style={styles.subtitle}>도움이 필요할때 언제든지 와요</Text>
           </View>
@@ -123,6 +133,30 @@ export default function LoginScreen() {
                 <Text style={styles.signupLink}>회원가입</Text>
               </TouchableOpacity>
             </View>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>간편 로그인</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {socialLoginPending ? (
+              <ActivityIndicator />
+            ) : (
+              <>
+                <View style={styles.socialGroup}>
+                  <CustomGoogleLoginButton
+                    onPress={() => handleGoogleLogin(socialLoginMutation)}
+                  />
+
+                  {Platform.OS === "ios" && (
+                    <CustomAppleLoginButton
+                      onPress={() => handleAppleLogin(socialLoginMutation)}
+                    />
+                  )}
+                </View>
+              </>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -238,9 +272,53 @@ const styles = StyleSheet.create({
     color: Colors.point,
   },
   logoImage: {
-    width: 64, // 원하는 너비로 조절
-    height: 64, // 원하는 높이로 조절
-    marginBottom: 12,
+    width: 68,
+    height: 68,
+    marginBottom: 10,
     borderRadius: 24,
+  },
+  dividerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E5E7EB",
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    fontSize: 13,
+    color: "#9CA3AF",
+  },
+  socialGroup: {
+    gap: 12,
+    width: "100%",
+  },
+  socialButton: {
+    height: 48,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  googleButton: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  googleButtonText: {
+    color: "#1F2937",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  appleButton: {
+    backgroundColor: "#000000",
+  },
+  appleButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "600",
   },
 });

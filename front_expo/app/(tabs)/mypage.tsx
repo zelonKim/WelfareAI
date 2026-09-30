@@ -1,9 +1,26 @@
+import { client } from "@/api/client";
+import { deleteTokenFromServer } from "@/api/common/deleteTokenFromServer";
+import { saveTokenToServer } from "@/api/common/saveTokenToServer";
+import { removeAccessToken } from "@/api/token";
+import { getMyInfo } from "@/api/user/getMyInfo";
+import { BlockModal } from "@/components/BlockModal";
+import { ProfileEditModal } from "@/components/ProfileEditModal"; // 경로에 맞춰 수정
+import { ReportModal } from "@/components/ReportModal";
+import Colors from "@/constants/Colors";
+import { UserProfile } from "@/types/user/UserProfile";
+import { registerForPushNotificationsAsync } from "@/utils/registerForPushNotificationsAsync";
+import { Ionicons } from "@expo/vector-icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
+import * as Notifications from "expo-notifications";
+import { useRouter } from "expo-router";
+import { Settings, User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Image,
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -13,19 +30,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-// import * as Notifications from 'expo-notifications';
-import { client } from "@/api/client";
-import { removeAccessToken } from "@/api/token";
-import { getMyInfo } from "@/api/user/getMyInfo";
-import { BlockModal } from "@/components/BlockModal";
-import { ProfileEditModal } from "@/components/ProfileEditModal"; // 경로에 맞춰 수정
-import { ReportModal } from "@/components/ReportModal";
-import Colors from "@/constants/Colors";
-import { UserProfile } from "@/types/user/UserProfile";
-import { Ionicons } from "@expo/vector-icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
-import { User } from "lucide-react-native";
 
 interface UpdateProfileDto {
   profileImage?: string;
@@ -45,11 +49,19 @@ export default function MyPageScreen() {
   const [profileImage, setProfileImage] = useState("");
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [targetUserId, setTargetUserId] = useState<string>("");
+  const [isPushEnabled, setIsPushEnabled] = useState(false);
 
   // 모달 안에서 임시로 선택된 이미지 객체
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
 
-  const [isPushEnabled, setIsPushEnabled] = useState(false);
+  useEffect(() => {
+    const checkNotificationPermission = async () => {
+      const { status } = await Notifications.getPermissionsAsync();
+      setIsPushEnabled(status === "granted");
+    };
+
+    checkNotificationPermission();
+  }, []);
 
   // 내 정보 조회 (useQuery)
   const { data: myInfo, isPending: myInfoPending } = useQuery<UserProfile>({
@@ -105,27 +117,27 @@ export default function MyPageScreen() {
   ////////////////////////////////////////////////////////////////////////
 
   // 3. 프로필 수정 Mutation
-  const updateProfileMutation = useMutation({
-    mutationFn: async (dto: UpdateProfileDto) => {
-      const res = await client.patch("/user/profile", dto);
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["myInfo"] });
-      handleCloseEditModal();
-      Alert.alert("성공", "프로필이 변경되었습니다.");
-    },
-    onError: (error: any) => {
-      Alert.alert(
-        "오류",
-        error?.response?.data?.message || "프로필 변경에 실패했습니다.",
-      );
-    },
-  });
+  const { mutate: updateProfileMutation, isPending: updateProfilePending } =
+    useMutation({
+      mutationFn: async (dto: UpdateProfileDto) => {
+        const res = await client.patch("/user/profile", dto);
+        return res.data;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["myInfo"] });
+        handleCloseEditModal();
+        Alert.alert("성공", "프로필이 변경되었습니다.");
+      },
+      onError: (error: any) => {
+        Alert.alert(
+          "오류",
+          error?.response?.data?.message || "프로필 변경에 실패했습니다.",
+        );
+      },
+    });
 
   ////////////////////////////////////////////////////////////////////////
 
-  // 4. 모달 내 [저장] 버튼 눌렀을 때 전체 저장 로직
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSaveProfile = async () => {
@@ -160,8 +172,8 @@ export default function MyPageScreen() {
         }
       }
 
-      // 프로필 정보 서버로 전송 (PATCH /user/profile)
-      updateProfileMutation.mutate({
+      // 프로필 정보 서버로 전송
+      updateProfileMutation({
         nickname: nicknameInput.trim(),
         profileImage: uploadedImageUrl,
       });
@@ -174,48 +186,31 @@ export default function MyPageScreen() {
 
   ////////////////////////////////////////////////////////////////////////
 
-  // 푸시 토큰 저장
-  const updatePushTokenMutation = useMutation({
-    mutationFn: async (pushToken: string) => {
-      const res = await client.patch("/user/push-token", { pushToken });
-      return res.data;
-    },
-    onSuccess: () => setIsPushEnabled(true),
-    onError: () => {
-      setIsPushEnabled(false);
-      Alert.alert("오류", "푸시 토큰 등록에 실패했습니다.");
-    },
-  });
-
-  ////////////////////////////////////////////////////////////////////////
-
-  // 푸시 토큰 삭제
-  const deletePushTokenMutation = useMutation({
-    mutationFn: async () => {
-      const res = await client.delete("/user/push-token");
-      return res.data;
-    },
-    onSuccess: () => setIsPushEnabled(false),
-    onError: () => {
-      setIsPushEnabled(true);
-      Alert.alert("오류", "푸시 토큰 삭제에 실패했습니다.");
-    },
-  });
-
-  ////////////////////////////////////////////////////////////////////////
-
   // 푸시 알림 토글
   const handleTogglePush = async (value: boolean) => {
+    setIsPushEnabled(value);
+
     if (value) {
-      // const { status } = await Notifications.requestPermissionsAsync();
+      const { status } = await Notifications.getPermissionsAsync();
+
       if (status !== "granted") {
-        Alert.alert("권한 필요", "알림 권한이 거부되었습니다.");
+        Alert.alert(
+          "알림 권한 필요",
+          "메시지 알림을 받으려면 기기 설정에서 알림 권한을 허용해 주세요.",
+          [
+            { text: "취소", style: "cancel" },
+            { text: "설정으로 이동", onPress: () => Linking.openSettings() },
+          ],
+        );
+        setIsPushEnabled(false);
         return;
       }
-      // const tokenData = await Notifications.getExpoPushTokenAsync();
-      // updatePushTokenMutation.mutate(tokenData.data);
+
+      // 권한이 정상이라면 토큰 다시 발급받아 서버에 저장
+      const token = await registerForPushNotificationsAsync();
+      if (token) await saveTokenToServer(token);
     } else {
-      deletePushTokenMutation.mutate();
+      await deleteTokenFromServer();
     }
   };
 
@@ -291,13 +286,20 @@ export default function MyPageScreen() {
   ////////////////////////////////////////////////////////////////////////
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <View style={styles.headerTitleRow}>
+          <View style={styles.aiBadge}>
+            <Settings size={22} color="#FF7F66" />
+          </View>
+          <Text style={styles.headerTitle}>환경 설정</Text>
+        </View>
+      </View>
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
       >
-        <Text style={styles.headerTitle}>환경 설정</Text>
-
         {/* 프로필 카드 */}
         <View style={styles.profileCard}>
           <TouchableOpacity
@@ -306,6 +308,7 @@ export default function MyPageScreen() {
           >
             <Text style={styles.editProfileBtnText}>변경하기</Text>
           </TouchableOpacity>
+
           <View style={styles.avatarWrapper}>
             {myInfo?.profileImage ? (
               <Image
@@ -347,7 +350,6 @@ export default function MyPageScreen() {
                   />
                   <Text style={styles.settingTitle}>메시지 알림 수신</Text>
                 </View>
-                {/* 밑에 위치하는 부제목 */}
                 <Text style={styles.settingDesc}>
                   댓글 및 대화 알림을 받습니다
                 </Text>
@@ -356,14 +358,15 @@ export default function MyPageScreen() {
               <Switch
                 value={isPushEnabled}
                 onValueChange={handleTogglePush}
-                disabled={
-                  updatePushTokenMutation.isPending ||
-                  deletePushTokenMutation.isPending
-                }
+                trackColor={{
+                  false: "#E0E0E0",
+                  true: Colors.point,
+                }}
+                thumbColor={Platform.OS === "android" ? "#FFFFFF" : undefined}
+                ios_backgroundColor="#E0E0E0"
               />
             </View>
 
-            {/* 끊기지 않고 가로 전체를 꽉 채우는 디바이더 */}
             <View style={styles.divider} />
 
             {/* 2. 후원하기 */}
@@ -477,6 +480,7 @@ export default function MyPageScreen() {
           onClose={handleCloseEditModal}
           onPickImage={handlePickModalImage}
           onSave={handleSaveProfile}
+          onPending={updateProfilePending}
         />
       </ScrollView>
     </SafeAreaView>
@@ -501,19 +505,42 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 150,
+    paddingBottom: 100,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(26, 58, 58, 0.06)",
+    backgroundColor: "#f8fafc",
+  },
+  headerTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  aiBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 24,
+    backgroundColor: "#FFEFEA",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 21,
     fontWeight: "700",
     color: "#0f172a",
-    marginVertical: 16,
   },
   profileCard: {
     backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 18,
     alignItems: "center",
+    marginTop: 12,
     marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },

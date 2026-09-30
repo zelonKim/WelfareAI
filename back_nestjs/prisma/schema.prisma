@@ -26,7 +26,7 @@ model User {
   bio          String?
   role         UserRole @default(USER)
 
-  provider String? // 'KAKAO', 'NAVER', 'GOOGLE', 'LOCAL' 등
+  provider String? //  'GOOGLE', 'APPLE','LOCAL' 등
   socialId String? // 소셜 서비스에서 제공하는 유저의 고유 ID
 
   createdAt DateTime @default(now())

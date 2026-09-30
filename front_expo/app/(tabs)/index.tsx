@@ -1,3 +1,4 @@
+import { saveTokenToServer } from "@/api/common/saveTokenToServer";
 import { getConsultings } from "@/api/consult/getConsultings";
 import { AutoPrompts } from "@/constants/AutoPrompts";
 import Colors from "@/constants/Colors";
@@ -5,7 +6,9 @@ import { useCreateConsulting } from "@/hooks/consult/useCreateConsulting";
 import { useDeleteConsulting } from "@/hooks/consult/useDeleteConsulting";
 import { ConsultingItem } from "@/types/consult/ConsultingItem";
 import { Message } from "@/types/consult/Message";
+import { registerForPushNotificationsAsync } from "@/utils/registerForPushNotificationsAsync";
 import { useQuery } from "@tanstack/react-query";
+import * as Notifications from "expo-notifications";
 import {
   Bot,
   BotMessageSquare,
@@ -31,6 +34,17 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
+Notifications.setNotificationHandler({
+  handleNotification:
+    async (): Promise<Notifications.NotificationBehavior> => ({
+      shouldShowBanner: true,
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowList: true,
+    }),
+});
+
 export default function AIConsultScreen() {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -38,9 +52,14 @@ export default function AIConsultScreen() {
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
-  // useEffect(() => {
-  //   router.push("/login");
-  // }, []);
+  useEffect(() => {
+    registerForPushNotificationsAsync().then((token) => {
+      console.log(" 발급된 안드로이드 토큰:", token);
+      if (token) {
+        saveTokenToServer(token);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -222,7 +241,7 @@ export default function AIConsultScreen() {
                 >
                   <ActivityIndicator size="small" color={Colors.point} />
                   <Text style={styles.aiLoadingText}>
-                    AI가 관련 복지 정책을 찾아보고 있어요...
+                    AI가 관련 복지 정책을 찾아보고 있어요 🤖
                   </Text>
                 </View>
               </View>

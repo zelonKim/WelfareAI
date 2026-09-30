@@ -9,10 +9,14 @@ import { CreateCrisisReportDto } from './dto/create-crisis-report.dto';
 import { UpdateCrisisReportDto } from './dto/update-crisis-report.dto';
 import { CrisisStatus } from '@prisma/client';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class CrisisReportService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   // 1. 위기 제보 생성
   async createReport(userId: string, dto: CreateCrisisReportDto) {
@@ -181,6 +185,7 @@ export class CrisisReportService {
     // 1. 해당 위기 제보글이 존재하는지 먼저 확인
     const reportExists = await this.prisma.crisisReport.findUnique({
       where: { id: reportId },
+      select: { id: true, userId: true },
     });
 
     if (!reportExists) {
@@ -207,6 +212,17 @@ export class CrisisReportService {
         },
       });
 
+      // 자기가 자기 글에 쓴 댓글이 아닌 경우에만 알림 전송
+      if (reportExists.userId !== userId) {
+        this.notificationService
+          .sendPushNotification({
+            targetUserId: reportExists.userId,
+            title: `${newComment.user.nickname}님의 댓글`,
+            body: content,
+            data: { url: `/crisisReportDetail/${reportId}`, id: reportId }, // 클릭 시 해당 제보 상세 페이지로 이동할 데이터
+          })
+          .catch((err) => console.error('푸시 알림 전송 실패:', err));
+      }
       return newComment;
     } catch (error) {
       console.log('댓글 등록 중 오류 발생:', error);

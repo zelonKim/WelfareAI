@@ -23,6 +23,7 @@ interface ProfileEditModalProps {
   onClose: () => void;
   onPickImage: () => void;
   onSave: (data: { nickname: string; imageUri?: string | null }) => void;
+  onPending: boolean;
   selectedImageUri?: string | null;
 }
 
@@ -34,6 +35,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   onClose,
   onPickImage,
   onSave,
+  onPending,
   selectedImageUri,
 }) => {
   const [nicknameInput, setNicknameInput] = useState(initialNickname);
@@ -112,7 +114,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             <TouchableOpacity
               style={[styles.modalBtn, styles.modalCancelBtn]}
               onPress={onClose}
-              disabled={isLoading}
+              disabled={onPending}
             >
               <Text style={styles.modalCancelBtnText}>취소</Text>
             </TouchableOpacity>
@@ -120,9 +122,9 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             <TouchableOpacity
               style={[styles.modalBtn, styles.modalSaveBtn]}
               onPress={handleSave}
-              disabled={!nicknameInput.trim() || isLoading}
+              disabled={!nicknameInput.trim() || onPending}
             >
-              {isLoading ? (
+              {onPending ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
                 <Text style={styles.modalSaveBtnText}>변경하기</Text>

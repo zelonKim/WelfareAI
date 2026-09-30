@@ -186,7 +186,7 @@ export default function PolicyScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>🔎</Text>
+              <Text style={styles.emptyIcon}></Text>
               <Text style={styles.emptyTitle}>검색 결과가 없습니다</Text>
               <Text style={styles.emptySub}>
                 다른 검색어나 다른 카테고리를 선택해 보세요.

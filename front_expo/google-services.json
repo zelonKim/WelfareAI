@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "139186638108-6mim664ti2ns7rg4t201m6m0ah2o9jga.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zelon.welfareai",
+            "certificate_hash": "6fa8681e67ff0045b276944f0bcade4351f05e68"
+          }
+        },
+        {
           "client_id": "139186638108-gqmvqpff2vjpf00qgvmpoerk7gfga4hu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

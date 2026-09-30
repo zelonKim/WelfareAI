@@ -114,6 +114,7 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
             {/* 모달 헤더 */}
             <View style={modalStyles.header}>
               <Text style={modalStyles.title}>🚫 차단 관리</Text>
+
               <TouchableOpacity
                 onPress={onClose}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -147,7 +148,9 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
             </View>
 
             {/* 차단된 유저 목록 영역 */}
-            <Text style={modalStyles.label}>차단된 유저 목록</Text>
+            <Text style={[modalStyles.label, { marginTop: 16 }]}>
+              차단된 유저 목록 ({blockedList.length})
+            </Text>
             {isLoading ? (
               <ActivityIndicator style={{ marginVertical: 20 }} />
             ) : (
@@ -187,7 +190,9 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
                         handleUnblock(item.blockedId, item.blockedUser.nickname)
                       }
                     >
-                      <Text style={modalStyles.unblockButtonText}>해제하기</Text>
+                      <Text style={modalStyles.unblockButtonText}>
+                        해제하기
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -224,6 +229,9 @@ const modalStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(26, 58, 58, 0.06)",
   },
   title: {
     fontSize: 18,
@@ -270,17 +278,23 @@ const modalStyles = StyleSheet.create({
   },
   emptyText: {
     textAlign: "center",
+    backgroundColor: "#F7FAFC",
+
     color: "#A0AEC0",
+    borderRadius: 8,
     fontSize: 13,
-    paddingVertical: 24,
+    paddingVertical: 22,
   },
   listItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 8,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#EDF2F7",
+    backgroundColor: "#F7FAFC",
+    borderRadius: 8,
+    paddingHorizontal: 12,
   },
   userInfo: {
     flexDirection: "row",
@@ -319,5 +333,10 @@ const modalStyles = StyleSheet.create({
     backgroundColor: Colors.primaryLight,
     justifyContent: "center",
     alignItems: "center",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#f6e6e6",
+    marginVertical: 16,
   },
 });

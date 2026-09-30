@@ -7,13 +7,18 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateCommunityPostDto } from './dto/create-community.dto';
 import { UpdateCommunityPostDto } from './dto/update-community.dto';
-import { CommunityMemberStatus, CommunityType } from '@prisma/client';
+import { CommunityMemberStatus } from '@prisma/client';
 import { UpdateMemberStatusDto } from './dto/update-member-status.dto';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
+import { sendGroupChatPushNoti } from 'utils/sendGroupChatPushNoti';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class CommunityService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async createPost(hostId: string, dto: CreateCommunityPostDto) {
     const post = await this.prisma.communityPost.create({
@@ -320,13 +325,18 @@ export class CommunityService {
   ) {
     await this.validateChatAccess(userId, postId);
 
-    return this.prisma.chatMessage.create({
+    const newMessage = await this.prisma.chatMessage.create({
       data: {
         postId,
         userId,
         message: dto.message,
       },
-      include: {
+      select: {
+        id: true,
+        postId: true,
+        userId: true,
+        message: true,
+        createdAt: true,
         user: {
           select: {
             id: true,
@@ -337,6 +347,21 @@ export class CommunityService {
         },
       },
     });
+
+    const senderNickname = newMessage.user?.nickname ?? '알 수 없음';
+
+    sendGroupChatPushNoti(
+      this.prisma,
+      this.notificationService,
+      postId,
+      userId,
+      dto.message,
+      senderNickname,
+    ).catch((err: Error) => {
+      console.error('모임 채팅방 알림 전송 실패:', err.message);
+    });
+
+    return newMessage;
   }
 
   ////////////////////////////////////////////////////////////////////////////////

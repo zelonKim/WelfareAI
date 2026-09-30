@@ -20,6 +20,7 @@ import {
   MoreVertical,
   Send,
   Trash,
+  UserIcon,
 } from "lucide-react-native";
 import { MessageCircleMore } from "lucide-react-native/icons";
 import React, { useState } from "react";
@@ -37,12 +38,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 export default function CrisisReportDetailPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const insets = useSafeAreaInsets();
 
   // 모달 열림 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -240,8 +246,8 @@ export default function CrisisReportDetailPage() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 6 : 0}
+        behavior={Platform.OS === "ios" ? "padding" : "padding"}
+        keyboardVerticalOffset={12}
       >
         {/* 헤더 */}
         <View style={styles.header}>
@@ -314,7 +320,7 @@ export default function CrisisReportDetailPage() {
 
           {/* 위치 정보 */}
           <View style={styles.locationCard}>
-            <MapPin size={18} color="#6E8B8B" />
+            <MapPin size={18} color={Colors.primary} />
             <Text style={styles.locationText}>{report.address}</Text>
           </View>
 
@@ -333,16 +339,25 @@ export default function CrisisReportDetailPage() {
             report.comments.map((comment) => (
               <View key={comment.id} style={styles.commentItem}>
                 <View style={styles.commentHeader}>
+                  {comment.user?.profileImage ? (
+                    <Image
+                      source={{ uri: comment.user.profileImage }}
+                      style={styles.profileImage}
+                    />
+                  ) : (
+                    <View style={styles.defaultProfileImage}>
+                      <UserIcon size={20} color={Colors.primary} />
+                    </View>
+                  )}
                   <Text style={styles.commentAuthor}>
                     {comment.user?.nickname || "사용자"}
                   </Text>
-                  {/* <Text style={styles.commentDate}>
-                    {new Date(comment.createdAt).toLocaleDateString("ko-KR")}
-                  </Text> */}
+
                   {comment.user.id === myInfo?.id && (
                     <TouchableOpacity
                       onPress={() => handleDeleteComment(comment.id)}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      style={{ position: "absolute", right: 5, top: 5 }}
                     >
                       <Trash size={16} color={Colors.inactive} />
                     </TouchableOpacity>
@@ -359,7 +374,7 @@ export default function CrisisReportDetailPage() {
         </ScrollView>
 
         {/* 하단 댓글 입력창 */}
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer]}>
           <TextInput
             style={styles.commentInput}
             placeholder="댓글을 입력해주세요..."
@@ -538,8 +553,10 @@ const styles = StyleSheet.create({
   },
   commentHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 6,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 3,
   },
   commentAuthor: {
     fontSize: 13,
@@ -553,12 +570,29 @@ const styles = StyleSheet.create({
   commentContent: {
     fontSize: 14,
     color: "#4A5568",
+    marginStart: 48,
   },
   emptyCommentText: {
     textAlign: "center",
     color: "#A0A0A0",
     paddingVertical: 50,
     fontSize: 14,
+  },
+  profileImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.inactive,
+  },
+  defaultProfileImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#EDF2F7",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
   inputContainer: {
     flexDirection: "row",
@@ -568,6 +602,7 @@ const styles = StyleSheet.create({
     borderTopColor: "#F0F0F0",
     backgroundColor: "#FFFFFF",
     alignItems: "center",
+    paddingBottom: -12,
     gap: 10,
   },
   commentInput: {

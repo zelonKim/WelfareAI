@@ -263,6 +263,7 @@ export default function CommunityDetailScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
       >
         <View style={styles.header}>
           <TouchableOpacity

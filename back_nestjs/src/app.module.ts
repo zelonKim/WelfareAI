@@ -12,6 +12,7 @@ import { PolicyModule } from './policy/policy.module';
 import { ConsultingModule } from './consulting/consulting.module';
 import { ReportModule } from './report/report.module';
 import { BlockModule } from './block/block.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BlockModule } from './block/block.module';
     ConsultingModule,
     ReportModule,
     BlockModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -24,7 +24,6 @@ export const ChatItem = ({
       {!isMyMessage ? (
         <View style={{ flexDirection: "column", gap: 6 }}>
           <View style={styles.otherMessageContainer}>
-            {/* 프로필 이미지 (URL이 있으면 Image, 없으면 기본 아이콘) */}
             {item.user?.profileImage ? (
               <Image
                 source={{ uri: item.user.profileImage }}
@@ -32,7 +31,7 @@ export const ChatItem = ({
               />
             ) : (
               <View style={styles.defaultProfileImage}>
-                <UserIcon size={18} color={Colors.inactive} />
+                <UserIcon size={18} color={Colors.primary} />
               </View>
             )}
 

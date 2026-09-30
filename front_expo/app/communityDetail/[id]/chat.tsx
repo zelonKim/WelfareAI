@@ -1,4 +1,5 @@
 import { getChatMessages } from "@/api/community/getChatMessages";
+import { getCommunityDetail } from "@/api/community/getCommunityDetail";
 import { getMyInfo } from "@/api/user/getMyInfo";
 import { ChatItem } from "@/components/ChatItem";
 import Colors from "@/constants/Colors";
@@ -83,6 +84,16 @@ export default function CommunityChatScreen() {
 
   //////////////////////////////////////////////////////////////////////////
 
+  const { data: post } = useQuery({
+    queryKey: ["communityDetail", postId],
+    queryFn: () => getCommunityDetail(postId!),
+    enabled: !!postId,
+  });
+
+  const postTitle = post?.title || "모임 대화방";
+
+  //////////////////////////////////////////////////////////////////////////
+
   //  메시지 조회
   const {
     data: messages = [],
@@ -143,7 +154,7 @@ export default function CommunityChatScreen() {
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"} // 👈 android는 'height' 적용
         keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
       >
         {/* 헤더 */}
@@ -154,7 +165,7 @@ export default function CommunityChatScreen() {
           >
             <ArrowLeft size={24} color="#1A202C" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>모임 대화방</Text>
+          <Text style={styles.headerTitle}>{postTitle}</Text>
           <View style={{ width: 24 }} />
         </View>
 
@@ -320,6 +331,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#E2E8F0",
     gap: 8,
+    paddingBottom: -30,
   },
   textInput: {
     flex: 1,

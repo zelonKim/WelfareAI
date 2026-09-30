@@ -11,6 +11,9 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'prisma/prisma.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { verifyGoogleToken } from 'utils/verifyGoogleToken';
+import { verifyAppleToken } from 'utils/verifyAppleToken';
+import { SocialLoginDto } from './dto/social-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +21,8 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
+
+  ////////////////////////////////////////////////////////////////////
 
   async signup(dto: SignupDto) {
     if (!dto.isTermsAgreed) {
@@ -84,7 +89,7 @@ export class AuthService {
     };
   }
 
-  //////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
 
   async login(dto: LoginDto) {
     try {
@@ -133,5 +138,54 @@ export class AuthService {
         '로그인 처리 중 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
       );
     }
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  async socialLogin(body: SocialLoginDto) {
+    const { token, provider } = body;
+
+    let email: string;
+    let socialId: string;
+
+    if (provider === 'google') {
+      const payload = await verifyGoogleToken(token);
+      email = payload.email;
+      socialId = payload.sub;
+    } else if (provider === 'apple') {
+      const payload = await verifyAppleToken(token);
+      email = payload.email;
+      socialId = payload.sub;
+    } else {
+      throw new UnauthorizedException(
+        '지원하지 않는 소셜 로그인 입니다.',
+      );
+    }
+
+    // DB에서 이메일 혹은 소셜 ID로 기존 회원 확인
+    let user = await this.prisma.user.findUnique({ where: { email } });
+
+    let isNewUser = false;
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          provider,
+          socialId,
+          nickname: email.split('@')[0],
+        },
+      });
+      isNewUser = true;
+    } else if (!user.termsAgreedAt || !user.privacyAgreedAt) {
+      isNewUser = true;
+    }
+
+    const accessToken = this.jwtService.sign({ sub: user.id, email });
+
+    return {
+      accessToken,
+      isNewUser,
+    };
   }
 }

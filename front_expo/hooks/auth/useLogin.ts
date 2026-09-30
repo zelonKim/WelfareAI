@@ -8,7 +8,7 @@ import { Alert } from "react-native";
 export const useLogin = () => {
   const router = useRouter();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: (dto: LoginDto) => loginApi(dto),
     onSuccess: async (data) => {
       await setAccessToken(data.accessToken);
@@ -22,8 +22,5 @@ export const useLogin = () => {
     },
   });
 
-  return {
-    loginMutation: mutation.mutate,
-    loginPending: mutation.isPending,
-  };
+ 
 };

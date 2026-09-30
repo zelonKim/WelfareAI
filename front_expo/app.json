@@ -14,7 +14,7 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F2F6F6"
+      "backgroundColor": "#0d3634"
     },
     "ios": {
       "supportsTablet": true,
@@ -29,7 +29,7 @@
     "android": {
       "package": "com.zelon.welfareai",
       "adaptiveIcon": {
-        "backgroundColor": "#F2F6F6",
+        "backgroundColor": "#0d3634",
         "foregroundImage": "./assets/images/icon.png"
       },
       "softwareKeyboardLayoutMode": "resize",
@@ -57,7 +57,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",
-          "color": "#F2F6F6"
+          "color": "#0d3634"
         }
       ]
     ],
