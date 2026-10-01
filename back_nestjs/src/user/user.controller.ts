@@ -74,6 +74,4 @@ export class UserController {
   async deletePushToken(@GetUser('id') userId: string) {
     return await this.userService.deletePushToken(userId);
   }
-
-  
 }

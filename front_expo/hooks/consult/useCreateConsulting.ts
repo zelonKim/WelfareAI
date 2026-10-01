@@ -1,4 +1,3 @@
-// hooks/useCreateConsulting.ts
 import { createConsulting } from "@/api/consult/createConsulting";
 import { ConsultingItem } from "@/types/consult/ConsultingItem";
 import { Message } from "@/types/consult/Message";

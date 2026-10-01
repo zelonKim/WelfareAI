@@ -1,3 +1,4 @@
+import { client } from "@/api/client";
 import { saveTokenToServer } from "@/api/common/saveTokenToServer";
 import { getConsultings } from "@/api/consult/getConsultings";
 import { AutoPrompts } from "@/constants/AutoPrompts";
@@ -9,18 +10,12 @@ import { Message } from "@/types/consult/Message";
 import { registerForPushNotificationsAsync } from "@/utils/registerForPushNotificationsAsync";
 import { useQuery } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
-import {
-  Bot,
-  BotMessageSquare,
-  RefreshCw,
-  Send,
-  User,
-} from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { Bot, BotMessageSquare, Send, User } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   Text,
@@ -28,6 +23,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import Markdown from "react-native-markdown-display";
 import {
   SafeAreaView,
@@ -45,16 +41,34 @@ Notifications.setNotificationHandler({
     }),
 });
 
+//////////////////////////////////////////////////////////////////////////
+
 export default function AIConsultScreen() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
 
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
+  const { data: myInfo } = useQuery({
+    queryKey: ["myInfo"],
+    queryFn: async () => {
+      const { data } = await client.get("/user/me");
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (myInfo && (!myInfo.termsAgreedAt || !myInfo.privacyAgreedAt)) {
+      router.replace("/login");
+    }
+  }, [myInfo]);
+
+  //////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => {
-      console.log(" 발급된 안드로이드 토큰:", token);
       if (token) {
         saveTokenToServer(token);
       }
@@ -64,6 +78,8 @@ export default function AIConsultScreen() {
   useEffect(() => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
+
+  //////////////////////////////////////////////////////////////////////////
 
   // 상담 내역 가져오기
   const {
@@ -77,7 +93,6 @@ export default function AIConsultScreen() {
 
   useEffect(() => {
     if (!consultings) return;
-
     const formattedMessages: Message[] = [
       {
         id: "welcome",
@@ -104,7 +119,7 @@ export default function AIConsultScreen() {
     setMessages(formattedMessages);
   }, [consultings]);
 
-  ////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
   // AI에게 문의하기
   const { mutate: consultMutation, isPending: consultPending } =
@@ -151,12 +166,12 @@ export default function AIConsultScreen() {
           </View>
           <Text style={styles.headerTitle}>AI 복지 상담</Text>
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.resetButton}
           onPress={() => refetchConsultings()}
         >
           <RefreshCw size={18} color="#6E8B8B" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <KeyboardAvoidingView

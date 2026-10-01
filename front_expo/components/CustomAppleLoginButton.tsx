@@ -1,12 +1,11 @@
+
+import { SocialLoginButtonProps } from "@/types/common/SocialLoginButtonProps";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-interface AppleLoginButtonProps {
-  onPress: () => void;
-}
 
-export function CustomAppleLoginButton({ onPress }: AppleLoginButtonProps) {
+export function CustomAppleLoginButton({ onPress }: SocialLoginButtonProps) {
   return (
     <TouchableOpacity
       style={styles.appleButton}

@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Platform,
   RefreshControl,
   StyleSheet,
   Text,
@@ -489,7 +490,7 @@ const styles = StyleSheet.create({
   emptyText: { color: "#6E8B8B", fontSize: 14 },
   fab: {
     position: "absolute",
-    bottom: 125,
+    bottom: Platform.OS === "ios" ? 125 : 138,
     right: 20,
     backgroundColor: Colors.point,
     flexDirection: "row",

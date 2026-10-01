@@ -1,19 +1,23 @@
-import { applyCommunity } from "@/api/community/applyCommunity";
-import { deleteCommunityPost } from "@/api/community/deleteCommunityPost";
 import { getCommunityDetail } from "@/api/community/getCommunityDetail";
-import { updateMemberStatus } from "@/api/community/updateMemberStatus";
 import { getMyInfo } from "@/api/user/getMyInfo";
 import CommunityModal from "@/components/CommunityModal";
 import Colors from "@/constants/Colors";
 import { Width } from "@/constants/Width";
+import { useBlockUser } from "@/hooks/block/useBlockUser";
+import { useApplyCommunity } from "@/hooks/community/useApplyCommunity";
+import { useDeleteCommunityPost } from "@/hooks/community/useDeleteCommunityPost";
+import { useLeaveCommunity } from "@/hooks/community/useLeaveCommunity";
 import { useUpdateCommunity } from "@/hooks/community/useUpdateCommunity";
+import { useUpdateMemberStatus } from "@/hooks/community/useUpdateMemberStatus";
 import { CommunityMemberStatus } from "@/types/community/CommunityMemberStatus";
 import { UserProfile } from "@/types/user/UserProfile";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ChevronLeft,
+  ChevronRight,
   HeartHandshake,
+  LogOut,
   MessagesCircle,
   MoreVertical,
   UserCheck,
@@ -24,7 +28,6 @@ import {
   ActionSheetIOS,
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -32,6 +35,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CommunityDetailScreen() {
@@ -55,6 +59,9 @@ export default function CommunityDetailScreen() {
     queryKey: ["communityDetail", id],
     queryFn: () => getCommunityDetail(id!),
     enabled: !!id,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   });
 
   //////////////////////////////////////////////////////////////////////////
@@ -143,20 +150,7 @@ export default function CommunityDetailScreen() {
 
   // 게시글 삭제
   const { mutate: CommunityDeleteMutation, isPending: CommunityDeletePending } =
-    useMutation({
-      mutationFn: () => deleteCommunityPost(id),
-      onSuccess: () => {
-        Alert.alert("삭제 완료", "모임 게시글이 삭제되었습니다.");
-        queryClient.invalidateQueries({ queryKey: ["communityPosts"] });
-        router.back();
-      },
-      onError: (error: any) => {
-        Alert.alert(
-          "삭제 실패",
-          error?.response?.data?.message || "삭제 중 오류가 발생했습니다.",
-        );
-      },
-    });
+    useDeleteCommunityPost();
 
   const handleDeleteCommunity = () => {
     Alert.alert("모임 삭제", "정말로 이 모임을 삭제하시겠습니까?", [
@@ -164,7 +158,7 @@ export default function CommunityDetailScreen() {
       {
         text: "삭제",
         style: "destructive",
-        onPress: () => CommunityDeleteMutation(),
+        onPress: () => CommunityDeleteMutation(id),
       },
     ]);
   };
@@ -172,42 +166,42 @@ export default function CommunityDetailScreen() {
   //////////////////////////////////////////////////////////////////////////
 
   // 참여 신청
-  const CommunityApplyMutation = useMutation({
-    mutationFn: () => applyCommunity(id),
-    onSuccess: (data) => {
-      Alert.alert("신청 완료", data.message || "참여 신청이 완료되었습니다.");
-      queryClient.invalidateQueries({ queryKey: ["communityDetail", id] });
-    },
-    onError: (error: any) => {
-      const errorMessage =
-        error.response?.data?.message || "참여 신청 중 오류가 발생했습니다.";
-      Alert.alert("신청 실패", errorMessage);
-    },
-  });
+  const { mutate: applyCommunityMutation, isPending: applyCommunityPending } =
+    useApplyCommunity();
 
-  // 참여 신청 핸들러
   const handleJoinCommunity = () => {
-    CommunityApplyMutation.mutate();
+    Alert.alert("참여 신청", "이 모임에 참여 신청 하시겠습니까?", [
+      { text: "취소", style: "cancel" },
+      {
+        text: "신청하기",
+        onPress: () => applyCommunityMutation(id),
+      },
+    ]);
+  };
+
+  //////////////////////////////////////////////////////////////////////////
+
+  const { mutate: leaveCommunityMutation, isPending: leaveCommunityPending } =
+    useLeaveCommunity();
+
+  // 모임 나가기 핸들러
+  const handleLeaveCommunity = () => {
+    Alert.alert("모임 나가기", "정말로 이 모임을 그만두고, 나가시겠습니까?", [
+      { text: "취소", style: "cancel" },
+      {
+        text: "나가기",
+        style: "destructive",
+        onPress: () => leaveCommunityMutation(id),
+      },
+    ]);
   };
 
   //////////////////////////////////////////////////////////////////////////
 
   // 멤버 상태 변경
-  const updateStatusMutation = useMutation({
-    mutationFn: updateMemberStatus,
-    onSuccess: (data) => {
-      Alert.alert("성공", data.message || "상태가 변경되었습니다.");
-      queryClient.invalidateQueries({ queryKey: ["communityDetail", id] });
-      queryClient.invalidateQueries({ queryKey: ["communityPosts"] });
-    },
-    onError: (error: any) => {
-      const errorMessage =
-        error.response?.data?.message || "상태 변경 중 오류가 발생했습니다.";
-      Alert.alert("오류", errorMessage);
-    },
-  });
+  const { mutate: updateStatusMutation, isPending: updateStatusPending } =
+    useUpdateMemberStatus();
 
-  // 멤버 상태 변경 핸들러
   const handleUpdateMemberStatus = (
     targetUserId: string,
     newStatus: CommunityMemberStatus,
@@ -222,7 +216,7 @@ export default function CommunityDetailScreen() {
         {
           text: "확인",
           onPress: () => {
-            updateStatusMutation.mutate({
+            updateStatusMutation({
               postId: id,
               targetUserId,
               status: newStatus,
@@ -232,6 +226,11 @@ export default function CommunityDetailScreen() {
       ],
     );
   };
+  //////////////////////////////////////////////////////////////////////////
+
+  const { mutate: blockUserMutation, isPending: blockUserPending } =
+    useBlockUser();
+
   //////////////////////////////////////////////////////////////////////////
 
   if (isPending) {
@@ -272,6 +271,7 @@ export default function CommunityDetailScreen() {
           >
             <ChevronLeft size={24} color="#1A252C" />
           </TouchableOpacity>
+
           <Text style={styles.headerTitle}>모임 상세</Text>
           {isHost ? (
             <TouchableOpacity
@@ -279,6 +279,13 @@ export default function CommunityDetailScreen() {
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <MoreVertical size={24} color="#1A1A1A" />
+            </TouchableOpacity>
+          ) : isApprovedMember ? (
+            <TouchableOpacity
+              onPress={handleLeaveCommunity}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <LogOut size={22} color="#FF3B30" />
             </TouchableOpacity>
           ) : (
             <View style={{ width: 24 }} />
@@ -326,15 +333,37 @@ export default function CommunityDetailScreen() {
 
           {/* 호스트 및 모집인원 카드 정보 */}
           <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <Users size={18} color="#6B7A85" />
-              <Text style={styles.infoText}>
-                참여 인원:{" "}
-                <Text style={styles.highlightText}>
-                  {approvedMembersCount}명
+            <View style={[styles.infoRow, { justifyContent: "space-between" }]}>
+              {/* 왼쪽: 인원수 정보 */}
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Users size={18} color="#6B7A85" />
+                <Text style={styles.infoText}>
+                  참여 인원:{" "}
+                  <Text style={styles.highlightText}>
+                    {approvedMembersCount}명
+                  </Text>
+                  {post.maxMembers ? ` / ${post.maxMembers}명` : ""}
                 </Text>
-                {post.maxMembers ? ` / ${post.maxMembers}명` : ""}
-              </Text>
+              </View>
+
+              {/* 오른쪽: 모임원 보기 버튼 */}
+              <TouchableOpacity
+                style={{ flexDirection: "row", alignItems: "center" }}
+                onPress={() => router.push(`/communityDetail/${id}/members`)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Text
+                  style={{
+                    fontSize: 13,
+                    color: Colors.point,
+                    fontWeight: "800",
+                    marginRight: 2,
+                  }}
+                >
+                  모임원 목록
+                </Text>
+                <ChevronRight size={16} color={Colors.point} />
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -360,7 +389,7 @@ export default function CommunityDetailScreen() {
                 pendingMembers.map((member) => (
                   <View key={member.id} style={styles.pendingMemberCard}>
                     <View style={styles.pendingUserInfo}>
-                      {/* 유저 프로필 이미지/닉네임 */}
+                      {/* 유저 프로필 이미지/별명 */}
                       <Text style={styles.pendingUserName}>
                         {member.user?.nickname || "익명 회원"}
                       </Text>
@@ -376,7 +405,7 @@ export default function CommunityDetailScreen() {
                         onPress={() =>
                           handleUpdateMemberStatus(member.userId, "APPROVED")
                         }
-                        disabled={updateStatusMutation.isPending}
+                        disabled={updateStatusPending}
                       >
                         <Text style={styles.approveBtnText}>승인</Text>
                       </TouchableOpacity>
@@ -433,14 +462,19 @@ export default function CommunityDetailScreen() {
                 style={[
                   styles.joinButton,
                   myMemberInfo?.status === "PENDING" && styles.pendingButton,
+                  applyCommunityPending && { opacity: 0.7 },
                 ]}
                 onPress={handleJoinCommunity}
-                disabled={myMemberInfo?.status === "PENDING"}
+                disabled={
+                  myMemberInfo?.status === "PENDING" || applyCommunityPending
+                }
               >
                 <Text style={styles.joinButtonText}>
-                  {myMemberInfo?.status === "PENDING"
-                    ? "승인 대기 중입니다"
-                    : "모임 참여하기"}
+                  {applyCommunityPending
+                    ? "신청 처리 중..."
+                    : myMemberInfo?.status === "PENDING"
+                      ? "승인 대기 중"
+                      : "모임 참여하기"}
                 </Text>
               </TouchableOpacity>
             </View>

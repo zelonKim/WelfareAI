@@ -4,7 +4,6 @@ import { Camera, MapPin, X } from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   ScrollView,
@@ -14,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { ImageItem } from "./ImageItem";
 
 export default function CrisisReportModal({

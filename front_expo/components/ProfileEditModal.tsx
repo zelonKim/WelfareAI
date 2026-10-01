@@ -1,10 +1,10 @@
-import { Colors } from "@/constants/Colors"; // 프로젝트 컬러 상수 경로
-import { User } from "lucide-react-native"; // 또는 사용 중이신 아이콘 라이브러리
+import { Colors } from "@/constants/Colors";
+import { ProfileEditModalProps } from "@/types/user/ProfileEditModalProps";
+import { User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -14,18 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-interface ProfileEditModalProps {
-  visible: boolean;
-  initialNickname: string;
-  initialAvatarUri?: string | null;
-  isLoading: boolean;
-  onClose: () => void;
-  onPickImage: () => void;
-  onSave: (data: { nickname: string; imageUri?: string | null }) => void;
-  onPending: boolean;
-  selectedImageUri?: string | null;
-}
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   visible,
@@ -36,11 +25,11 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   onPickImage,
   onSave,
   onPending,
+  onRemoveImage,
   selectedImageUri,
 }) => {
   const [nicknameInput, setNicknameInput] = useState(initialNickname);
 
-  // 모달이 열릴 때 기존 닉네임으로 초기화
   useEffect(() => {
     if (visible) {
       setNicknameInput(initialNickname);
@@ -52,8 +41,8 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     onSave({ nickname: nicknameInput.trim(), imageUri: selectedImageUri });
   };
 
-  // 현재 표시할 이미지 URI (새로 선택한 이미지 > 기존 이미지)
-  const displayAvatarUri = selectedImageUri || initialAvatarUri;
+  const displayAvatarUri =
+    selectedImageUri === null ? null : selectedImageUri || initialAvatarUri;
 
   return (
     <Modal
@@ -66,42 +55,53 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.modalOverlay}
       >
-        {/* 바깥 어두운 배경 터치 시 모달 닫기 */}
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>내 정보 변경</Text>
 
           {/* 프로필 이미지 선택 */}
-          <TouchableOpacity
-            style={styles.modalAvatarWrapper}
-            onPress={onPickImage}
-            activeOpacity={0.8}
-            disabled={isLoading}
-          >
-            {displayAvatarUri ? (
-              <Image
-                source={{ uri: displayAvatarUri }}
-                style={styles.modalAvatarImage}
-              />
-            ) : (
-              <View style={styles.modalAvatarPlaceholder}>
-                <User size={50} color={Colors.primary} />
+          <View style={{ position: "relative" }}>
+            <TouchableOpacity
+              style={styles.modalAvatarWrapper}
+              onPress={onPickImage}
+              activeOpacity={0.8}
+              disabled={isLoading}
+            >
+              {displayAvatarUri ? (
+                <Image
+                  source={{ uri: displayAvatarUri }}
+                  style={styles.modalAvatarImage}
+                />
+              ) : (
+                <View style={styles.modalAvatarPlaceholder}>
+                  <User size={50} color={Colors.primary} />
+                </View>
+              )}
+              <View style={styles.cameraBadge}>
+                <Text style={styles.cameraIcon}>📷</Text>
               </View>
-            )}
-            <View style={styles.cameraBadge}>
-              <Text style={styles.cameraIcon}>📷</Text>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
 
-          {/* 닉네임 입력 영역 */}
+            {displayAvatarUri && (
+              <TouchableOpacity
+                style={styles.removeImageButton}
+                onPress={onRemoveImage}
+                disabled={isLoading}
+              >
+                <Text style={styles.removeImageIcon}>✕</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* 별명 입력 영역 */}
           <View style={styles.modalInputGroup}>
-            <Text style={styles.label}>닉네임</Text>
+            <Text style={styles.label}>별명</Text>
             <TextInput
               style={styles.input}
               value={nicknameInput}
               onChangeText={setNicknameInput}
-              placeholder="닉네임 (2~12자)"
+              placeholder="별명 (2~12자)"
               maxLength={12}
               autoCapitalize="none"
               autoCorrect={false}
@@ -404,5 +404,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#ffffff",
+  },
+  removeImageButton: {
+    position: "absolute",
+    top: 0,
+    right: 110,
+    backgroundColor: "#FF3B30",
+    width: 20,
+    height: 20,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+  },
+  removeImageIcon: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "bold",
   },
 });

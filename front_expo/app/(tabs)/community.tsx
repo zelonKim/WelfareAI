@@ -23,7 +23,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CommunityScreen() {
-  // 모달 열림 및 입력 폼 상태 정의
+
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");

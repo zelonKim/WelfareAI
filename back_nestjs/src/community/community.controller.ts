@@ -79,6 +79,16 @@ export class CommunityController {
     return this.communityService.applyCommunity(userId, postId);
   }
 
+  // 모임 나가기
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/leave')
+  async leaveCommunity(
+    @GetUser('id') userId: string,
+    @Param('id') postId: string,
+  ) {
+    return await this.communityService.leaveCommunity(userId, postId);
+  }
+
   //  멤버 상태 변경 (방장 전용)
   @UseGuards(JwtAuthGuard)
   @Patch(':id/members/:userId/status')

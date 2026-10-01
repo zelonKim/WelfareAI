@@ -250,6 +250,44 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
+  // 커뮤니티 나가기
+  async leaveCommunity(userId: string, postId: string) {
+    // 1. 모임 존재 확인 및 방장 여부 체크
+    const post = await this.prisma.communityPost.findUnique({
+      where: { id: postId },
+    });
+
+    if (!post) {
+      throw new NotFoundException('존재하지 않는 모임입니다.');
+    }
+
+    if (post.hostId === userId) {
+      throw new BadRequestException('방장은 모임에서 나갈 수 없습니다.');
+    }
+
+    // 2. 멤버 목록에서 삭제
+    const member = await this.prisma.communityMember.findUnique({
+      where: {
+        postId_userId: {
+          postId,
+          userId,
+        },
+      },
+    });
+
+    if (!member) {
+      throw new NotFoundException('참여 중인 모임이 아닙니다.');
+    }
+
+    return await this.prisma.communityMember.delete({
+      where: {
+        id: member.id,
+      },
+    });
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
   // 멤버 상태 변경 - 승인/강퇴 등 (방장 전용)
   async updateMemberStatus(
     hostId: string,

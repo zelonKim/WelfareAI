@@ -1,12 +1,14 @@
 import { APIProvider } from "@/api/api-provider";
-import { useColorScheme } from "@/components/useColorScheme";
+import { useColorScheme } from "@/components/useColorScheme.web";
 import Colors from "@/constants/Colors";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import "react-native-reanimated";
 
 export {
@@ -27,7 +29,7 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+    // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -54,7 +56,7 @@ const GeneralTheme = {
 };
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+   const colorScheme = useColorScheme();
   const router = useRouter();
   const response = Notifications.useLastNotificationResponse();
 
@@ -63,10 +65,8 @@ function RootLayoutNav() {
       response &&
       response.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER
     ) {
-      // 백엔드에서 보내준 data 객체 추출
       const data = response.notification.request.content.data;
 
-      // data.url 값이 존재하면 해당 페이지로 이동
       if (data?.url) {
         router.push(data.url as any);
       }
@@ -74,22 +74,29 @@ function RootLayoutNav() {
   }, [response]);
 
   return (
-    <ThemeProvider value={GeneralTheme}>
-      <APIProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="crisisReportDetail"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="communityDetail"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        </Stack>
-      </APIProvider>
-    </ThemeProvider>
+    <>
+      <StatusBar style="dark" />
+      <ThemeProvider value={GeneralTheme}>
+        <KeyboardProvider>
+          <APIProvider>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="crisisReportDetail"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="communityDetail"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="donation" options={{ headerShown: false }} />
+              <Stack.Screen name="agreement" options={{ headerShown: false }} />
+              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+            </Stack>
+          </APIProvider>
+        </KeyboardProvider>
+      </ThemeProvider>
+    </>
   );
 }

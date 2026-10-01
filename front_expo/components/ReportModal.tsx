@@ -1,13 +1,12 @@
-import { REPORT_REASONS } from "@/constants/REPORT_REASONS";
+import { REPORT_REASONS } from "@/constants/ReportResons";
 import { useCreateReport } from "@/hooks/report/useCreateReport";
 import { ReportReason } from "@/types/report/CreateReportPayload";
 import { ReportModalProps } from "@/types/report/ReportModalProps";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Keyboard,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   ScrollView,
@@ -18,6 +17,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 export const ReportModal: React.FC<ReportModalProps> = ({
   visible,
@@ -28,6 +28,10 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   const [selectedReason, setSelectedReason] = useState<ReportReason>("SPAM");
   const [details, setDetails] = useState("");
 
+  useEffect(() => {
+    setReportedUserName(initialUserName);
+  }, [initialUserName]);
+
   const resetAndClose = () => {
     setReportedUserName(initialUserName);
     setSelectedReason("SPAM");
@@ -35,13 +39,15 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     onClose();
   };
 
+  ////////////////////////////////////////////////////////////////////////
+
   const { mutate: createReport, isPending } = useCreateReport(() => {
     resetAndClose();
   });
 
   const handleSubmit = () => {
     if (!reportedUserName.trim()) {
-      Alert.alert("알림", "신고할 대상자의 이름을 입력해주세요.");
+      Alert.alert("알림", "신고할 대상자의 별명을 입력해주세요.");
       return;
     }
 
@@ -84,11 +90,11 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               keyboardShouldPersistTaps="always" // 스크롤/터치 시 키보드 유지
               nestedScrollEnabled={true}
             >
-              {/* 1. 신고 대상자 이름 입력 영역 */}
+              {/* 1. 신고 대상자 별명 입력 영역 */}
               <Text style={modalStyles.label}>신고 대상</Text>
               <TextInput
                 style={modalStyles.nameInput}
-                placeholder="신고할 대상자의 이름"
+                placeholder="신고할 대상의 별명을 입력해주세요."
                 placeholderTextColor="#999"
                 value={reportedUserName}
                 onChangeText={setReportedUserName}

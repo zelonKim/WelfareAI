@@ -1,17 +1,16 @@
-import { client } from "@/api/client";
-import { deleteTokenFromServer } from "@/api/common/deleteTokenFromServer";
-import { saveTokenToServer } from "@/api/common/saveTokenToServer";
 import { removeAccessToken } from "@/api/token";
 import { getMyInfo } from "@/api/user/getMyInfo";
 import { BlockModal } from "@/components/BlockModal";
 import { ProfileEditModal } from "@/components/ProfileEditModal"; // 경로에 맞춰 수정
 import { ReportModal } from "@/components/ReportModal";
 import Colors from "@/constants/Colors";
+import { useDeleteAccount } from "@/hooks/user/useDeleteAccount";
+import { useSaveProfile } from "@/hooks/user/useSaveProfile";
 import { UserProfile } from "@/types/user/UserProfile";
-import { registerForPushNotificationsAsync } from "@/utils/registerForPushNotificationsAsync";
+import { handlePickProfileImage } from "@/utils/handlePickProfileImage";
+import { handleTogglePush } from "@/utils/handleTogglePush";
 import { Ionicons } from "@expo/vector-icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as ImagePicker from "expo-image-picker";
+import { useQuery } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { Settings, User } from "lucide-react-native";
@@ -20,7 +19,6 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -31,27 +29,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface UpdateProfileDto {
-  profileImage?: string;
-  nickname?: string;
-}
-
-////////////////////////////////////////////////////////////////////////
-
 export default function MyPageScreen() {
   const router = useRouter();
-  const queryClient = useQueryClient();
-
-  // 모달 상태 및 모달 내 입력값 상태
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
-  const [nicknameInput, setNicknameInput] = useState("");
-  const [profileImage, setProfileImage] = useState("");
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [targetUserId, setTargetUserId] = useState<string>("");
   const [isPushEnabled, setIsPushEnabled] = useState(false);
-
-  // 모달 안에서 임시로 선택된 이미지 객체
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
 
   useEffect(() => {
@@ -63,177 +47,54 @@ export default function MyPageScreen() {
     checkNotificationPermission();
   }, []);
 
-  // 내 정보 조회 (useQuery)
+  ////////////////////////////////////////////////////////////////////////
+
+  // 내 정보 조회
   const { data: myInfo, isPending: myInfoPending } = useQuery<UserProfile>({
     queryKey: ["myInfo"],
     queryFn: getMyInfo,
   });
 
-  useEffect(() => {
-    if (myInfo) {
-      setNicknameInput(myInfo.nickname || "");
-      setProfileImage(myInfo.profileImage || "");
-    }
-  }, [myInfo]);
-
   ////////////////////////////////////////////////////////////////////////
 
   // 모달 열기
   const handleOpenEditModal = () => {
-    setNicknameInput(myInfo?.nickname || "");
-    setProfileImage(myInfo?.profileImage || "");
-    setSelectedImageUri(null); // 선택했던 임시 이미지 초기화
     setIsEditModalOpen(true);
   };
 
   // 모달 닫기
   const handleCloseEditModal = () => {
-    setSelectedImageUri(null);
     setIsEditModalOpen(false);
   };
 
   ////////////////////////////////////////////////////////////////////////
 
-  // 2. 모달 내에서 이미지 고르기 (업로드는 하지 않고, 미리보기만 설정)
-  const handlePickModalImage = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert("권한 필요", "사진첩 접근 권한이 필요합니다.");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      setSelectedImageUri(result.assets[0].uri);
-    }
-  };
-
-  ////////////////////////////////////////////////////////////////////////
-
-  // 3. 프로필 수정 Mutation
-  const { mutate: updateProfileMutation, isPending: updateProfilePending } =
-    useMutation({
-      mutationFn: async (dto: UpdateProfileDto) => {
-        const res = await client.patch("/user/profile", dto);
-        return res.data;
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["myInfo"] });
-        handleCloseEditModal();
-        Alert.alert("성공", "프로필이 변경되었습니다.");
-      },
-      onError: (error: any) => {
-        Alert.alert(
-          "오류",
-          error?.response?.data?.message || "프로필 변경에 실패했습니다.",
-        );
-      },
-    });
-
-  ////////////////////////////////////////////////////////////////////////
-
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSaveProfile = async () => {
-    if (nicknameInput.trim().length < 2 || nicknameInput.trim().length > 12) {
-      Alert.alert("알림", "닉네임은 2~12자 사이로 입력해 주세요.");
-      return;
-    }
-
-    try {
-      setIsSaving(true);
-      let uploadedImageUrl = myInfo?.profileImage || undefined;
-
-      // 새 이미지가 선택되어 있다면 백엔드로 업로드 (POST /user/image)
-      if (selectedImageUri) {
-        const formData = new FormData();
-        const filename = selectedImageUri.split("/").pop() || "profile.jpg";
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-        formData.append("image", {
-          uri: selectedImageUri,
-          name: filename,
-          type,
-        } as any);
-
-        const imageRes = await client.post("/user/image", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-
-        if (imageRes.data?.imageUrl) {
-          uploadedImageUrl = imageRes.data.imageUrl;
-        }
-      }
-
-      // 프로필 정보 서버로 전송
-      updateProfileMutation({
-        nickname: nicknameInput.trim(),
-        profileImage: uploadedImageUrl,
-      });
-    } catch (error) {
-      Alert.alert("오류", "이미지 업로드 중 오류가 발생했습니다.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  ////////////////////////////////////////////////////////////////////////
-
-  // 푸시 알림 토글
-  const handleTogglePush = async (value: boolean) => {
-    setIsPushEnabled(value);
-
-    if (value) {
-      const { status } = await Notifications.getPermissionsAsync();
-
-      if (status !== "granted") {
-        Alert.alert(
-          "알림 권한 필요",
-          "메시지 알림을 받으려면 기기 설정에서 알림 권한을 허용해 주세요.",
-          [
-            { text: "취소", style: "cancel" },
-            { text: "설정으로 이동", onPress: () => Linking.openSettings() },
-          ],
-        );
-        setIsPushEnabled(false);
-        return;
-      }
-
-      // 권한이 정상이라면 토큰 다시 발급받아 서버에 저장
-      const token = await registerForPushNotificationsAsync();
-      if (token) await saveTokenToServer(token);
-    } else {
-      await deleteTokenFromServer();
-    }
-  };
-
-  ////////////////////////////////////////////////////////////////////////
-
-  // 회원 탈퇴 Mutation
-  const deleteAccountMutation = useMutation({
-    mutationFn: async () => {
-      const res = await client.delete("/user/account");
-      return res.data;
-    },
-    onSuccess: async () => {
-      Alert.alert("완료", "회원 탈퇴가 처리되었습니다.");
-      queryClient.clear();
-      await removeAccessToken();
-      router.replace("/(auth)/login");
-    },
-    onError: () => {
-      Alert.alert("오류", "회원 탈퇴 처리 중 오류가 발생했습니다.");
-    },
+  // 내 정보 수정하기
+  const { saveProfile, isSaving } = useSaveProfile({
+    onSuccessCallback: handleCloseEditModal,
   });
 
-  // 회원 탈퇴 핸들러
+  const handleSaveProfile = (data: {
+    nickname: string;
+    imageUri?: string | null;
+  }) => {
+    saveProfile({
+      nickname: data.nickname,
+      selectedImageUri: data.imageUri ?? selectedImageUri,
+      currentProfileImage: myInfo?.profileImage,
+    });
+  };
+
+  const handleRemoveProfileImage = () => {
+    setSelectedImageUri(null);
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+
+  // 회원 탈퇴하기
+  const { mutate: deleteAccountMutation, isPending: deleteAccountPending } =
+    useDeleteAccount();
+
   const handleDeleteAccount = () => {
     Alert.alert(
       "회원 탈퇴",
@@ -243,7 +104,7 @@ export default function MyPageScreen() {
         {
           text: "탈퇴하기",
           style: "destructive",
-          onPress: () => deleteAccountMutation.mutate(),
+          onPress: () => deleteAccountMutation(),
         },
       ],
     );
@@ -357,7 +218,7 @@ export default function MyPageScreen() {
 
               <Switch
                 value={isPushEnabled}
-                onValueChange={handleTogglePush}
+                onValueChange={(val) => handleTogglePush(val, setIsPushEnabled)}
                 trackColor={{
                   false: "#E0E0E0",
                   true: Colors.point,
@@ -372,8 +233,10 @@ export default function MyPageScreen() {
             {/* 2. 후원하기 */}
             <TouchableOpacity
               style={styles.settingRow}
-              onPress={() => {}}
               activeOpacity={0.7}
+              onPress={() => {
+                router.push("/donation");
+              }}
             >
               <View style={styles.leftContent}>
                 <View style={styles.titleRow}>
@@ -453,7 +316,7 @@ export default function MyPageScreen() {
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={handleDeleteAccount}
-            disabled={deleteAccountMutation.isPending}
+            disabled={deleteAccountPending}
           >
             <Text style={styles.deleteAccountText}>회원탈퇴</Text>
           </TouchableOpacity>
@@ -470,7 +333,7 @@ export default function MyPageScreen() {
           reportedUserId={targetUserId}
         />
 
-        {/* 프로필 수정 모달 (이미지 + 닉네임) */}
+        {/* 프로필 수정 모달 */}
         <ProfileEditModal
           visible={isEditModalOpen}
           initialNickname={myInfo?.nickname ?? ""}
@@ -478,9 +341,10 @@ export default function MyPageScreen() {
           selectedImageUri={selectedImageUri}
           isLoading={myInfoPending}
           onClose={handleCloseEditModal}
-          onPickImage={handlePickModalImage}
+          onPickImage={() => handlePickProfileImage(setSelectedImageUri)}
           onSave={handleSaveProfile}
-          onPending={updateProfilePending}
+          onRemoveImage={handleRemoveProfileImage}
+          onPending={isSaving}
         />
       </ScrollView>
     </SafeAreaView>
@@ -644,15 +508,15 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
-  // 큰제목 + 아이콘 한 줄 배치
+
   titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 4, // 부제목과의 간격
+    marginBottom: 4,
   },
   titleIcon: {
     marginLeft: 8,
-    marginRight: 6, // 아이콘과 제목 글자 사이 간격
+    marginRight: 6,
   },
   settingTitle: {
     fontSize: 15,
@@ -666,11 +530,11 @@ const styles = StyleSheet.create({
     color: "#718096",
     lineHeight: 16,
   },
-  // 끊기지 않고 가로로 길게 이어지는 디바이더
+
   divider: {
     height: 1,
     backgroundColor: "#EDF2F7",
-    width: "100%", // 좌우 여백 없이 카드 내부 전체 폭을 채움
+    width: "100%",
   },
   accountActions: {
     flexDirection: "row",

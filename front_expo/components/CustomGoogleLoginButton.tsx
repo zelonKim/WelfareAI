@@ -1,11 +1,9 @@
+import { SocialLoginButtonProps } from "@/types/common/SocialLoginButtonProps";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-interface GoogleLoginButtonProps {
-  onPress: () => void;
-}
 
-export function CustomGoogleLoginButton({ onPress }: GoogleLoginButtonProps) {
+export function CustomGoogleLoginButton({ onPress }: SocialLoginButtonProps) {
   return (
     <TouchableOpacity
       style={styles.googleButton}

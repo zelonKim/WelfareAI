@@ -1,5 +1,7 @@
+import TermsModal from "@/components/TermsModal";
 import Colors from "@/constants/Colors";
 import { useSignup } from "@/hooks/auth/useSignup";
+import { generateRandomNickname } from "@/utils/generateRandomNickname";
 import { useRouter } from "expo-router";
 import {
   Check,
@@ -14,7 +16,6 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -23,6 +24,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SignupScreen() {
@@ -37,6 +39,9 @@ export default function SignupScreen() {
   const [isTermsAgreed, setIsTermsAgreed] = useState(false);
   const [isPrivacyAgreed, setIsPrivacyAgreed] = useState(false);
   const [isMarketingAgreed, setIsMarketingAgreed] = useState(false);
+  const [modalType, setModalType] = useState<
+    "terms" | "privacy" | "marketing" | null
+  >(null);
 
   const isAllAgreed = isTermsAgreed && isPrivacyAgreed && isMarketingAgreed;
 
@@ -47,9 +52,14 @@ export default function SignupScreen() {
     setIsMarketingAgreed(newValue);
   };
 
+  const handleAutoGenerateNickname = () => {
+    const newNickname = generateRandomNickname();
+    setNickname(newNickname);
+  };
+
   //////////////////////////////////////////////////////////////////////
 
-  const { signupMutation, signupPending } = useSignup();
+  const { mutate: signupMutation, isPending: signupPending } = useSignup();
 
   const handleSignup = () => {
     if (!email.trim() || !nickname.trim() || !password || !passwordConfirm) {
@@ -58,12 +68,12 @@ export default function SignupScreen() {
     }
 
     if (nickname.trim().length < 2) {
-      Alert.alert("알림", "닉네임은 최소 2자 이상이어야 합니다.");
+      Alert.alert("알림", "별명은 최소 2자 이상이어야 합니다.");
       return;
     }
 
     if (nickname.trim().length > 12) {
-      Alert.alert("알림", "닉네임은 최대 12자 이하이어야 합니다.");
+      Alert.alert("알림", "별명은 최대 12자 이하이어야 합니다.");
       return;
     }
 
@@ -86,41 +96,6 @@ export default function SignupScreen() {
       isPrivacyAgreed,
       isMarketingAgreed,
     });
-  };
-
-  //////////////////////////////////////////////////////////////////////
-
-  // 랜덤 닉네임 목록
-  const ADJECTIVES = [
-    "따뜻한",
-    "행복한",
-    "스마트한",
-    "든든한",
-    "다정한",
-    "미소짓는",
-    "희망찬",
-  ];
-  const NOUNS = [
-    "사람",
-    "지킴이",
-    "도우미",
-    "이웃",
-    "동반자",
-    "가이드",
-    "친구",
-  ];
-
-  const generateRandomNickname = () => {
-    const randomAdj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-    const randomNoun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
-    const randomNumber = Math.floor(1000 + Math.random() * 9000); // 3자리 숫자 추가 (중복 방지)
-
-    return `${randomAdj}${randomNoun}${randomNumber}`;
-  };
-
-  const handleAutoGenerateNickname = () => {
-    const newNickname = generateRandomNickname();
-    setNickname(newNickname);
   };
 
   //////////////////////////////////////////////////////////////////////
@@ -203,7 +178,7 @@ export default function SignupScreen() {
 
             <View style={styles.inputWrapper}>
               <View style={styles.inputWrapper}>
-                <Text style={styles.label}>닉네임</Text>
+                <Text style={styles.label}>별명</Text>
 
                 {/* 입력창과 버튼을 옆으로 배치하는 Container */}
                 <View style={styles.nicknameRow}>
@@ -256,57 +231,80 @@ export default function SignupScreen() {
               {/* 구분선 */}
               <View style={styles.divider} />
 
-              <TouchableOpacity
-                style={styles.checkboxRowEach}
-                onPress={() => setIsTermsAgreed(!isTermsAgreed)}
-              >
-                <View
-                  style={[
-                    styles.checkboxEach,
-                    isTermsAgreed && styles.checkboxChecked,
-                  ]}
+              <View style={styles.agreeText}>
+                <TouchableOpacity
+                  style={styles.checkboxRowEach}
+                  onPress={() => setIsTermsAgreed(!isTermsAgreed)}
                 >
-                  {isTermsAgreed && <Check size={12} color="#FFFFFF" />}
-                </View>
-                <Text style={styles.checkboxText}>
-                  [필수] 서비스 이용약관 동의
-                </Text>
-              </TouchableOpacity>
+                  <View
+                    style={[
+                      styles.checkboxEach,
+                      isTermsAgreed && styles.checkboxChecked,
+                    ]}
+                  >
+                    {isTermsAgreed && <Check size={12} color="#FFFFFF" />}
+                  </View>
+                  <Text style={styles.checkboxText}>
+                    [필수] 서비스 이용약관 동의
+                  </Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.checkboxRowEach}
-                onPress={() => setIsPrivacyAgreed(!isPrivacyAgreed)}
-              >
-                <View
-                  style={[
-                    styles.checkboxEach,
-                    isPrivacyAgreed && styles.checkboxChecked,
-                  ]}
-                >
-                  {isPrivacyAgreed && <Check size={12} color="#FFFFFF" />}
-                </View>
-                <Text style={styles.checkboxText}>
-                  [필수] 개인정보 수집 및 이용 동의
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => setModalType("terms")}>
+                  <Text style={styles.viewLinkText}>보기</Text>
+                </TouchableOpacity>
+              </View>
 
-              <TouchableOpacity
-                style={styles.checkboxRowEach}
-                onPress={() => setIsMarketingAgreed(!isMarketingAgreed)}
-              >
-                <View
-                  style={[
-                    styles.checkboxEach,
-                    isMarketingAgreed && styles.checkboxChecked,
-                  ]}
+              <View style={styles.agreeText}>
+                <TouchableOpacity
+                  style={styles.checkboxRowEach}
+                  onPress={() => setIsPrivacyAgreed(!isPrivacyAgreed)}
                 >
-                  {isMarketingAgreed && <Check size={12} color="#FFFFFF" />}
-                </View>
-                <Text style={styles.checkboxText}>
-                  [선택] 마케팅 정보 수신 동의
-                </Text>
-              </TouchableOpacity>
+                  <View
+                    style={[
+                      styles.checkboxEach,
+                      isPrivacyAgreed && styles.checkboxChecked,
+                    ]}
+                  >
+                    {isPrivacyAgreed && <Check size={12} color="#FFFFFF" />}
+                  </View>
+                  <Text style={styles.checkboxText}>
+                    [필수] 개인정보 수집 및 이용 동의
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => setModalType("privacy")}>
+                  <Text style={styles.viewLinkText}>보기</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.agreeText}>
+                <TouchableOpacity
+                  style={styles.checkboxRowEach}
+                  onPress={() => setIsMarketingAgreed(!isMarketingAgreed)}
+                >
+                  <View
+                    style={[
+                      styles.checkboxEach,
+                      isMarketingAgreed && styles.checkboxChecked,
+                    ]}
+                  >
+                    {isMarketingAgreed && <Check size={12} color="#FFFFFF" />}
+                  </View>
+                  <Text style={styles.checkboxText}>
+                    [선택] 마케팅 정보 수신 동의
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setModalType("marketing")}>
+                  <Text style={styles.viewLinkText}>보기</Text>
+                </TouchableOpacity>
+              </View>
             </View>
+
+            <TermsModal
+              visible={modalType !== null}
+              type={modalType}
+              onClose={() => setModalType(null)}
+            />
 
             <TouchableOpacity
               style={[
@@ -534,4 +532,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: Colors.point,
   },
+
+  viewLinkText: {
+    fontSize: 11,
+    color: Colors.primary,
+    fontWeight: "600",
+    textDecorationLine: "underline",
+  },
+  agreeText: { flexDirection: "row", gap: 11, alignItems: "center" },
 });

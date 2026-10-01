@@ -1,7 +1,9 @@
-import { useBlockUser } from "@/api/block/useBlockUser";
-import { useUnblockUser } from "@/api/block/useUnblockUser";
-import { client } from "@/api/client";
+import { getBlockedUsers } from "@/api/block/getBlockedUsers";
 import Colors from "@/constants/Colors";
+import { useBlockUser } from "@/hooks/block/useBlockUser";
+import { useUnblockUser } from "@/hooks/block/useUnblockUser";
+import { BlockedItem } from "@/types/block/BlockedItem";
+import { BlockModalProps } from "@/types/block/BlockModalProps";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
@@ -12,7 +14,6 @@ import {
   Alert,
   FlatList,
   Keyboard,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   StyleSheet,
@@ -22,33 +23,14 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-
-interface BlockModalProps {
-  visible: boolean;
-  onClose: () => void;
-}
-
-export interface BlockedItem {
-  id: string;
-  blockedId: string;
-  blockedUser: {
-    id: string;
-    nickname: string;
-    profileImage: string;
-  };
-}
-
-////////////////////////////////////////////////////////////////////////
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
   const [usernameInput, setUsernameInput] = useState("");
 
   const { data: blockedList = [], isLoading } = useQuery<BlockedItem[]>({
     queryKey: ["blockedUsers"],
-    queryFn: async () => {
-      const res = await client.get("/block");
-      return res.data;
-    },
+    queryFn: getBlockedUsers,
     enabled: !!visible,
   });
 
@@ -61,7 +43,7 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
   const handleBlockSubmit = () => {
     const trimmedUsername = usernameInput.trim();
     if (!trimmedUsername) {
-      Alert.alert("알림", "차단할 유저의 닉네임을 입력해주세요.");
+      Alert.alert("알림", "차단할 유저의 별명을 입력해주세요.");
       return;
     }
     blockUserMutation(trimmedUsername, {
@@ -123,12 +105,12 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
               </TouchableOpacity>
             </View>
 
-            {/* 닉네임 입력 & 차단하기 영역 */}
+            {/* 별명 입력 & 차단하기 영역 */}
             <Text style={modalStyles.label}>유저 차단하기</Text>
             <View style={modalStyles.inputRow}>
               <TextInput
                 style={modalStyles.input}
-                placeholder="차단할 유저 닉네임 입력"
+                placeholder="차단할 유저 별명 입력"
                 placeholderTextColor="#A0AEC0"
                 value={usernameInput}
                 onChangeText={setUsernameInput}

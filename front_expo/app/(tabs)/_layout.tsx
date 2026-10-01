@@ -10,8 +10,8 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.primary, // 선택된 아이콘: 딥 그린
-        tabBarInactiveTintColor: Colors.inactive, // 비활성 아이콘: 세이지 그린
+        tabBarActiveTintColor: Colors.primary, 
+        tabBarInactiveTintColor: Colors.inactive, 
         tabBarStyle: {
           position: "absolute",
           bottom: "5%",
@@ -22,6 +22,7 @@ export default function TabLayout() {
           backgroundColor: Colors.card,
           borderTopWidth: 0,
           elevation: 1,
+          marginBottom: Platform.OS === "android" ? 12 : 0,
           shadowColor: Colors.primary,
           shadowOffset: { width: 6, height: 6 },
           shadowOpacity: 0.1,
@@ -129,10 +130,10 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   blurContainer: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 32, // tabBarStyle 높이(64)와 맞추어 완전한 알약 모양 형성
+    borderRadius: 32,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: Colors.card, // 미세한 딥그린 테두리
+    borderColor: Colors.card,
     backgroundColor: Colors.card,
   },
   iconContainer: {

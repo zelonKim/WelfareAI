@@ -1,12 +1,8 @@
 import { updateCrisisReport } from "@/api/crisisReport/updateCrisisReport";
 import { UpdateCrisisReportDto } from "@/types/crisisReport/UpdateCrisisReportDto";
+import { UseUpdateCrisisReportOptions } from "@/types/crisisReport/UseUpdateCrisisReportOptions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
-
-interface UseUpdateCrisisReportOptions {
-  id: string;
-  onSuccessCallback?: () => void;
-}
 
 export const useUpdateCrisisReport = ({
   id,

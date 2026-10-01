@@ -39,7 +39,6 @@ export const CommunityItem = ({ item }: { item: CommunityPost }) => {
         </Text>
       </View>
 
-      {/* 본문 요약 */}
       <Text style={styles.cardContent} numberOfLines={2}>
         {item.content}
       </Text>

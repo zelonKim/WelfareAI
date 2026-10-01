@@ -8,7 +8,7 @@ import { Alert } from "react-native";
 export const useSignup = () => {
   const router = useRouter();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: (dto: SignupDto) => signupApi(dto),
     onSuccess: async (data) => {
       await setAccessToken(data.accessToken);
@@ -25,9 +25,4 @@ export const useSignup = () => {
       Alert.alert("가입 실패", errorMessage);
     },
   });
-
-  return {
-    signupMutation: mutation.mutate,
-    signupPending: mutation.isPending,
-  };
 };

@@ -1,6 +1,6 @@
 import { getPolicies } from "@/api/policy/getPolicies";
 import { PolicyListItem } from "@/components/PolicyListItem";
-import { CATEGORIES, Category } from "@/constants/CATEGORIES";
+import { CATEGORIES, Category } from "@/constants/Category";
 import Colors from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import { useInfiniteQuery } from "@tanstack/react-query";

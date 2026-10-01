@@ -1,20 +1,23 @@
+import { getBlockedUsers } from "@/api/block/getBlockedUsers";
 import { getChatMessages } from "@/api/community/getChatMessages";
 import { getCommunityDetail } from "@/api/community/getCommunityDetail";
 import { getMyInfo } from "@/api/user/getMyInfo";
 import { ChatItem } from "@/components/ChatItem";
+import { ReportModal } from "@/components/ReportModal";
 import Colors from "@/constants/Colors";
-import { SOCKET_URL } from "@/constants/SOCKET_URL";
+import { SOCKET_URL } from "@/constants/SocketUrl";
+import { useBlockUser } from "@/hooks/block/useBlockUser";
+import { BlockedItem } from "@/types/block/BlockedItem";
 import { ChatMessage } from "@/types/community/ChatMessage";
 import { UserProfile } from "@/types/user/UserProfile";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Send } from "lucide-react-native";
+import { ArrowLeft, Send, Siren } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   FlatList,
-  KeyboardAvoidingView,
   Platform,
   StyleSheet,
   Text,
@@ -22,6 +25,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { io, Socket } from "socket.io-client";
 
@@ -32,7 +36,13 @@ export default function CommunityChatScreen() {
   const flatListRef = useRef<FlatList>(null);
   const socketRef = useRef<Socket | null>(null);
 
+  const [isReportModalVisible, setIsReportModalVisible] = useState(false);
+  const [showPopover, setShowPopover] = useState(false);
+  const [initialUserName, setInitialUserName] = useState("");
   const [inputText, setInputText] = useState("");
+  const [activePopoverItemId, setActivePopoverItemId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!postId) return;
@@ -105,6 +115,8 @@ export default function CommunityChatScreen() {
     enabled: !!postId,
   });
 
+  //////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     if (messages.length > 0) {
       flatListRef.current?.scrollToEnd({ animated: true });
@@ -150,11 +162,51 @@ export default function CommunityChatScreen() {
 
   //////////////////////////////////////////////////////////////////////////
 
+  const handleProfilePress = (item: ChatMessage) => {
+    if (item.user.id === myInfo?.id) return;
+    setActivePopoverItemId((prev) => (prev === item.id ? null : item.id));
+  };
+
+  // 차단하기
+  const { mutate: blockUserMutation, isPending: blockUserPending } =
+    useBlockUser();
+
+  const handleBlockPress = (nickname: string) => {
+    setShowPopover(false);
+    Alert.alert(
+      "회원 차단",
+      `정말 ${nickname}님을 차단하시겠습니까?\n 차단한 사용자의 댓글은 더 이상 보이지 않습니다.`,
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "차단",
+          style: "destructive",
+          onPress: () => {
+            blockUserMutation(nickname);
+          },
+        },
+      ],
+    );
+  };
+
+  const { data: blockedList = [] } = useQuery<BlockedItem[]>({
+    queryKey: ["blockedUsers"],
+    queryFn: getBlockedUsers,
+  });
+
+  // 신고하기
+  const handleReportPress = (nickname: string) => {
+    setShowPopover(false);
+    setIsReportModalVisible(true);
+    setInitialUserName(nickname);
+  };
+  //////////////////////////////////////////////////////////////////////////
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"} // 👈 android는 'height' 적용
+        behavior={"padding"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
       >
         {/* 헤더 */}
@@ -166,7 +218,15 @@ export default function CommunityChatScreen() {
             <ArrowLeft size={24} color="#1A202C" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{postTitle}</Text>
-          <View style={{ width: 24 }} />
+          <TouchableOpacity
+            onPress={() => {
+              setIsReportModalVisible(true);
+              setInitialUserName("");
+            }}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Siren size={22} color="#FF3B30" />
+          </TouchableOpacity>
         </View>
 
         {/* 채팅 메시지 목록 */}
@@ -183,13 +243,24 @@ export default function CommunityChatScreen() {
         ) : (
           <FlatList
             ref={flatListRef}
-            data={messages}
+            data={messages.filter(
+              (message) =>
+                !blockedList.some(
+                  (b) => b.blockedUser.nickname === message.user.nickname,
+                ),
+            )}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <ChatItem
                 item={item}
                 currentUserId={currentUserId}
                 handleDelete={handleDelete}
+                handleProfilePress={handleProfilePress}
+                activePopoverItemId={activePopoverItemId}
+                setActivePopoverItemId={setActivePopoverItemId}
+                handleReportPress={handleReportPress}
+                handleBlockPress={handleBlockPress}
+                blockedList={blockedList}
               />
             )}
             contentContainerStyle={styles.chatListContent}
@@ -222,6 +293,12 @@ export default function CommunityChatScreen() {
             <Send size={18} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
+
+        <ReportModal
+          visible={isReportModalVisible}
+          onClose={() => setIsReportModalVisible(false)}
+          initialUserName={initialUserName}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -331,7 +408,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#E2E8F0",
     gap: 8,
-    paddingBottom: -30,
+    paddingBottom: Platform.OS === "ios" ? -30 : 10,
   },
   textInput: {
     flex: 1,

@@ -4,7 +4,6 @@ import { HeartHandshake, MessagesCircle, X } from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   ScrollView,
@@ -14,6 +13,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+
+
 
 export default function CommunityModal({
   modalType,

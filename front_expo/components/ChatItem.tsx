@@ -1,18 +1,20 @@
 import Colors from "@/constants/Colors";
-import { ChatMessage } from "@/types/community/ChatMessage";
-import { Image } from "expo-image";
-import { UserIcon } from "lucide-react-native";
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/ScreenSize";
+import { ChatItemProps } from "@/types/community/ChatItemProps";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { UserProfileAvatar } from "./UserProfileAvatar";
 
 export const ChatItem = ({
   currentUserId,
   handleDelete,
   item,
-}: {
-  currentUserId?: string;
-  handleDelete: (messageId: string) => void;
-  item: ChatMessage;
-}) => {
+  handleProfilePress,
+  activePopoverItemId,
+  setActivePopoverItemId,
+  handleReportPress,
+  handleBlockPress,
+  blockedList,
+}: ChatItemProps) => {
   const isMyMessage = item.userId === currentUserId;
   return (
     <View
@@ -24,17 +26,17 @@ export const ChatItem = ({
       {!isMyMessage ? (
         <View style={{ flexDirection: "column", gap: 6 }}>
           <View style={styles.otherMessageContainer}>
-            {item.user?.profileImage ? (
-              <Image
-                source={{ uri: item.user.profileImage }}
-                style={styles.profileImage}
-              />
-            ) : (
-              <View style={styles.defaultProfileImage}>
-                <UserIcon size={18} color={Colors.primary} />
-              </View>
-            )}
-
+            <UserProfileAvatar
+              profileImage={item.user?.profileImage}
+              nickname={item.user?.nickname}
+              size={32}
+              iconSize={18}
+              isPopoverVisible={activePopoverItemId === item.id}
+              onProfilePress={() => handleProfilePress(item)}
+              onClosePopover={() => setActivePopoverItemId(null)}
+              onReportPress={handleReportPress}
+              onBlockPress={handleBlockPress}
+            />
             <View>
               <Text style={styles.senderName}>
                 {item.user?.nickname || "익명"}
@@ -189,5 +191,54 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#E2E8F0",
+  },
+  popoverMenu: {
+    position: "absolute",
+    top: 25, // 프로필 높이에 맞게 미세 조정
+    left: 40, // 프로필 이미지 너비(36px) + 여백
+    width: 130, // 고정 너비를 주면 텍스트 길이에 따라 레이아웃이 변하지 않음
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: "#E9ECEF",
+    zIndex: 1001, // 오버레이보다 위에 렌더링
+
+    // 그림자 (iOS & Android)
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  popoverItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+  },
+  popoverText: {
+    fontSize: 13,
+    color: "#FF3B30",
+    fontWeight: "600",
+  },
+  popoverDivider: {
+    width: 1,
+    height: 14,
+    backgroundColor: "#E9ECEF",
+  },
+  fullScreenOverlay: {
+    position: "absolute",
+    top: -SCREEN_HEIGHT,
+    left: -SCREEN_WIDTH,
+    width: SCREEN_WIDTH * 2,
+    height: SCREEN_HEIGHT * 2,
+    backgroundColor: "transparent",
+    zIndex: 1000,
   },
 });
