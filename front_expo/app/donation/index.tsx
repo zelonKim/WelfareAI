@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors"; // 프로젝트 컬러 경로에 맞게 조정
+import { Colors } from "@/constants/Colors"; 
 import { Stack, useRouter } from "expo-router";
 import {
   ChevronLeft,
