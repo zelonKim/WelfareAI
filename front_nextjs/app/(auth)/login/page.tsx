@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -12,7 +12,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GOOGLE_CLIENT_ID } from "@/constants/SocialLoginCredentials";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -224,5 +224,21 @@ export default function LoginPage() {
         </div>
       </main>
     </GoogleOAuthProvider>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black text-white flex items-center justify-center">
+          로딩 중...
+        </div>
+      }
+    >
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <LoginContent />
+      </GoogleOAuthProvider>
+    </Suspense>
   );
 }
