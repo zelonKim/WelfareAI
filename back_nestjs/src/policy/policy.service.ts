@@ -65,7 +65,6 @@ export class PolicyService {
         }),
       );
 
-      // XML -> JS 객체 파싱
       const jsonObj = this.parser.parse(response.data);
       const wantedList = jsonObj?.wantedList;
 

@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js" // 👈 'prisma-client-js'로 수정
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -8,7 +8,7 @@ datasource db {
 }
 
 // ==========================================
-// 유저 & 마이페이지
+// 유저 
 // ==========================================
 
 enum UserRole {
@@ -43,10 +43,7 @@ model User {
   joinedCommunities CommunityMember[] // 내가 참가자로 들어간 모임
   chatMessages      ChatMessage[] // 내가 전송한 커뮤니티 채팅 메시지
 
-  savedPlaces    MapBookmark[] // 내가 북마크한 복지 지도 장소 목록
-  savedPolicies  PolicyBookmark[] // 내가 북마크한 복지 정책 목록
   aiConsultings  AiConsulting[] // 내 AI 상담 내역
-  welfarePlaces  WelfarePlace[]
   crisisComments CrisisComment[]
 
   sentReports     Report[] @relation("ReportReporter")
@@ -59,7 +56,7 @@ model User {
 }
 
 // ==========================================
-// 위기제보 탭
+// 제보 탭
 // ==========================================
 
 enum CrisisStatus {
@@ -109,7 +106,22 @@ model CrisisComment {
 }
 
 // ==========================================
-// 커뮤니티 탭 
+// 상담 탭 (FastAPI 연동)
+// ==========================================
+
+model AiConsulting {
+  id       String @id @default(uuid())
+  question String // 유저 질문
+  answer   String // AI 상담 응답 (FastAPI 처리 결과)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// 모임 탭 
 // ==========================================
 
 enum CommunityType {
@@ -165,96 +177,6 @@ model ChatMessage {
 
   postId String
   post   CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-}
-
-// ==========================================
-// 복지 지도 탭
-// ==========================================
-
-model WelfarePlace {
-  id        String  @id @default(uuid())
-  name      String // 장소/행사명 (예: 청량리 복지관, 2026 무료 건강검진 행사)
-  category  String // 카테고리 (예: 노인복지, 장애인시설, 행사/이벤트, 무료급식)
-  address   String
-  latitude  Float // 위도
-  longitude Float // 경도
-  phone     String?
-
-  description String? // 상세 설명/행사 안내 내용
-  startDate   DateTime? // 행사 시작일 (시설일 경우 null)
-  endDate     DateTime? // 행사 종료일 (시설일 경우 null)
-
-  bookmarks MapBookmark[]
-
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([latitude, longitude])
-}
-
-model MapBookmark {
-  id String @id @default(uuid())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  placeId String
-  place   WelfarePlace @relation(fields: [placeId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([userId, placeId]) // 중복 즐겨찾기 방지
-}
-
-// ==========================================
-// 복지 정책 탭
-// ==========================================
-
-model WelfarePolicy {
-  id             String  @id @default(uuid())
-  title          String // 정책명
-  content        String // 지원 내용
-  summary        String? // 요약 설명
-  target         String? // 지원 대상 (예: 청년, 저소득층 등)
-  department     String? // 담당 부서/기관
-  applicationUrl String? // 신청 링크
-
-  bookmarks PolicyBookmark[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model PolicyBookmark {
-  id String @id @default(uuid())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  policyId String
-  policy   WelfarePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([userId, policyId]) // 중복 스크랩 방지
-}
-
-// ==========================================
-// AI 상담 탭 (FastAPI 연동)
-// ==========================================
-
-model AiConsulting {
-  id       String @id @default(uuid())
-  question String // 유저 질문
-  answer   String // AI 상담 응답 (FastAPI 처리 결과)
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

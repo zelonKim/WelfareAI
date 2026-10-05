@@ -48,7 +48,7 @@ export class CommunityService {
 
   // 2. 모임 조회
   async getAllPosts() {
-    return this.prisma.communityPost.findMany({
+    return await this.prisma.communityPost.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
         host: {
@@ -74,7 +74,7 @@ export class CommunityService {
 
   // 나의 모임 목록 조회 (PENDING, APPROVED 상태인 모임)
   async getMyPosts(userId: string) {
-    return this.prisma.communityPost.findMany({
+    return await this.prisma.communityPost.findMany({
       where: {
         OR: [
           { hostId: userId },

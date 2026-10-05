@@ -29,28 +29,19 @@ export class ReportController {
 
   ////////////////////////////////////////////////////////////////////////
 
-  /**
-   * GET /reports?status=PENDING
-   * (관리자용) 신고 목록 조회 API
-   */
+  // (관리자용) 신고 목록 조회 API
   @Get()
   async getReports(@Query('status') status?: ReportStatus) {
     return this.reportService.getReports(status);
   }
 
-  /**
-   * GET /reports/:id
-   * (관리자용) 신고 상세 조회 API
-   */
+  // (관리자용) 신고 상세 조회 API
   @Get(':id')
   async getReportById(@Param('id') reportId: string) {
     return this.reportService.getReportById(reportId);
   }
 
-  /**
-   * PATCH /reports/:id/status
-   * (관리자용) 신고 상태 변경 API
-   */
+  // (관리자용) 신고 상태 변경 API
   @Patch(':id/status')
   async updateReportStatus(
     @Param('id') reportId: string,

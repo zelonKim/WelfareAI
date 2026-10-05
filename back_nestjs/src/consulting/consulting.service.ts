@@ -67,7 +67,7 @@ export class ConsultingService {
 
   // 2. 내 AI 상담 전체 조회
   async getMyConsultings(userId: string) {
-    return this.prisma.aiConsulting.findMany({
+    return await this.prisma.aiConsulting.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       select: {

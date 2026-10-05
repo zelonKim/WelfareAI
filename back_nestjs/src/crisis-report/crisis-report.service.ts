@@ -42,7 +42,7 @@ export class CrisisReportService {
 
   // 2. 전체 제보 목록 조회
   async getAllReports() {
-    return this.prisma.crisisReport.findMany({
+    return await this.prisma.crisisReport.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
         user: {
@@ -61,7 +61,7 @@ export class CrisisReportService {
 
   // 3. 내가 작성한 제보 목록 조회
   async getMyReports(userId: string) {
-    return this.prisma.crisisReport.findMany({
+    return await this.prisma.crisisReport.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
