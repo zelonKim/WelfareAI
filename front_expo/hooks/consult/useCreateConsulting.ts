@@ -14,7 +14,6 @@ export const useCreateConsulting = ({
   return useMutation({
     mutationFn: (userQuestion: string) =>
       createConsulting({ question: userQuestion }),
-
     onMutate: async (userQuestion) => {
       const tempUserId = Date.now().toString();
       const userMsg: Message = {
@@ -32,6 +31,7 @@ export const useCreateConsulting = ({
         sender: "ai",
         text: data.answer,
       };
+      
       setMessages((prev) => [...prev, aiMsg]);
       queryClient.invalidateQueries({ queryKey: ["consultings"] });
     },

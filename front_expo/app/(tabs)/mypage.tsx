@@ -13,7 +13,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
-import { Settings, User } from "lucide-react-native";
+import {
+  Ban,
+  Bell,
+  Heart,
+  Info,
+  Settings,
+  Siren,
+  User,
+  UserKey,
+} from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -201,12 +210,10 @@ export default function MyPageScreen() {
             {/* 1. 메시지 알림 수신 */}
             <View style={styles.settingRow}>
               <View style={styles.leftContent}>
-                {/* 아이콘 + 제목을 가로 한 줄로 배치 */}
                 <View style={styles.titleRow}>
-                  <Ionicons
-                    name="notifications-outline"
+                  <Bell
                     size={20}
-                    color={Colors.primary}
+                    color={Colors.warning}
                     style={styles.titleIcon}
                   />
                   <Text style={styles.settingTitle}>메시지 알림 수신</Text>
@@ -235,21 +242,16 @@ export default function MyPageScreen() {
               style={styles.settingRow}
               activeOpacity={0.7}
               onPress={() => {
-                router.push("/donation");
+                router.push("https://www.welfareai.co.kr/together");
               }}
             >
               <View style={styles.leftContent}>
                 <View style={styles.titleRow}>
-                  <Ionicons
-                    name="heart-outline"
-                    size={20}
-                    color="#E53E3E"
-                    style={styles.titleIcon}
-                  />
-                  <Text style={styles.settingTitle}>후원하기</Text>
+                  <Heart size={20} color="#fb2c36" style={styles.titleIcon} />
+                  <Text style={styles.settingTitle}>함께하기</Text>
                 </View>
                 <Text style={styles.settingDesc}>
-                  서비스 운영을 위해 후원합니다.
+                  서비스 운영과 발전에 함께합니다.
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="#CBD5E0" />
@@ -265,12 +267,7 @@ export default function MyPageScreen() {
             >
               <View style={styles.leftContent}>
                 <View style={styles.titleRow}>
-                  <Ionicons
-                    name="warning-outline"
-                    size={20}
-                    color="#DD6B20"
-                    style={styles.titleIcon}
-                  />
+                  <Siren size={20} color="red" style={styles.titleIcon} />
                   <Text style={styles.settingTitle}>신고하기</Text>
                 </View>
                 <Text style={styles.settingDesc}>
@@ -290,16 +287,53 @@ export default function MyPageScreen() {
             >
               <View style={styles.leftContent}>
                 <View style={styles.titleRow}>
-                  <Ionicons
-                    name="ban-outline"
-                    size={20}
-                    color="#718096"
-                    style={styles.titleIcon}
-                  />
+                  <Ban size={20} color="#718096" style={styles.titleIcon} />
                   <Text style={styles.settingTitle}>차단하기</Text>
                 </View>
                 <Text style={styles.settingDesc}>
                   악성 댓글 및 대화를 차단합니다.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#CBD5E0" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => router.push("https://www.welfareai.co.kr/terms")}
+              activeOpacity={0.7}
+            >
+              <View style={styles.leftContent}>
+                <View style={styles.titleRow}>
+                  <Info
+                    size={20}
+                    color={Colors.point}
+                    style={styles.titleIcon}
+                  />
+                  <Text style={styles.settingTitle}>서비스 이용약관</Text>
+                </View>
+                <Text style={styles.settingDesc}>
+                  이용약관에 대해 살펴봅니다.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#CBD5E0" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => router.push("https://www.welfareai.co.kr/privacy")}
+              activeOpacity={0.7}
+            >
+              <View style={styles.leftContent}>
+                <View style={styles.titleRow}>
+                  <UserKey
+                    size={20}
+                    color={"#193cb8"}
+                    style={styles.titleIcon}
+                  />
+                  <Text style={styles.settingTitle}>개인정보 처리방침</Text>
+                </View>
+                <Text style={styles.settingDesc}>
+                  개인정보 처리에 대해 살펴봅니다.
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="#CBD5E0" />
@@ -541,7 +575,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 12,
-    marginTop: Platform.OS === "ios" ? 3 : -12,
+    marginTop: Platform.OS === "ios" ? 3 : -1,
   },
   actionBtn: {
     padding: 6,

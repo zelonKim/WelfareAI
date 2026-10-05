@@ -17,12 +17,29 @@ export class ConsultingService {
   ) {}
 
   // FastAPI 등 AI 서버 연동 메서드
-  private async getAiResponse(question: string): Promise<string> {
+  private async getAiResponse(
+    userId: string,
+    question: string,
+  ): Promise<string> {
     const fastapiUrl = this.configService.get<string>('FASTAPI_URL');
+
+    // DB에서 해당 유저의 이전 상담 내역 조회
+    const previousConsultings = await this.prisma.aiConsulting.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+      take: 10,
+    });
+
+    // FastAPI가 받을 히스토리 형태로 변환
+    const history = previousConsultings.flatMap((item) => [
+      { role: 'user', content: item.question },
+      { role: 'assistant', content: item.answer },
+    ]);
 
     try {
       const response = await axios.post(`${fastapiUrl}/consult`, {
         question,
+        history,
       });
       return response.data.answer;
     } catch (error: any) {
@@ -35,7 +52,7 @@ export class ConsultingService {
 
   // 1. AI 상담 생성
   async createConsulting(userId: string, dto: CreateConsultingDto) {
-    const answer = await this.getAiResponse(dto.question);
+    const answer = await this.getAiResponse(userId, dto.question);
 
     return this.prisma.aiConsulting.create({
       data: {
@@ -92,5 +109,16 @@ export class ConsultingService {
     });
 
     return { message: '상담 내역이 삭제되었습니다.' };
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////
+
+  // 5. 모든 상담 내역 삭제
+  async deleteAllConsulting(userId: string) {
+    await this.prisma.aiConsulting.deleteMany({
+      where: { userId },
+    });
+
+    return { message: '모든 상담 내역이 삭제되었습니다.' };
   }
 }

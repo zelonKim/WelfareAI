@@ -101,7 +101,7 @@ export default function PolicyPage() {
 
   return (
     <div className="relative min-h-screen bg-[#F2F6F6] text-[#1A3A3A]">
-      <header className="flex items-center justify-between px-6 py-4 bg-[#F2F6F6] border-b border-[#1A3A3A]/10 shrink-0">
+      <header className="flex items-center justify-between px-6 py-4  bg-white/80 border-b border-[#1A3A3A]/10 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#FF7F66]/15 flex items-center justify-center">
             <FileText className="w-5 h-5 text-[#FF7F66]" />
@@ -115,11 +115,11 @@ export default function PolicyPage() {
       <div className="lg:mx-24 xl:mx-48 px-4 sm:px-6 pb-20">
         {/* 검색어 입력 필드 */}
         <section className="mt-4 mb-3">
-          <div className="relative flex items-center bg-white rounded-xl border border-gray-200 shadow-sm focus-within:border-[#1A3A3A] transition-colors">
+          <div className="relative flex items-center bg-white rounded-xl border border-gray-200 shadow-xs focus-within:border-[#FF7F66] transition-colors">
             <Search className="absolute left-4 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="검색어를 입력해주세요."
+              placeholder="검색어를 입력해 보세요."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               className="w-full h-12 pl-12 pr-4 bg-transparent text-base text-gray-800 placeholder-gray-400 focus:outline-none"
@@ -128,7 +128,7 @@ export default function PolicyPage() {
         </section>
 
         {/* 가로 스크롤 카테고리 바 */}
-        <section className="mb-6 -mx-4 sm:-mx-6 px-4 sm:px-6 overflow-x-auto no-scrollbar">
+        <section className="mb-6 mx-auto overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-2 py-1 w-max">
             {CATEGORIES.map((cate) => {
               const isSelected = selectedCategory === cate;

@@ -81,7 +81,7 @@ export default function CommunityPage() {
   return (
     <div className="min-h-screen bg-[#F2F5F6] text-[#1A252C] flex flex-col">
       {/* 1. 상단 타이틀 헤더 */}
-      <header className="sticky top-0 z-20 bg-[#F2F5F6]/90 backdrop-blur-md border-b border-[#1A3A3A]/10 px-6 py-4">
+      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-[#1A3A3A]/10 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#FFEFEA] flex items-center justify-center shrink-0">
@@ -112,7 +112,7 @@ export default function CommunityPage() {
                   key={tab.value}
                   type="button"
                   onClick={() => setSelectedType(tab.value)}
-                  className={`flex-1 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl transition-all cursor-pointer ${
+                  className={`flex-1 py-2.5 text-sm sm:text-base font-semibold rounded-xl transition-all cursor-pointer ${
                     isActive
                       ? "bg-white text-[#1A3A3A] shadow-sm font-bold"
                       : "text-[#6B7A85] hover:text-[#1A252C]"

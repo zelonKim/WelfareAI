@@ -2,8 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { Users } from "lucide-react";
+import { UserIcon, Users } from "lucide-react";
 import { CommunityPost } from "@/types/community/CommunityPost";
+import Image from "next/image";
 
 interface CommunityItemProps {
   item: CommunityPost;
@@ -35,10 +36,26 @@ export const CommunityItem = ({ item }: CommunityItemProps) => {
       </p>
 
       {/* 카드 푸터: 작성자 & 참여 인원 */}
-      <div className="flex items-center justify-between pt-3 border-t border-[#F5F7F8]">
-        <span className="text-xs sm:text-sm font-medium text-[#8E99A3]">
-          {item.host?.nickname || "익명"}
-        </span>
+      <div className="flex items-center justify-between pt-3 border-t border-[#F2F6F6]">
+        <div className="flex items-center gap-2">
+          {item.host?.profileImage ? (
+            <div className="relative w-[34px] h-[34px] overflow-hidden rounded-full bg-primary-light">
+              <Image
+                src={item.host.profileImage}
+                alt={item.host.nickname || "호스트 프로필"}
+                fill
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-[34px] h-[34px] rounded-full bg-primary-light flex items-center justify-center">
+              <UserIcon className="w-5 h-5 text-primary" />
+            </div>
+          )}
+          <span className="text-sm sm:text-sm font-medium text-[#8E99A3]">
+            {item.host?.nickname || "익명"}
+          </span>
+        </div>
 
         <div className="flex items-center gap-1.5 text-[#8E99A3]">
           <Users className="w-4 h-4 sm:w-4.5 sm:h-4.5" />

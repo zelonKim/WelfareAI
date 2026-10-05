@@ -23,7 +23,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CommunityScreen() {
-
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -378,8 +377,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 25,
+    shadowColor: Colors.point,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
     gap: 6,
-    elevation: 4,
+    elevation: 2,
   },
   fabText: {
     color: "#FFFFFF",

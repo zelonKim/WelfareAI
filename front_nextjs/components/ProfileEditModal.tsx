@@ -71,7 +71,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                 type="button"
                 onClick={onPickImage}
                 disabled={isLoading || onPending}
-                className="cursor-pointer group relative flex h-28 w-28 items-center justify-center rounded-full bg-slate-100 ring-2 ring-slate-100 hover:ring-orange-400 transition hover:opacity-80 focus:outline-none disabled:cursor-not-allowed"
+                className="cursor-pointer group relative flex h-28 w-28 items-center justify-center rounded-full bg-[#1665341F]  ring-slate-100  transition hover:opacity-80 focus:outline-none disabled:cursor-not-allowed"
               >
                 <div className="relative h-full w-full overflow-hidden rounded-full flex items-center justify-center">
                   {displayAvatarUri ? (
@@ -82,7 +82,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                       className="object-cover"
                     />
                   ) : (
-                    <User className="h-14 w-14 bg-slate-100 text-slate-400" />
+                    <User className="h-14 w-14 bg-slate-[#1665341F] text-[#1A3A3A]" />
                   )}
                 </div>
                 {/* 카메라 아이콘 뱃지 */}
@@ -97,7 +97,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                   type="button"
                   onClick={onRemoveImage}
                   disabled={isLoading || onPending}
-                  className="cursor-pointer absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition hover:bg-red-600 disabled:opacity-50"
+                  className="cursor-pointer absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-white shadow-md transition hover:bg-orange-600 disabled:opacity-50"
                   aria-label="프로필 사진 삭제"
                 >
                   <X className="h-4 w-4" />

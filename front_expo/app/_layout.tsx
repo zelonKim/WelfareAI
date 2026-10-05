@@ -29,7 +29,7 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-    // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -56,7 +56,7 @@ const GeneralTheme = {
 };
 
 function RootLayoutNav() {
-   const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme();
   const router = useRouter();
   const response = Notifications.useLastNotificationResponse();
 
@@ -90,7 +90,6 @@ function RootLayoutNav() {
                 name="communityDetail"
                 options={{ headerShown: false }}
               />
-              <Stack.Screen name="donation" options={{ headerShown: false }} />
               <Stack.Screen name="agreement" options={{ headerShown: false }} />
               <Stack.Screen name="modal" options={{ presentation: "modal" }} />
             </Stack>

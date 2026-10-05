@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Welfare AI",
+  title: "WelfareAI",
   description: "도움이 필요할때 언제든지 와요",
 };
 

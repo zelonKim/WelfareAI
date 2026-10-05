@@ -111,7 +111,7 @@ export default function CrisisReportPage() {
   return (
     <div className="min-h-screen bg-[#F2F6F6] text-[#1A3A3A] relative pb-28">
       {/* 헤더 */}
-      <header className="flex items-center justify-between px-6 py-4 bg-[#F2F6F6] border-b border-[#1A3A3A]/10 shrink-0">
+      <header className="flex items-center justify-between px-6 py-4  bg-white/80 border-b border-[#1A3A3A]/10 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#FF7F66]/15 flex items-center justify-center">
             <Bell className="w-5 h-5 text-[#FF7F66]" />
@@ -124,7 +124,7 @@ export default function CrisisReportPage() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         {/* 탭 전환 (전체 제보 / 내 제보) */}
-        <div className="flex bg-[#E4ECEC] p-1 rounded-xl my-4">
+        <div className="flex bg-[#E4ECEC] p-1.5 rounded-xl my-4">
           <button
             type="button"
             onClick={() => setActiveTab("all")}
@@ -178,7 +178,7 @@ export default function CrisisReportPage() {
                   </p>
 
                   {item.address && (
-                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[#6E8B8B] font-medium pt-2 border-t border-gray-100">
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[#6E8B8B] font-medium pt-2 border-t border-[#F2F6F6]">
                       <MapPin className="w-4 h-4 text-[#6E8B8B] shrink-0" />
                       <span className="truncate">{item.address}</span>
                     </div>

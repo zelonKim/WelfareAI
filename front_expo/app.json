@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "WelfareAI",
+    "name": "웰페어AI",
     "slug": "welfareai",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,7 +8,7 @@
     "scheme": "welfareai",
     "userInterfaceStyle": "automatic",
     "androidNavigationBar": {
-      "backgroundColor": "#F2F6F6",
+      "backgroundColor": "#FFFFFFCC",
       "barStyle": "dark-content"
     },
     "splash": {

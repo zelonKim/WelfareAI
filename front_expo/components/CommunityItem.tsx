@@ -1,7 +1,8 @@
 import Colors from "@/constants/Colors";
 import { CommunityPost } from "@/types/community/CommunityPost";
+import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Users } from "lucide-react-native";
+import { UserIcon, Users } from "lucide-react-native";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export const CommunityItem = ({ item }: { item: CommunityPost }) => {
@@ -45,6 +46,21 @@ export const CommunityItem = ({ item }: { item: CommunityPost }) => {
 
       <View style={styles.cardFooter}>
         <View style={styles.badgeContainer}>
+          {item.host?.profileImage ? (
+            <Image
+              source={{ uri: item.host.profileImage }}
+              style={styles.avatar}
+            />
+          ) : (
+            <View
+              style={[
+                styles.avatar,
+                { justifyContent: "center", alignItems: "center" },
+              ]}
+            >
+              <UserIcon size={20} color={Colors.primary} />
+            </View>
+          )}
           <Text style={styles.hostText}>{item.host?.nickname || "익명"}</Text>
         </View>
 
@@ -90,7 +106,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#5C6870",
     lineHeight: 20,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   cardFooter: {
     flexDirection: "row",
@@ -98,12 +114,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: "#F5F7F8",
+    borderTopColor: Colors.background,
   },
   badgeContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  avatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 24,
+    backgroundColor: Colors.primaryLight,
+    marginRight: 2,
   },
   typeBadge: {
     paddingHorizontal: 8,

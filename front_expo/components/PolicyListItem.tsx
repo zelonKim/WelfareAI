@@ -1,5 +1,6 @@
 import Colors from "@/constants/Colors";
 import { PolicyItem } from "@/types/policy/PolicyItem";
+import { Building, CalendarDays } from "lucide-react-native";
 import {
   Linking,
   StyleSheet,
@@ -33,10 +34,17 @@ export const PolicyListItem = ({ item }: { item: PolicyItem }) => (
 
       <View style={styles.cardFooter}>
         <View style={styles.tagGroup}>
+          <Building size={14} color="#64748b" style={{ marginRight: 4 }} />
           <Text style={styles.tagText}>{item.department}</Text>
           {item.supportCycle && (
             <>
               <Text style={styles.dotSeparator}>•</Text>
+
+              <CalendarDays
+                size={14}
+                color="#64748b"
+                style={{ marginRight: 4 }}
+              />
               <Text style={styles.tagText}>{item.supportCycle}</Text>
             </>
           )}
@@ -105,7 +113,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: "#f8fafc",
+    borderTopColor: Colors.primaryLight,
   },
   tagGroup: {
     flexDirection: "row",

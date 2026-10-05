@@ -31,6 +31,12 @@ export class ConsultingController {
   getMyConsultings(@GetUser('id') userId: string) {
     return this.aiConsultingService.getMyConsultings(userId);
   }
+  
+  // 5. 모든 상담 내역 삭제
+  @Delete('all')
+  deleteAllConsulting(@GetUser('id') userId: string) {
+    return this.aiConsultingService.deleteAllConsulting(userId);
+  }
 
   // 3. AI 상담 단건 조회
   @Get(':id')

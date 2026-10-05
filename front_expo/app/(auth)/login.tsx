@@ -13,7 +13,6 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-
   Platform,
   ScrollView,
   StyleSheet,
@@ -77,7 +76,7 @@ export default function LoginScreen() {
                 <Mail size={18} color="#6E8B8B" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="example@email.com"
+                  placeholder="hong@gildong.com"
                   placeholderTextColor="#A3B8B8"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -193,7 +192,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "800",
+    fontWeight: "bold",
     color: Colors.primary,
   },
   subtitle: {

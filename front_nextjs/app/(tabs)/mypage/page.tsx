@@ -13,6 +13,10 @@ import {
   Ban,
   ChevronRight,
   Loader2,
+  Siren,
+  Info,
+  FileUser,
+  UserKey,
 } from "lucide-react";
 import { removeAccessToken } from "@/api/token";
 import { getMyInfo } from "@/api/user/getMyInfo";
@@ -114,7 +118,7 @@ export default function MyPageScreen() {
         <section className="relative mb-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
           <button
             onClick={handleOpenEditModal}
-            className="cursor-pointer absolute right-5 top-5 rounded-md bg-orange-100  px-3 py-1.5 text-xs font-semibold text-orange-500 transition hover:bg-orange-200"
+            className="cursor-pointer absolute right-5 top-5 rounded-md px-3 py-1.5 text-xs font-semibold text-slate-500 transition bg-slate-100   hover:bg-slate-200"
           >
             변경하기
           </button>
@@ -131,7 +135,7 @@ export default function MyPageScreen() {
                   className="h-24 w-24 rounded-full object-cover ring-2 ring-slate-100"
                 />
               ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#1665341F] text-[#1A3A3A]">
                   <User className="h-12 w-12" />
                 </div>
               )}
@@ -156,45 +160,45 @@ export default function MyPageScreen() {
           </h3>
 
           <div className="divide-y divide-slate-100 rounded-2xl bg-white px-5 shadow-sm ring-1 ring-slate-100">
-            {/* 2. 후원하기 */}
+            {/* 1. 후원하기 */}
             <button
-              onClick={() => router.push("/donation")}
+              onClick={() => router.push("/together")}
               className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
             >
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Heart className="h-5 w-5 text-red-500" />
                   <span className="text-base font-semibold text-slate-800">
-                    후원하기
+                    함께하기
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 pl-7">
-                  서비스 운영을 위해 후원합니다.
+                <p className="text-sm text-slate-500 pl-7">
+                  서비스 운영과 발전에 함께합니다.
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />
             </button>
 
-            {/* 3. 신고하기 */}
+            {/* 2. 신고하기 */}
             <button
               onClick={() => setIsReportModalOpen(true)}
               className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
             >
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <AlertTriangle className="h-5 w-5 text-orange-500" />
+                  <Siren className="h-5 w-5 text-red-600" />
                   <span className="text-base font-semibold text-slate-800">
                     신고하기
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 pl-7">
+                <p className="text-sm text-slate-500 pl-7">
                   악성 댓글 및 대화를 신고합니다.
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />
             </button>
 
-            {/* 4. 차단하기 */}
+            {/* 3. 차단하기 */}
             <button
               onClick={() => setIsBlockModalOpen(true)}
               className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
@@ -206,8 +210,46 @@ export default function MyPageScreen() {
                     차단하기
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 pl-7">
+                <p className="text-sm text-slate-500 pl-7">
                   악성 댓글 및 대화를 차단합니다.
+                </p>
+              </div>
+              <ChevronRight className="h-5 w-5 text-slate-400" />
+            </button>
+
+            {/* 4. 서비스 이용약관 */}
+            <button
+              onClick={() => router.push("/terms")}
+              className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
+            >
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Info className="h-5 w-5 text-orange-500" />
+                  <span className="text-base font-semibold text-slate-800">
+                    서비스 이용약관
+                  </span>
+                </div>
+                <p className="text-sm text-slate-500 pl-7">
+                  서비스 약관에 대해 살펴봅니다.
+                </p>
+              </div>
+              <ChevronRight className="h-5 w-5 text-slate-400" />
+            </button>
+
+            {/* 5. 차단하기 */}
+            <button
+              onClick={() => router.push("/privacy")}
+              className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
+            >
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <UserKey className="h-5 w-5 text-blue-800" />
+                  <span className="text-base font-semibold text-slate-800">
+                    개인정보 처리방침
+                  </span>
+                </div>
+                <p className="text-sm text-slate-500 pl-7">
+                  개인정보 처리에 대해 살펴봅니다.
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />

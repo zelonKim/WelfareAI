@@ -4,7 +4,7 @@ export const Colors = {
 
   primary: "#1A3A3A",
   primaryDark: "#122B2B",
-  primaryLight: "rgba(22, 101, 52, 0.12)",
+  primaryLight: "#1665341F",
 
   point: "#FF7F66",
   pointCard: "#FFEFEA",

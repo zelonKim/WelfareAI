@@ -103,7 +103,7 @@ export default function PolicyScreen() {
             </Text>
             <TextInput
               style={styles.searchInput}
-              placeholder="검색어를 입력해주세요."
+              placeholder="검색어를 입력해 보세요."
               placeholderTextColor="#94a3b8"
               value={keyword}
               onChangeText={setKeyword}
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2F6F6",
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 68,
+    paddingBottom: 36,
   },
 
   header: {

@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { ProfileEditModalProps } from "@/types/user/ProfileEditModalProps";
-import { User } from "lucide-react-native";
+import { Camera, User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -29,6 +29,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   selectedImageUri,
 }) => {
   const [nicknameInput, setNicknameInput] = useState(initialNickname);
+  const [initialAvatar, setInitialAvatar] = useState(initialAvatarUri);
 
   useEffect(() => {
     if (visible) {
@@ -42,7 +43,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   };
 
   const displayAvatarUri =
-    selectedImageUri === null ? null : selectedImageUri || initialAvatarUri;
+    selectedImageUri === null ? initialAvatar : selectedImageUri;
 
   return (
     <Modal
@@ -79,14 +80,17 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                 </View>
               )}
               <View style={styles.cameraBadge}>
-                <Text style={styles.cameraIcon}>📷</Text>
+                <Camera size={16} color={Colors.primary} />
               </View>
             </TouchableOpacity>
 
             {displayAvatarUri && (
               <TouchableOpacity
                 style={styles.removeImageButton}
-                onPress={onRemoveImage}
+                onPress={() => {
+                  setInitialAvatar(null);
+                  onRemoveImage();
+                }}
                 disabled={isLoading}
               >
                 <Text style={styles.removeImageIcon}>✕</Text>
@@ -351,9 +355,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#cbd5e1",
   },
-  cameraIcon: {
-    fontSize: 12,
-  },
+
   modalInputGroup: {
     marginBottom: 14,
   },
@@ -407,9 +409,9 @@ const styles = StyleSheet.create({
   },
   removeImageButton: {
     position: "absolute",
-    top: 0,
-    right: 110,
-    backgroundColor: "#FF3B30",
+    top: 2,
+    right: 108,
+    backgroundColor: Colors.point,
     width: 20,
     height: 20,
     borderRadius: 12,
@@ -419,7 +421,7 @@ const styles = StyleSheet.create({
   },
   removeImageIcon: {
     color: "#FFFFFF",
-    fontSize: 10,
+    fontSize: Platform.OS === "ios" ? 10 : 8,
     fontWeight: "bold",
   },
 });

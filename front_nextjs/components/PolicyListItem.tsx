@@ -2,6 +2,7 @@
 
 import React from "react";
 import { PolicyItem } from "@/types/policy/PolicyItem";
+import { Building, CalendarDays } from "lucide-react";
 
 export const PolicyListItem = ({ item }: { item: PolicyItem }) => {
   const handleClick = () => {
@@ -42,12 +43,14 @@ export const PolicyListItem = ({ item }: { item: PolicyItem }) => {
         </div>
 
         {/* 푸터: 담당 부서 & 지원 주기 */}
-        <div className="pt-3 border-t border-[#f8fafc] flex items-center justify-between text-xs sm:text-sm font-medium text-[#64748b]">
-          <div className="flex items-center gap-2">
+        <div className="pt-3 border-t border-[#1665341F]  flex items-center justify-between text-xs sm:text-sm font-medium text-[#64748b]">
+          <div className="flex items-center gap-1">
+            <Building size={14} style={{ marginBottom: 2 }} />
             <span>{item.department}</span>
             {item.supportCycle && (
               <>
-                <span className="text-gray-300">•</span>
+                <span className="text-gray-300 px-1">•</span>
+                <CalendarDays size={14} style={{ marginBottom: 1 }} />
                 <span>{item.supportCycle}</span>
               </>
             )}

@@ -46,7 +46,7 @@ export default function LoginPage() {
       <main className="min-h-screen w-full bg-[#F2F6F6] flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-md bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-[#1A3A3A]/10">
           <div className="flex flex-col items-center mb-8 text-center">
-            <div className="relative w-18 h-18 mb-3 overflow-hidden rounded-2xl">
+            <div className="relative w-16 h-16 mb-2 overflow-hidden rounded-[20px]">
               <Image
                 src="/icon.png"
                 alt="WelfareAI Logo"
@@ -56,11 +56,11 @@ export default function LoginPage() {
                 priority
               />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A3A3A] tracking-tight">
+            <h1 className="text-[33px] font-black text-[#1A3A3A] tracking-tight">
               <span className="text-[#FF7F66]">W</span>elfare
               <span className="text-[#FF7F66]">A</span>I
             </h1>
-            <p className="text-base text-[#6E8B8B] mt-2 font-medium">
+            <p className="text-base text-[#6E8B8B] font-medium">
               도움이 필요할때 언제든지 와요
             </p>
           </div>
@@ -74,7 +74,7 @@ export default function LoginPage() {
                 <Mail className="absolute left-3.5 w-5 h-5 text-[#6E8B8B]" />
                 <input
                   type="email"
-                  placeholder="example@email.com"
+                  placeholder="hong@gildong.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full h-12 pl-11 pr-4 bg-[#F8FAFA] text-base text-[#1A3A3A] placeholder-[#A3B8B8] rounded-xl border border-[#1A3A3A]/10 focus:outline-none focus:border  focus:border-[#FF7F66] transition-colors"
@@ -157,7 +157,7 @@ export default function LoginPage() {
             />
           )}
 
-          <div className="pt-6 text-center space-y-4">
+          <div className="pt-8 text-center space-y-4 ">
             <div className="bg-[#1A3A3A]/10 p-3 rounded-xl border border-[#1A3A3A]/20 ">
               <p className="text-sm font-medium text-[#1A3A3A] mb-2">
                 🦊 10월 중 앱 출시 예정

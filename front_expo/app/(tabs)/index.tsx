@@ -4,6 +4,7 @@ import { getConsultings } from "@/api/consult/getConsultings";
 import { AutoPrompts } from "@/constants/AutoPrompts";
 import Colors from "@/constants/Colors";
 import { useCreateConsulting } from "@/hooks/consult/useCreateConsulting";
+import { useDeleteAllConsulting } from "@/hooks/consult/useDeleteAllConsulting";
 import { useDeleteConsulting } from "@/hooks/consult/useDeleteConsulting";
 import { ConsultingItem } from "@/types/consult/ConsultingItem";
 import { Message } from "@/types/consult/Message";
@@ -11,11 +12,18 @@ import { registerForPushNotificationsAsync } from "@/utils/registerForPushNotifi
 import { useQuery } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
-import { Bot, BotMessageSquare, Send, User } from "lucide-react-native";
+import {
+  Bot,
+  BotMessageSquare,
+  RotateCcw,
+  Send,
+  User,
+} from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -97,7 +105,7 @@ export default function AIConsultScreen() {
       {
         id: "welcome",
         sender: "ai",
-        text: "안녕하세요! WelfareAI 맞춤 상담원입니다. 🤖\n현재 연령, 가구 상황, 또는 궁금한 복지 혜택을 편하게 말씀해 주세요.",
+        text: "안녕하세요! 맞춤 복지 상담 AI비서 웰폭스입니다.🦊 궁금한 복지 혜택 및 제도를 편하게 말씀해 주세요.",
       },
     ];
 
@@ -141,8 +149,8 @@ export default function AIConsultScreen() {
     const rawId = id.replace(/^(a-|q-|user-|ai-)/, "");
 
     Alert.alert(
-      "메시지 삭제",
-      "정말로 해당 상담내역을 삭제하시겠습니까?",
+      "해당 내용 삭제",
+      "해당 상담 내용을 삭제하시겠습니까?",
       [
         { text: "취소", style: "cancel" },
         {
@@ -155,6 +163,9 @@ export default function AIConsultScreen() {
     );
   };
 
+  const { mutate: deleteAllMutation, isPending: deleteAllPending } =
+    useDeleteAllConsulting();
+
   ////////////////////////////////////////////////////////////////////////////////
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -166,12 +177,28 @@ export default function AIConsultScreen() {
           </View>
           <Text style={styles.headerTitle}>AI 복지 상담</Text>
         </View>
-        {/* <TouchableOpacity
+        <TouchableOpacity
           style={styles.resetButton}
-          onPress={() => refetchConsultings()}
+          onPress={() => {
+            Alert.alert(
+              "모든 내용 삭제",
+              "모든 상담 내용을 삭제하고, 초기화 하시겠습니까?",
+              [
+                {
+                  text: "취소",
+                  style: "cancel",
+                },
+                {
+                  text: "모두 삭제",
+                  style: "destructive",
+                  onPress: () => deleteAllMutation(),
+                },
+              ],
+            );
+          }}
         >
-          <RefreshCw size={18} color="#6E8B8B" />
-        </TouchableOpacity> */}
+          <RotateCcw size={18} color="#6E8B8B" />
+        </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView
@@ -256,7 +283,7 @@ export default function AIConsultScreen() {
                 >
                   <ActivityIndicator size="small" color={Colors.point} />
                   <Text style={styles.aiLoadingText}>
-                    AI가 관련 복지 정책을 찾아보고 있어요 🤖
+                    AI가 관련 내용을 찾아보는 중 🦊
                   </Text>
                 </View>
               </View>
@@ -343,6 +370,10 @@ const markdownStyles = StyleSheet.create({
   },
   bullet_list: {
     marginVertical: 4,
+  },
+  link: {
+    color: "#FF7F66",
+    fontWeight: "bold",
   },
 });
 
@@ -493,7 +524,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 6,
-    marginBottom: 12,
+    marginBottom: Platform.OS === "ios" ? 12 : 22,
     borderWidth: 1,
     borderColor: "rgba(26, 58, 58, 0.12)",
     shadowColor: "#000",
@@ -506,6 +537,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     fontSize: 14,
+
     color: "#1A3A3A",
   },
   sendButton: {

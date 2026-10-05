@@ -212,12 +212,12 @@ export default function CrisisReportScreen() {
                 {item.content}
               </Text>
 
-              {item.address && (
+              <View style={styles.cardFooter}>
                 <View style={styles.addressRow}>
                   <MapPin size={14} color="#6E8B8B" />
                   <Text style={styles.addressText}>{item.address}</Text>
                 </View>
-              )}
+              </View>
             </TouchableOpacity>
           )}
         />
@@ -477,8 +477,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardTitle: { fontSize: 16, fontWeight: "700", color: "#1A3A3A", flex: 1 },
-  createdAtText: { fontSize: 12, color: "#999", marginLeft: 8 },
-  cardContent: { fontSize: 14, color: "#6E8B8B", marginTop: 6 },
+  createdAtText: { fontSize: 11.5, color: "#999", marginLeft: 8 },
+  cardContent: {
+    fontSize: 14,
+    color: "#6E8B8B",
+    marginTop: 6,
+    marginBottom: 12,
+  },
   addressRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -498,8 +503,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 25,
+    shadowColor: Colors.point,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
     gap: 6,
-    elevation: 4,
+    elevation: 2,
   },
   fabText: { color: "#FFFFFF", fontWeight: "700", fontSize: 15 },
+  cardFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 3,
+    borderTopWidth: 1,
+    borderTopColor: Colors.background,
+  },
 });

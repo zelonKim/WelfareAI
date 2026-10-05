@@ -124,7 +124,7 @@ export default function SignupScreen() {
                 <Mail size={18} color="#6E8B8B" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="example@email.com"
+                  placeholder="hong@gildong.com"
                   placeholderTextColor="#A3B8B8"
                   keyboardType="email-address"
                   autoCapitalize="none"
