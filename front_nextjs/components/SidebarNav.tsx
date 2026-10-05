@@ -105,7 +105,7 @@ export default function SidebarNav() {
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-label="메뉴 열기/닫기"
-        className="cursor-pointer flex lg:hidden h-14 w-14 items-center justify-center rounded-full bg-[#1A3A3A] text-white shadow-sm shadow-[#1E2E2A]/30 transition-transform active:scale-90"
+        className="hover:opacity-90 cursor-pointer flex lg:hidden h-14 w-14 items-center justify-center rounded-full bg-[#1A3A3A] text-white shadow-sm shadow-[#1E2E2A]/30 transition-transform active:scale-90"
       >
         {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </button>

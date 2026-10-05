@@ -204,7 +204,7 @@ export default function AIConsultScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={"padding"}
-        keyboardVerticalOffset={-110}
+        keyboardVerticalOffset={Platform.OS === "ios" ? -110 : -120}
       >
         {/* 2. 대화 목록 영역 */}
         {isFetchingHistory ? (

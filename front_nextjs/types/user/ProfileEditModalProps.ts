@@ -7,6 +7,6 @@ export interface ProfileEditModalProps {
   onPickImage: () => void;
   onSave: (data: { nickname: string; imageUri?: string | null }) => void;
   onPending: boolean;
-  onRemoveImage?: () => void;
+  onRemoveImage: () => void;
   selectedImageUri?: string | null;
 }

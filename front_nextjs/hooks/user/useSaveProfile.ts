@@ -3,7 +3,6 @@ import { SaveProfileParams } from "@/types/user/SaveProfileParams";
 import { UseSaveProfileOptions } from "@/types/user/UseSaveProfileOptions";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-
 import { useUpdateProfile } from "./useUpdateProfile";
 
 export const useSaveProfile = (options?: UseSaveProfileOptions) => {
@@ -48,7 +47,8 @@ export const useSaveProfile = (options?: UseSaveProfileOptions) => {
         nickname: trimmedNickname,
         profileImage: uploadedImageUrl,
       });
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
       alert("이미지 업로드 중 오류가 발생했습니다.");
     } finally {
       setIsUploading(false);

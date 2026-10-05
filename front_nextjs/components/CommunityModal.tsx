@@ -108,7 +108,7 @@ export default function CommunityModal({
               placeholder="예: 치매 어르신 가족 소통방"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-white transition-all"
+              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-white transition-all"
             />
           </div>
 
@@ -122,7 +122,7 @@ export default function CommunityModal({
               rows={4}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-white transition-all resize-none"
+              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-white transition-all resize-none"
             />
           </div>
 

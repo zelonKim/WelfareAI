@@ -168,11 +168,11 @@ export default function MyPageScreen() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Heart className="h-5 w-5 text-red-500" />
-                  <span className="text-base font-semibold text-slate-800">
+                  <span className="text-[18px] font-semibold text-slate-800">
                     함께하기
                   </span>
                 </div>
-                <p className="text-sm text-slate-500 pl-7">
+                <p className="text-[15px] text-slate-500 pl-7">
                   서비스 운영과 발전에 함께합니다.
                 </p>
               </div>
@@ -187,11 +187,11 @@ export default function MyPageScreen() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Siren className="h-5 w-5 text-red-600" />
-                  <span className="text-base font-semibold text-slate-800">
+                  <span className="text-[18px]  font-semibold text-slate-800">
                     신고하기
                   </span>
                 </div>
-                <p className="text-sm text-slate-500 pl-7">
+                <p className="text-[15px] text-slate-500 pl-7">
                   악성 댓글 및 대화를 신고합니다.
                 </p>
               </div>
@@ -206,11 +206,11 @@ export default function MyPageScreen() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Ban className="h-5 w-5 text-slate-500" />
-                  <span className="text-base font-semibold text-slate-800">
+                  <span className="text-[18px]  font-semibold text-slate-800">
                     차단하기
                   </span>
                 </div>
-                <p className="text-sm text-slate-500 pl-7">
+                <p className="text-[15px] text-slate-500 pl-7">
                   악성 댓글 및 대화를 차단합니다.
                 </p>
               </div>
@@ -225,11 +225,11 @@ export default function MyPageScreen() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Info className="h-5 w-5 text-orange-500" />
-                  <span className="text-base font-semibold text-slate-800">
+                  <span className="text-[18px]  font-semibold text-slate-800">
                     서비스 이용약관
                   </span>
                 </div>
-                <p className="text-sm text-slate-500 pl-7">
+                <p className="text-[15px] text-slate-500 pl-7">
                   서비스 약관에 대해 살펴봅니다.
                 </p>
               </div>
@@ -244,11 +244,11 @@ export default function MyPageScreen() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <UserKey className="h-5 w-5 text-blue-800" />
-                  <span className="text-base font-semibold text-slate-800">
+                  <span className="text-[18px]  font-semibold text-slate-800">
                     개인정보 처리방침
                   </span>
                 </div>
-                <p className="text-sm text-slate-500 pl-7">
+                <p className="text-[15px] text-slate-500 pl-7">
                   개인정보 처리에 대해 살펴봅니다.
                 </p>
               </div>
@@ -258,7 +258,7 @@ export default function MyPageScreen() {
         </section>
 
         {/* 계정 관리 */}
-        <div className="flex items-center justify-center gap-3 text-sm">
+        <div className="flex items-center justify-center gap-3 text-[15px]">
           <button
             onClick={handleLogout}
             className="cursor-pointer text-slate-500 hover:underline underline-offset-4 hover:text-slate-800"

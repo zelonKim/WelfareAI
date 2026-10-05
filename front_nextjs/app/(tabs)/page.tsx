@@ -294,7 +294,7 @@ export default function AIConsultPage() {
       {showTopBtn && (
         <button
           onClick={scrollToTop}
-          className="absolute right-24 lg:right-6 bottom-28 lg:bottom-24 z-20 w-14 h-14 bg-[#1A3A3A] text-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#2C5252] transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 cursor-pointer"
+          className="absolute right-25 lg:right-6 bottom-28 lg:bottom-24 z-20 w-14 h-14 bg-[#1A3A3A] text-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#2C5252] transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 cursor-pointer"
           aria-label="맨 위로 이동"
           title="맨 위로 이동"
         >

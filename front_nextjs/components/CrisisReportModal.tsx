@@ -87,7 +87,7 @@ export default function CrisisReportModal({
               placeholder="예: 단전/단수가 의심되는 가구 제보"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F8F9FA] border border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1A3A3A] transition-colors"
+              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF7F66] transition-colors"
             />
           </div>
 
@@ -101,7 +101,7 @@ export default function CrisisReportModal({
               placeholder="위기 상황에 대해 자세히 적어주세요."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F8F9FA] border border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1A3A3A] transition-colors resize-none"
+              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF7F66] transition-colors resize-none"
             />
           </div>
 
@@ -116,7 +116,7 @@ export default function CrisisReportModal({
                 placeholder="위치를 입력해주세요"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="flex-1 px-4 py-3 bg-[#F8F9FA] border border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1A3A3A] transition-colors"
+                className="flex-1 px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF7F66] transition-colors"
               />
               <button
                 type="button"
@@ -161,7 +161,7 @@ export default function CrisisReportModal({
                 type="button"
                 disabled={uploadImagePending}
                 onClick={() => fileInputRef.current?.click()}
-                className="w-20 h-20 rounded-xl bg-[#F8F9FA] border border-dashed border-[#CBD5E1] flex flex-col items-center justify-center gap-1 text-[#6E8B8B] hover:border-[#1A3A3A] hover:text-[#1A3A3A] shrink-0 transition-colors cursor-pointer disabled:opacity-50"
+                className="w-20 h-20 rounded-xl bg-[#F8F9FA] border-dashed border-[#CBD5E1] flex flex-col items-center justify-center gap-1 text-[#6E8B8B] hover:border-[#FF7F66] border-2 hover:text-[#1A3A3A] shrink-0 transition-colors cursor-pointer disabled:opacity-50"
               >
                 {uploadImagePending ? (
                   <Loader2 className="w-5 h-5 animate-spin text-[#FF7F66]" />

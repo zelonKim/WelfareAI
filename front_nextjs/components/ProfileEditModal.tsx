@@ -19,6 +19,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   selectedImageUri,
 }) => {
   const [nicknameInput, setNicknameInput] = useState(initialNickname);
+  const [initialAvatar, setInitialAvatar] = useState(initialAvatarUri);
 
   // 모달이 열리거나 initialNickname이 변경될 때 입력값 초기화
   useEffect(() => {
@@ -45,7 +46,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   };
 
   const displayAvatarUri =
-    selectedImageUri === null ? null : selectedImageUri || initialAvatarUri;
+    selectedImageUri === null ? initialAvatar : selectedImageUri;
 
   if (!visible) return null;
 
@@ -95,7 +96,10 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               {displayAvatarUri && (
                 <button
                   type="button"
-                  onClick={onRemoveImage}
+                  onClick={() => {
+                    setInitialAvatar(null);
+                    onRemoveImage();
+                  }}
                   disabled={isLoading || onPending}
                   className="cursor-pointer absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-white shadow-md transition hover:bg-orange-600 disabled:opacity-50"
                   aria-label="프로필 사진 삭제"

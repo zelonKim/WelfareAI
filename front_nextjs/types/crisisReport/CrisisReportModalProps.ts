@@ -1,3 +1,7 @@
+import { UseMutationResult } from "@tanstack/react-query";
+
+type UploadImageMutationType = UseMutationResult<string, Error, string>;
+
 export interface CrisisReportModalProps {
   visible: boolean;
   onClose: () => void;
@@ -11,7 +15,7 @@ export interface CrisisReportModalProps {
   setLongitude: React.Dispatch<React.SetStateAction<number | undefined>>;
   images: string[];
   setImages: React.Dispatch<React.SetStateAction<string[]>>;
-  uploadImageMutation: any;
+  uploadImageMutation: UploadImageMutationType;
   uploadImagePending?: boolean;
   createReportPending?: boolean;
   handleGetCurrentLocation: (setters: {
@@ -21,7 +25,7 @@ export interface CrisisReportModalProps {
   }) => void;
   handlePickImage: (props: {
     setImages: React.Dispatch<React.SetStateAction<string[]>>;
-    uploadImageMutation: any;
+    uploadImageMutation: UploadImageMutationType;
   }) => void;
   handleRemoveImage: (index: number) => void;
   handleCreateReport: () => void;

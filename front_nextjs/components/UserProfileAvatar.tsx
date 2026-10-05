@@ -20,7 +20,7 @@ interface UserProfileAvatarProps {
 export const UserProfileAvatar: React.FC<UserProfileAvatarProps> = ({
   profileImage,
   nickname = "사용자",
-  size = 40, // 웹 환경에 맞춰 기본 크기를 40px로 약간 확대
+  size = 40,
   iconSize = 22,
   isPopoverVisible = false,
   onProfilePress,
