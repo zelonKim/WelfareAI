@@ -11,13 +11,13 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://welfareai-production.up.railway.app"
+        "EXPO_PUBLIC_API_URL": "https://welfareapi.pe.kr"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://welfareai-production.up.railway.app"
+        "EXPO_PUBLIC_API_URL": "https://welfareapi.pe.kr"
       }
     }
   },

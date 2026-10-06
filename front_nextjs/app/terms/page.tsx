@@ -49,7 +49,7 @@ export default function TermsPage() {
         {/* 브랜드 안내 상자 */}
         <div className="mb-6 p-4 rounded-xl bg-[#F0F6F5] border border-[#DCEBE8]">
           <p className="text-xs font-bold text-[#FF6B5B] uppercase tracking-wider mb-1">
-            WelfareAI
+            Terms of Service & Operating Policy
           </p>
           <p className="text-sm text-[#385B56] leading-relaxed">
             WelfareAI 서비스를 이용해 주셔서 감사합니다. 본 약관은 안전하고

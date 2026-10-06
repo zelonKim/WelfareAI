@@ -49,6 +49,7 @@ export default function PolicyScreen() {
     hasNextPage,
     isFetchingNextPage,
     isFetching,
+    isPending,
     refetch,
   } = useInfiniteQuery({
     queryKey: [
@@ -78,6 +79,8 @@ export default function PolicyScreen() {
   };
 
   const totalCount = data?.pages[0]?.totalCount;
+
+  const isInitialLoading = isPending || (isFetching && !data);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -185,13 +188,19 @@ export default function PolicyScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}></Text>
-              <Text style={styles.emptyTitle}>검색 결과가 없습니다</Text>
-              <Text style={styles.emptySub}>
-                다른 검색어나 다른 카테고리를 선택해 보세요.
-              </Text>
-            </View>
+            isInitialLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+              </View>
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyIcon}></Text>
+                <Text style={styles.emptyTitle}>검색 결과가 없습니다</Text>
+                <Text style={styles.emptySub}>
+                  다른 검색어나 다른 카테고리를 선택해 보세요.
+                </Text>
+              </View>
+            )
           }
         />
       </View>
@@ -431,7 +440,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 60,
+    paddingVertical: 120,
   },
   emptyIcon: {
     fontSize: 40,
@@ -499,5 +508,11 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 11,
     fontWeight: "500",
+  },
+  loadingContainer: {
+    flex: 1,
+    paddingVertical: 200,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

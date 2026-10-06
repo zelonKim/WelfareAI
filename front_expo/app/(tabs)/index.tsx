@@ -210,9 +210,6 @@ export default function AIConsultScreen() {
         {isFetchingHistory ? (
           <View style={styles.loadingCenter}>
             <ActivityIndicator size="large" color={Colors.point} />
-            <Text style={styles.loadingText}>
-              이전 상담 내역을 가져오는 중...
-            </Text>
           </View>
         ) : (
           <ScrollView
