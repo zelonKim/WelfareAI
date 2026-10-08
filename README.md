@@ -1,6 +1,6 @@
-# 🦊 WelfareAI - Civic-Tech AI 복지 통합 플랫폼
+# 🦊 WelfareAI - Civic Tech AI 통합 복지 플랫폼
 
-> **WelfareAI**는 AI 기술과 공공 데이터를 활용하여 복지 정보의 접근성을 높이고, 지역사회 이웃 간의 연결을 돕는 오픈소스 복지 통합 플랫폼입니다.
+> **WelfareAI**는 AI 기술과 공공 데이터를 활용하여 복지 정보의 접근성을 높이고, 지역사회 이웃 간의 연결을 돕는 오픈소스 통합 복지 플랫폼입니다.
 
 ---
 
@@ -33,24 +33,29 @@ WelfareAI는 크게 **4가지 핵심 서비스**를 제공합니다.
 ## 🛠 기술 스택 (Tech Stack)
 
 ### Frontend
+
 - **Web**: Next.js 15 (App Router), React 19, Tailwind CSS
 - **Mobile**: Expo 55 (React Native), React Navigation
 
 ### Backend
+
 - **Core Server**: NestJS 11, TypeScript,
 - **AI Server**: FastAPI 0.141, Python 3.11+
 
 ### Database
+
 - **DB & ORM**: PostgreSQL 18, Prisma 6
 - **Cloud DB**: NeonDB
 
 ### External APIs
+
 - **AI Engine**: OpenAI API (gpt-4o-mini)
 - **Open Data**: 공공데이터포털 API
 
 ### Infrastructure & Deployment
+
 - **Web Hosting**: Vercel
-- **Mobile Build**: EAS 
+- **Mobile Build**: EAS
 - **Backend Server**: AWS Lightsail (Ubuntu, Nginx, PM2)
 
 ---
@@ -84,5 +89,6 @@ WelfareAI는 크게 **4가지 핵심 서비스**를 제공합니다.
 ```
 
 ## 📄 라이선스 (License)
+
 본 프로젝트는 **AGPL-3.0 (GNU Affero General Public License v3.0)** 라이선스를 따릅니다.
 누구나 자유롭게 수정 및 재배포할 수 있으나, 본 프로젝트를 기반으로 한 2차적 저작물 및 웹/앱 서비스 역시 동일한 라이선스(AGPL-3.0)로 소스코드를 공개해야 합니다.

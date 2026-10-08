@@ -1,10 +1,10 @@
 # 📱 WelfareAI - React Native(Expo) Mobile App
 
-> **`front_expo`**은 React Native 및 Expo Router로 구축된 모바일 앱으로서, AI 맞춤 상담, 커뮤니티 및 실시간 채팅 기능, 푸시 알림, iOS 및 Android 위치 기반 제보 기능 등을 제공합니다.
+> `front_expo`은 React Native 및 Expo Router로 구축된 모바일 앱으로서, AI 맞춤 상담, 커뮤니티 및 실시간 채팅 기능, 푸시 알림, iOS 및 Android 위치 기반 제보 기능 등을 제공합니다.
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 기술 스택 (Tech Stack)
 
 - **Framework**: React Native (Expo)
 - **Routing**: Expo Router (File-based Routing)
@@ -16,7 +16,7 @@
 
 ---
 
-## 🔑 Key Features
+## 🔑 핵심 기능 (Key Features)
 
 ### 🖼 1. Native Image Picker
 
@@ -36,7 +36,7 @@
 
 ---
 
-## 📂 Folder Structure
+## 📂 디렉터리 구조 (Directory Structure)
 
 ```text
 front_expo/
@@ -50,8 +50,8 @@ front_expo/
 │   │   ├── mypage.tsx       # 마이페이지
 │   │   └── policy.tsx       # 맞춤 복지 정책 검색
 │   ├── agreement/           # 약관 및 동의서 화면
-│   ├── communityDetail/     # 커뮤니티 상세 
-│   ├── crisisReportDetail/  # 위기 제보 상세 
+│   ├── communityDetail/     # 커뮤니티 상세
+│   ├── crisisReportDetail/  # 위기 제보 상세
 │   ├── +html.tsx            # 웹 보조 HTML 템플릿
 │   ├── +not-found.tsx       # 404 예외 처리 화면
 │   ├── _layout.tsx          # 루트 네비게이션 레이아웃
@@ -62,7 +62,7 @@ front_expo/
 ├── hooks/                   # 커스텀 React Hooks
 ├── types/                   # TypeScript 타입 정의
 ├── utils/                   # 위치 조회, 이미지 선택, Apple 로그인, 푸시 알림 핸들러
-├── app.json                 # Expo 프로젝트 글로벌 설정 
+├── app.json                 # Expo 프로젝트 글로벌 설정
 ├── eas.json                 # EAS 빌드 및 배포 설정
 ├── google-services.json     # Android Firebase 설정 파일
 └── GoogleService-Info.plist # iOS Firebase 설정 파일
