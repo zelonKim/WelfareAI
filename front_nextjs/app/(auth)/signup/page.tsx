@@ -12,7 +12,6 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
-
 import TermsModal from "@/components/TermsModal";
 import { useSignup } from "@/hooks/auth/useSignup";
 import { generateRandomNickname } from "@/utils/generateRandomNickname";
@@ -25,13 +24,60 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
   const [isTermsAgreed, setIsTermsAgreed] = useState(false);
   const [isPrivacyAgreed, setIsPrivacyAgreed] = useState(false);
   const [isMarketingAgreed, setIsMarketingAgreed] = useState(false);
   const [modalType, setModalType] = useState<
     "terms" | "privacy" | "marketing" | null
   >(null);
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  const { mutate: signupMutation, isPending: signupPending } = useSignup();
+
+  const handleSignup = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const refinedEmail = email.trim();
+    const refinedNickname = nickname.trim();
+
+    if (!refinedEmail || !refinedNickname || !password || !passwordConfirm) {
+      alert("모든 정보를 입력해 주세요.");
+      return;
+    }
+
+    if (refinedNickname.length < 2) {
+      alert("별명은 최소 2자 이상이어야 합니다.");
+      return;
+    }
+
+    if (refinedNickname.length > 12) {
+      alert("별명은 최대 12자 이하이어야 합니다.");
+      return;
+    }
+
+    if (password !== passwordConfirm) {
+      alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+      return;
+    }
+
+    if (!isTermsAgreed || !isPrivacyAgreed) {
+      alert("필수 약관에 모두 동의해 주세요.");
+      return;
+    }
+
+    signupMutation({
+      email: refinedEmail,
+      nickname: refinedNickname,
+      password,
+      passwordConfirm,
+      isTermsAgreed,
+      isPrivacyAgreed,
+      isMarketingAgreed,
+    });
+  };
+
+  //////////////////////////////////////////////////////////////////////////////
 
   const isAllAgreed = isTermsAgreed && isPrivacyAgreed && isMarketingAgreed;
 
@@ -47,51 +93,11 @@ export default function SignupPage() {
     setNickname(newNickname);
   };
 
-  const { mutate: signupMutation, isPending: signupPending } = useSignup();
-
-  const handleSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!email.trim() || !nickname.trim() || !password || !passwordConfirm) {
-      alert("모든 정보를 입력해 주세요.");
-      return;
-    }
-
-    if (nickname.trim().length < 2) {
-      alert("별명은 최소 2자 이상이어야 합니다.");
-      return;
-    }
-
-    if (nickname.trim().length > 12) {
-      alert("별명은 최대 12자 이하이어야 합니다.");
-      return;
-    }
-
-    if (password !== passwordConfirm) {
-      alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
-      return;
-    }
-
-    if (!isTermsAgreed || !isPrivacyAgreed) {
-      alert("필수 약관에 동의해 주세요.");
-      return;
-    }
-
-    signupMutation({
-      email: email.trim(),
-      nickname: nickname.trim(),
-      password,
-      passwordConfirm,
-      isTermsAgreed,
-      isPrivacyAgreed,
-      isMarketingAgreed,
-    });
-  };
+  //////////////////////////////////////////////////////////////////////////////
 
   return (
     <main className="min-h-screen w-full bg-[#F2F6F6] flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-[#1A3A3A]/10">
-        {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1A3A3A] tracking-tight">
             환영해요 🦊
@@ -101,9 +107,7 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSignup} className="space-y-4">
-          {/* Email */}
           <div className="space-y-1.5">
             <label className="block text-sm sm:text-base font-semibold text-[#1A3A3A]">
               이메일
@@ -120,7 +124,6 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Password */}
           <div className="space-y-1.5">
             <label className="block text-sm sm:text-base font-semibold text-[#1A3A3A]">
               비밀번호
@@ -151,7 +154,6 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Password Confirm */}
           <div className="space-y-1.5">
             <label className="block text-sm sm:text-base font-semibold text-[#1A3A3A]">
               비밀번호 확인
@@ -168,7 +170,6 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Nickname */}
           <div className="space-y-1.5">
             <label className="block text-sm sm:text-base font-semibold text-[#1A3A3A]">
               별명
@@ -195,13 +196,11 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Terms Section */}
           <div className="pt-2 pb-1 space-y-3">
             <label className="block text-sm sm:text-base font-semibold text-[#1A3A3A]">
               약관 동의
             </label>
 
-            {/* 전체 동의 */}
             <button
               type="button"
               onClick={handleAllAgree}
@@ -223,9 +222,7 @@ export default function SignupPage() {
 
             <div className="h-px bg-gray-200 my-2" />
 
-            {/* 개별 약관 동의 리스트 */}
             <div className="space-y-2.5 pl-1">
-              {/* 필수약관 1 */}
               <div className="flex items-center justify-between text-sm sm:text-base">
                 <button
                   type="button"
@@ -254,7 +251,6 @@ export default function SignupPage() {
                 </button>
               </div>
 
-              {/* 필수약관 2 */}
               <div className="flex items-center justify-between text-sm sm:text-base">
                 <button
                   type="button"
@@ -285,7 +281,6 @@ export default function SignupPage() {
                 </button>
               </div>
 
-              {/* 선택약관 */}
               <div className="flex items-center justify-between text-sm sm:text-base">
                 <button
                   type="button"
@@ -321,7 +316,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={signupPending}
-            className="w-full h-12 mt-2 bg-[#1A3A3A] hover:bg-[#142E2E] text-white font-bold text-base sm:text-lg rounded-xl flex items-center justify-center transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            className="cursor-pointer w-full h-12 mt-2 bg-[#1A3A3A] hover:bg-[#142E2E] text-white font-bold text-base sm:text-lg rounded-xl flex items-center justify-center transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {signupPending ? (
               <Loader2 className="w-5 h-5 animate-spin text-white" />

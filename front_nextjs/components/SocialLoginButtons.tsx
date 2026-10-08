@@ -1,12 +1,7 @@
 "use client";
 
+import { SocialLoginButtonsProps } from "@/types/auth/SocialLoginButtonsProps";
 import { GoogleLogin } from "@react-oauth/google";
-
-interface SocialLoginButtonsProps {
-  onGoogleSuccess: (idToken: string) => void;
-  onAppleLogin: () => void;
-  isSocialPending: boolean;
-}
 
 export function SocialLoginButtons({
   onGoogleSuccess,

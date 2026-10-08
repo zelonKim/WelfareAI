@@ -16,22 +16,18 @@ export const useSocialLogin = () => {
         window.dispatchEvent(new Event("auth-state-change"));
       }
       if (data.isNewUser) {
-        // 신규 가입자라면 약관 동의 및 추가 정보 입력 페이지로 이동
-        router.replace("/agreement");
+        router.replace("/agreement"); // 신규 가입자일 경우, 약관 동의 페이지로 이동
       } else {
-        // 기존 유저는 바로 메인으로
-        router.replace("/");
+        router.replace("/"); // 기존 유저일 경우, 바로 메인 페이지로 이동
       }
     },
     onError: (error: AxiosError<ApiErrorRes>) => {
-      console.log("=== 백엔드 소셜 로그인 에러 상세 ===", {
+      console.log("=== 소셜 로그인 에러 상세 ===", {
         status: error.response?.status,
         data: error.response?.data,
         message: error.message,
       });
-
-      const errorMessage =
-        error.response?.data?.message || "소셜 로그인 중 오류가 발생했습니다.";
+      const errorMessage = error.response?.data?.message || "소셜 로그인 중 오류가 발생했습니다.";
       alert(errorMessage);
     },
   });

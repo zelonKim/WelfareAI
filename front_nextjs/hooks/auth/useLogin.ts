@@ -13,7 +13,6 @@ export const useLogin = () => {
     mutationFn: (dto: LoginDto) => loginApi(dto),
     onSuccess: async (data) => {
       await setAccessToken(data.accessToken);
-      alert(`${data.user.nickname}님 환영해요.🦊`);
       router.replace("/");
     },
     onError: (error: AxiosError<ApiErrorRes>) => {

@@ -28,7 +28,7 @@ export default function CrisisReportModal({
 }: CrisisReportModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ESC 키로 모달 닫기 이벤트
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && visible) {
@@ -39,7 +39,8 @@ export default function CrisisReportModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [visible, onClose]);
 
-  // 웹 파일 선택 핸들러
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -53,17 +54,16 @@ export default function CrisisReportModal({
 
   if (!visible) return null;
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-      {/* 배경 클릭 시 닫기 오버레이 */}
       <div className="absolute inset-0" onClick={onClose} />
 
-      {/* 모달 카어드 본문 */}
       <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
-        {/* 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-            위기 이웃 제보하기
+            📢 위기 이웃 제보하기
           </h2>
           <button
             type="button"
@@ -75,9 +75,7 @@ export default function CrisisReportModal({
           </button>
         </div>
 
-        {/* 폼 콘텐츠 (스크롤 가능) */}
         <div className="p-6 overflow-y-auto space-y-5">
-          {/* 1. 제보 제목 */}
           <div className="space-y-2">
             <label className="block text-sm sm:text-base font-semibold text-gray-800">
               제목
@@ -87,11 +85,10 @@ export default function CrisisReportModal({
               placeholder="예: 단전/단수가 의심되는 가구 제보"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF7F66] transition-colors"
+              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:bg-orange-50 focus:outline-none focus:border-[#FF7F66] transition-colors"
             />
           </div>
 
-          {/* 2. 상세 내용 */}
           <div className="space-y-2">
             <label className="block text-sm sm:text-base font-semibold text-gray-800">
               상세 내용
@@ -101,11 +98,10 @@ export default function CrisisReportModal({
               placeholder="위기 상황에 대해 자세히 적어주세요."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF7F66] transition-colors resize-none"
+              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:bg-orange-50 focus:outline-none focus:border-[#FF7F66] transition-colors resize-none"
             />
           </div>
 
-          {/* 3. 위치 정보 */}
           <div className="space-y-2">
             <label className="block text-sm sm:text-base font-semibold text-gray-800">
               위치
@@ -116,7 +112,7 @@ export default function CrisisReportModal({
                 placeholder="위치를 입력해주세요"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="flex-1 px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF7F66] transition-colors"
+                className="flex-1 px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:bg-orange-50 focus:outline-none focus:border-[#FF7F66] transition-colors"
               />
               <button
                 type="button"
@@ -135,7 +131,6 @@ export default function CrisisReportModal({
             </div>
           </div>
 
-          {/* 4. 사진 업로드 */}
           <div className="space-y-2">
             <div className="flex items-center gap-1">
               <label className="text-sm sm:text-base font-semibold text-gray-800">
@@ -146,7 +141,6 @@ export default function CrisisReportModal({
               </span>
             </div>
 
-            {/* 숨겨진 파일 선택 Input */}
             <input
               type="file"
               ref={fileInputRef}
@@ -183,7 +177,6 @@ export default function CrisisReportModal({
             </div>
           </div>
 
-          {/* 하단 버튼 영역 */}
           <div className="flex gap-3 pt-2">
             <button
               type="button"

@@ -3,23 +3,11 @@
 import React from "react";
 import Image from "next/image";
 import { User as UserIcon, ShieldAlert, Ban } from "lucide-react";
-
-interface UserProfileAvatarProps {
-  userId?: string | number;
-  profileImage?: string | null;
-  nickname?: string;
-  size?: number;
-  iconSize?: number;
-  isPopoverVisible?: boolean;
-  onProfilePress?: () => void;
-  onClosePopover?: () => void;
-  onReportPress?: (nickname: string) => void;
-  onBlockPress?: (nickname: string) => void;
-}
+import { UserProfileAvatarProps } from "@/types/user/UserProfileAvatarProps";
 
 export const UserProfileAvatar: React.FC<UserProfileAvatarProps> = ({
   profileImage,
-  nickname = "사용자",
+  nickname = "유저",
   size = 40,
   iconSize = 22,
   isPopoverVisible = false,
@@ -30,7 +18,6 @@ export const UserProfileAvatar: React.FC<UserProfileAvatarProps> = ({
 }) => {
   return (
     <div className="relative inline-block z-30">
-      {/* 프로필 이미지 버튼 */}
       <button
         type="button"
         onClick={onProfilePress}
@@ -54,21 +41,17 @@ export const UserProfileAvatar: React.FC<UserProfileAvatarProps> = ({
         )}
       </button>
 
-      {/* 신고 / 차단 플로팅 팝업 */}
       {isPopoverVisible && (
         <>
-          {/* 외부 클릭 시 닫기 레이어 */}
           <div
             className="fixed inset-0 z-40 bg-transparent"
             onClick={onClosePopover}
           />
 
-          {/* 팝 오버 메뉴 (아바타 우측에 위치) */}
           <div
             style={{ left: `${size + 8}px` }}
             className="absolute top-0 z-50 flex items-center justify-around w-36 py-2 px-1 bg-white rounded-xl border border-gray-100 shadow-xl animate-in fade-in zoom-in-95 duration-150"
           >
-            {/* 신고 버튼 */}
             <button
               type="button"
               onClick={() => {
@@ -81,10 +64,8 @@ export const UserProfileAvatar: React.FC<UserProfileAvatarProps> = ({
               <span className="text-sm font-semibold">신고</span>
             </button>
 
-            {/* 구분선 */}
             <div className="w-px h-4 bg-gray-200" />
 
-            {/* 차단 버튼 */}
             <button
               type="button"
               onClick={() => {

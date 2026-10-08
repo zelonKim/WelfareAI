@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
-
 import { REPORT_REASONS } from "@/constants/ReportResons";
 import { useCreateReport } from "@/hooks/report/useCreateReport";
 import { ReportReason } from "@/types/report/CreateReportPayload";
@@ -17,11 +16,19 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   const [selectedReason, setSelectedReason] = useState<ReportReason>("SPAM");
   const [details, setDetails] = useState("");
 
+  const resetAndClose = useCallback(() => {
+    setReportedUserName(initialUserName);
+    setSelectedReason("SPAM");
+    setDetails("");
+    onClose();
+  }, [initialUserName, onClose]);
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     setReportedUserName(initialUserName);
   }, [initialUserName]);
 
-  // ESC 키로 모달 닫기 지원
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && visible) {
@@ -30,20 +37,15 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [visible]);
+  }, [visible, resetAndClose]);
 
-  const resetAndClose = () => {
-    setReportedUserName(initialUserName);
-    setSelectedReason("SPAM");
-    setDetails("");
-    onClose();
-  };
+  ////////////////////////////////////////////////////////////////////////////////////
 
   const { mutate: createReport, isPending } = useCreateReport(() => {
     resetAndClose();
   });
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = (e?: React.SubmitEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
 
     if (!reportedUserName.trim()) {
@@ -65,14 +67,13 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
   if (!visible) return null;
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-      {/* 바깥 배경 클릭 시 모달 닫기 */}
       <div className="absolute inset-0" onClick={resetAndClose} />
 
-      {/* 모달 컨테이너 */}
       <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
-        {/* 모달 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
             <span>🚨</span> 신고하기
@@ -87,12 +88,10 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           </button>
         </div>
 
-        {/* 모달 본문 (스크롤 영역) */}
         <form
           onSubmit={handleSubmit}
           className="p-6 space-y-5 overflow-y-auto flex-1"
         >
-          {/* 1. 신고 대상자 별명 입력 영역 */}
           <div>
             <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1.5">
               신고 대상
@@ -106,7 +105,6 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             />
           </div>
 
-          {/* 2. 신고 사유 선택 영역 */}
           <div>
             <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
               신고 사유 선택
@@ -132,7 +130,6 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             </div>
           </div>
 
-          {/* 3. 상세 내용 입력 영역 */}
           <div>
             <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1.5">
               상세 내용 입력
@@ -146,7 +143,6 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             />
           </div>
 
-          {/* 하단 버튼 영역 */}
           <div className="flex items-center gap-3 pt-2">
             <button
               type="button"

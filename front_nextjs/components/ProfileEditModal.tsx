@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { User, Camera, X, Loader2 } from "lucide-react";
-
 import { ProfileEditModalProps } from "@/types/user/ProfileEditModalProps";
 
 export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
@@ -21,14 +20,12 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   const [nicknameInput, setNicknameInput] = useState(initialNickname);
   const [initialAvatar, setInitialAvatar] = useState(initialAvatarUri);
 
-  // 모달이 열리거나 initialNickname이 변경될 때 입력값 초기화
   useEffect(() => {
     if (visible) {
       setNicknameInput(initialNickname);
     }
   }, [visible, initialNickname]);
 
-  // ESC 키 누를 경우 모달 닫기 (웹 접근성)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && visible && !onPending) {
@@ -39,7 +36,9 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [visible, onClose, onPending]);
 
-  const handleSave = (e?: React.FormEvent) => {
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  const handleSave = (e?: React.SubmitEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
     if (!nicknameInput.trim() || onPending) return;
     onSave({ nickname: nicknameInput.trim(), imageUri: selectedImageUri });
@@ -50,22 +49,21 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   if (!visible) return null;
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* 바깥 배경 (오버레이 클릭 시 모달 닫기) */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
         onClick={() => !onPending && onClose()}
       />
 
-      {/* 모달 컨테이너 */}
       <div className="relative z-10 w-full max-w-md transform rounded-2xl bg-white p-6 shadow-xl transition-all">
         <h2 className="text-xl font-bold text-slate-900 text-center mb-6">
           내 정보 변경
         </h2>
 
         <form onSubmit={handleSave} className="space-y-6">
-          {/* 프로필 이미지 선택 영역 */}
           <div className="relative flex justify-center">
             <div className="relative">
               <button
@@ -86,13 +84,11 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                     <User className="h-14 w-14 bg-slate-[#1665341F] text-[#1A3A3A]" />
                   )}
                 </div>
-                {/* 카메라 아이콘 뱃지 */}
                 <div className="cursor-pointer absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-slate-200">
                   <Camera className="h-4 w-4 text-slate-600" />
                 </div>
               </button>
 
-              {/* 이미지 제거 버튼 */}
               {displayAvatarUri && (
                 <button
                   type="button"
@@ -110,7 +106,6 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             </div>
           </div>
 
-          {/* 별명 입력 영역 */}
           <div className="space-y-2">
             <label
               htmlFor="nickname-input"
@@ -130,7 +125,6 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             />
           </div>
 
-          {/* 하단 액션 버튼 */}
           <div className="flex gap-3 pt-2">
             <button
               type="button"

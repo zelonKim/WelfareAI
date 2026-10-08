@@ -16,7 +16,7 @@ export class ConsultingService {
     private readonly configService: ConfigService,
   ) {}
 
-  // FastAPI 등 AI 서버 연동 메서드
+  // AI 서버 연동 메서드
   private async getAiResponse(
     userId: string,
     question: string,
@@ -50,7 +50,9 @@ export class ConsultingService {
     }
   }
 
-  // 1. AI 상담 생성
+  //////////////////////////////////////////////////////////////////////////////
+
+  // AI 상담 생성
   async createConsulting(userId: string, dto: CreateConsultingDto) {
     const answer = await this.getAiResponse(userId, dto.question);
 
@@ -65,7 +67,7 @@ export class ConsultingService {
 
   ///////////////////////////////////////////////////////////////////////////////////
 
-  // 2. 내 AI 상담 전체 조회
+  // 나의 AI 상담 전체 조회
   async getMyConsultings(userId: string) {
     return await this.prisma.aiConsulting.findMany({
       where: { userId },
@@ -81,7 +83,7 @@ export class ConsultingService {
 
   ///////////////////////////////////////////////////////////////////////////////////
 
-  // 3. AI 상담 단건 상세 조회
+  // AI 상담 단건 상세 조회
   async getConsultingById(userId: string, id: string) {
     const consulting = await this.prisma.aiConsulting.findUnique({
       where: { id },
@@ -100,7 +102,7 @@ export class ConsultingService {
 
   ///////////////////////////////////////////////////////////////////////////////////
 
-  // 4. AI 상담 내역 삭제
+  // AI 상담 내역 삭제
   async deleteConsulting(userId: string, id: string) {
     await this.getConsultingById(userId, id);
 
@@ -113,7 +115,7 @@ export class ConsultingService {
 
   ///////////////////////////////////////////////////////////////////////////////////
 
-  // 5. 모든 상담 내역 삭제
+  // 모든 상담 내역 삭제
   async deleteAllConsulting(userId: string) {
     await this.prisma.aiConsulting.deleteMany({
       where: { userId },

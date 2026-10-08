@@ -19,6 +19,7 @@ import { GetUser } from 'src/auth/decorators/get-user.decorator';
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
+  // 신고하기
   @Post()
   async createReport(
     @GetUser('id') reporterId: string,
@@ -27,21 +28,19 @@ export class ReportController {
     return this.reportService.createReport(reporterId, dto);
   }
 
-  ////////////////////////////////////////////////////////////////////////
-
-  // (관리자용) 신고 목록 조회 API
+  // 신고 목록 조회  (관리자용) 
   @Get()
   async getReports(@Query('status') status?: ReportStatus) {
     return this.reportService.getReports(status);
   }
 
-  // (관리자용) 신고 상세 조회 API
+  // 신고 상세 조회 (관리자용) 
   @Get(':id')
   async getReportById(@Param('id') reportId: string) {
     return this.reportService.getReportById(reportId);
   }
 
-  // (관리자용) 신고 상태 변경 API
+  // 신고 상태 변경 (관리자용) 
   @Patch(':id/status')
   async updateReportStatus(
     @Param('id') reportId: string,

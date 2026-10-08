@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,11 +14,9 @@ import {
   Users,
   Loader2,
 } from "lucide-react";
-
 import { getCommunityDetail } from "@/api/community/getCommunityDetail";
 import { getMyInfo } from "@/api/user/getMyInfo";
 import CommunityModal from "@/components/CommunityModal";
-import { useBlockUser } from "@/hooks/block/useBlockUser";
 import { useApplyCommunity } from "@/hooks/community/useApplyCommunity";
 import { useDeleteCommunityPost } from "@/hooks/community/useDeleteCommunityPost";
 import { useLeaveCommunity } from "@/hooks/community/useLeaveCommunity";
@@ -28,20 +26,17 @@ import { CommunityMemberStatus } from "@/types/community/CommunityMemberStatus";
 import { UserProfile } from "@/types/user/UserProfile";
 
 export default function CommunityDetailScreen() {
-  const params = useParams();
-  const id = params?.id as string;
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // 폼 입력 상태들
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [notice, setNotice] = useState<string>("");
 
-  // 게시글 조회
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const {
     data: post,
     isPending,
@@ -50,10 +45,12 @@ export default function CommunityDetailScreen() {
     queryKey: ["communityDetail", id],
     queryFn: () => getCommunityDetail(id!),
     enabled: !!id,
-    refetchInterval: 5000,
+    refetchInterval: 10000, 
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
   });
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   const { data: myInfo } = useQuery<UserProfile>({
     queryKey: ["myInfo"],
@@ -64,19 +61,18 @@ export default function CommunityDetailScreen() {
     (member) => member.userId === myInfo?.id,
   );
 
-  const isApprovedMember = myMemberInfo?.status === "APPROVED";
   const isHost = post?.hostId === myInfo?.id;
+
+  const isApprovedMember = myMemberInfo?.status === "APPROVED";
+
   const pendingMembers =
     post?.members?.filter((member) => member.status === "PENDING") || [];
 
-  const handleCloseModal = () => {
-    setIsModalVisible(false);
-    setTitle("");
-    setContent("");
-    setNotice("");
-  };
+  const approvedMembersCount =
+    post?.members?.filter((m) => m.status === "APPROVED").length || 0;
 
-  // 제보 수정
+  //////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: updateCommunityMutation, isPending: updateCommunityPending } =
     useUpdateCommunity({
       id,
@@ -91,18 +87,9 @@ export default function CommunityDetailScreen() {
     });
   };
 
-  const handleEditCommunity = () => {
-    if (!post) return;
-    setTitle(post.title ?? "");
-    setContent(post.content ?? "");
-    setNotice(post.notice ?? "");
-    setIsModalVisible(true);
-    setIsMenuOpen(false);
-  };
+  //////////////////////////////////////////////////////////////////////////////////////
 
-  // 게시글 삭제
-  const { mutate: CommunityDeleteMutation, isPending: CommunityDeletePending } =
-    useDeleteCommunityPost();
+  const { mutate: CommunityDeleteMutation } = useDeleteCommunityPost();
 
   const handleDeleteCommunity = () => {
     setIsMenuOpen(false);
@@ -111,7 +98,8 @@ export default function CommunityDetailScreen() {
     }
   };
 
-  // 참여 신청
+  //////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: applyCommunityMutation, isPending: applyCommunityPending } =
     useApplyCommunity();
 
@@ -121,9 +109,9 @@ export default function CommunityDetailScreen() {
     }
   };
 
-  // 모임 나가기
-  const { mutate: leaveCommunityMutation, isPending: leaveCommunityPending } =
-    useLeaveCommunity();
+  //////////////////////////////////////////////////////////////////////////////////////
+
+  const { mutate: leaveCommunityMutation } = useLeaveCommunity();
 
   const handleLeaveCommunity = () => {
     if (confirm("정말로 이 모임을 그만두고, 나가시겠습니까?")) {
@@ -131,7 +119,8 @@ export default function CommunityDetailScreen() {
     }
   };
 
-  // 멤버 상태 변경
+  //////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: updateStatusMutation, isPending: updateStatusPending } =
     useUpdateMemberStatus();
 
@@ -149,8 +138,25 @@ export default function CommunityDetailScreen() {
     }
   };
 
-  const { mutate: blockUserMutation, isPending: blockUserPending } =
-    useBlockUser();
+  //////////////////////////////////////////////////////////////////////////////////////
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setTitle("");
+    setContent("");
+    setNotice("");
+  };
+
+  const handleEditCommunity = () => {
+    if (!post) return;
+    setTitle(post.title ?? "");
+    setContent(post.content ?? "");
+    setNotice(post.notice ?? "");
+    setIsModalVisible(true);
+    setIsMenuOpen(false);
+  };
+
+  //////////////////////////////////////////////////////////////////////////////////////
 
   if (isPending) {
     return (
@@ -176,12 +182,10 @@ export default function CommunityDetailScreen() {
     );
   }
 
-  const approvedMembersCount =
-    post.members?.filter((m) => m.status === "APPROVED").length || 0;
+  //////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <div className="mx-auto min-h-screen max-w-5xl bg-white text-slate-900 shadow-sm">
-      {/* 헤더 */}
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-slate-100 bg-white/80 px-6 backdrop-blur-md">
         <button
           onClick={() => router.back()}
@@ -204,7 +208,6 @@ export default function CommunityDetailScreen() {
                 <MoreVertical className="h-7 w-7" />
               </button>
 
-              {/* 방장 더보기 드롭다운 메뉴 */}
               {isMenuOpen && (
                 <div className="absolute right-0 mt-2 w-36 rounded-xl border border-slate-100 bg-white shadow-lg ring-1 ring-black/5">
                   <button
@@ -225,7 +228,7 @@ export default function CommunityDetailScreen() {
           ) : isApprovedMember ? (
             <button
               onClick={handleLeaveCommunity}
-              className="rounded-full p-2 text-red-500 transition hover:bg-red-50"
+              className="cursor-pointer rounded-full p-2 text-red-500 transition hover:bg-red-50"
               aria-label="모임 나가기"
             >
               <LogOut className="h-6 w-6" />
@@ -315,7 +318,7 @@ export default function CommunityDetailScreen() {
                       <p className="text-base font-semibold text-slate-800">
                         {member.user?.nickname || "익명 회원"}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-sm text-slate-400">
                         {member.user?.email}
                       </p>
                     </div>
@@ -325,7 +328,7 @@ export default function CommunityDetailScreen() {
                         handleUpdateMemberStatus(member.userId, "APPROVED")
                       }
                       disabled={updateStatusPending}
-                      className="rounded-lg bg-[#FF6C4B] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#e05b3d] disabled:opacity-50"
+                      className="cursor-pointer rounded-lg bg-[#FF6C4B] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#e05b3d] disabled:opacity-50"
                     >
                       승인
                     </button>
@@ -347,7 +350,7 @@ export default function CommunityDetailScreen() {
         </section>
 
         {/* 승인 상태에 따른 조건부 영역 */}
-        {isApprovedMember ? (
+        {isApprovedMember || isHost ? (
           <>
             {/* 1. 모임 공지사항 섹션 */}
             <section className="mb-8">
@@ -375,17 +378,16 @@ export default function CommunityDetailScreen() {
             </section>
           </>
         ) : (
-          /* 3. 미승인/비회원인 경우: 참여 신청하기 버튼 */
           <section className="mt-10">
             <button
               onClick={handleJoinCommunity}
               disabled={
                 myMemberInfo?.status === "PENDING" || applyCommunityPending
               }
-              className={`w-full rounded-xl py-4 text-center text-lg font-bold text-white transition ${
+              className={` w-full rounded-xl py-4 text-center text-lg font-bold text-white transition ${
                 myMemberInfo?.status === "PENDING"
                   ? "bg-slate-400 cursor-not-allowed"
-                  : "bg-[#FF6C4B] hover:bg-[#e05b3d]"
+                  : "cursor-pointer bg-[#FF6C4B] hover:bg-[#e05b3d]"
               } ${applyCommunityPending ? "opacity-70" : ""}`}
             >
               {applyCommunityPending
@@ -398,7 +400,7 @@ export default function CommunityDetailScreen() {
         )}
       </main>
 
-      {/* 모임 수정 모달 (Standard Web Modal 컴포넌트 호출) */}
+      {/* 모임 수정 모달  */}
       <CommunityModal
         modalType="detail"
         visible={isModalVisible}

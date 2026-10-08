@@ -18,7 +18,7 @@ export class CrisisReportService {
     private readonly notificationService: NotificationService,
   ) {}
 
-  // 1. 위기 제보 생성
+  // 위기 제보 생성
   async createReport(userId: string, dto: CreateCrisisReportDto) {
     const report = await this.prisma.crisisReport.create({
       data: {
@@ -40,7 +40,7 @@ export class CrisisReportService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 2. 전체 제보 목록 조회
+  // 전체 제보 목록 조회
   async getAllReports() {
     return await this.prisma.crisisReport.findMany({
       orderBy: { createdAt: 'desc' },
@@ -59,7 +59,7 @@ export class CrisisReportService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 3. 내가 작성한 제보 목록 조회
+  // 내가 작성한 제보 목록 조회
   async getMyReports(userId: string) {
     return await this.prisma.crisisReport.findMany({
       where: { userId },
@@ -69,7 +69,7 @@ export class CrisisReportService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 4. 제보 상세 조회
+  // 제보 상세 조회
   async getReportById(reportId: string) {
     const report = await this.prisma.crisisReport.findUnique({
       where: { id: reportId },
@@ -107,7 +107,7 @@ export class CrisisReportService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 5. 제보 수정
+  // 제보 수정
   async updateReport(
     userId: string,
     reportId: string,
@@ -140,11 +140,10 @@ export class CrisisReportService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 6. 제보 삭제
+  //  제보 삭제
   async deleteReport(userId: string, reportId: string) {
     const report = await this.getReportById(reportId);
 
-    // 본인이 작성한 제보인지 검증
     if (report.userId !== userId) {
       throw new ForbiddenException('본인의 제보 내역만 삭제할 수 있습니다.');
     }
@@ -160,6 +159,7 @@ export class CrisisReportService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
+  // 제보 변경
   async updateReportStatus(reportId: string, status: CrisisStatus) {
     const report = await this.getReportById(reportId);
 
@@ -175,6 +175,7 @@ export class CrisisReportService {
 
   /////////////////////////////////////////////////////////////////////////////////
 
+  // 댓글 작성
   async createComment(
     reportId: string,
     userId: string,
@@ -182,7 +183,6 @@ export class CrisisReportService {
   ) {
     const { content } = createCommentDto;
 
-    // 1. 해당 위기 제보글이 존재하는지 먼저 확인
     const reportExists = await this.prisma.crisisReport.findUnique({
       where: { id: reportId },
       select: { id: true, userId: true },
@@ -193,7 +193,6 @@ export class CrisisReportService {
     }
 
     try {
-      // 2. 댓글 생성 (Prisma)
       const newComment = await this.prisma.crisisComment.create({
         data: {
           content,
@@ -212,14 +211,13 @@ export class CrisisReportService {
         },
       });
 
-      // 자기가 자기 글에 쓴 댓글이 아닌 경우에만 알림 전송
       if (reportExists.userId !== userId) {
         this.notificationService
           .sendPushNotification({
             targetUserId: reportExists.userId,
             title: `${newComment.user.nickname}님의 댓글`,
             body: content,
-            data: { url: `/crisisReportDetail/${reportId}`, id: reportId }, // 클릭 시 해당 제보 상세 페이지로 이동할 데이터
+            data: { url: `/crisisReportDetail/${reportId}`, id: reportId },
           })
           .catch((err) => console.error('푸시 알림 전송 실패:', err));
       }
@@ -234,6 +232,7 @@ export class CrisisReportService {
 
   ////////////////////////////////////////////////////////////////////
 
+  // 댓글 삭제
   async deleteComment(userId: string, commentId: string) {
     const comment = await this.prisma.crisisComment.findUnique({
       where: { id: commentId },
@@ -243,12 +242,10 @@ export class CrisisReportService {
       throw new NotFoundException('댓글을 찾을 수 없습니다.');
     }
 
-    // 2. 작성자 본인 확인
     if (comment.userId !== userId) {
       throw new ForbiddenException('자신의 댓글만 삭제할 수 있습니다.');
     }
 
-    // 3. 댓글 삭제
     await this.prisma.crisisComment.delete({
       where: { id: commentId },
     });

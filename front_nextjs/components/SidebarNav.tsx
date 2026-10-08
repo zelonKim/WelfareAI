@@ -29,6 +29,8 @@ const ALLOWED_PATHS = [
   "/mypage",
 ];
 
+////////////////////////////////////////////////////////////////////////////////////
+
 export default function SidebarNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -38,19 +40,18 @@ export default function SidebarNav() {
     setMounted(true);
   }, []);
 
-  // 마운트 전 초기 SSR 불일치 방지
   if (!mounted) return null;
 
-  // Trailing slash(/) 제거하여 정확한 경로 비교
   const currentPath =
     pathname.length > 1 && pathname.endsWith("/")
       ? pathname.slice(0, -1)
       : pathname;
 
-  // 허용 목록에 없는 경로는 확실하게 숨김
   if (!ALLOWED_PATHS.includes(currentPath)) {
     return null;
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <nav className="fixed right-6 lg:right-12 bottom-28 lg:bottom-45 z-50 flex flex-col items-center">
@@ -61,7 +62,7 @@ export default function SidebarNav() {
             : "hidden"
         } lg:flex flex-col items-center gap-3 rounded-3xl border border-slate-200/80 bg-white/90 p-3 shadow-xl shadow-[#1A3A3A]/10 backdrop-blur-xl mb-3 lg:mb-0`}
       >
-        {NAV_ITEMS.map((item) => {
+      {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive =
             item.href === "/"

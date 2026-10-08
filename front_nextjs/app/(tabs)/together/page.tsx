@@ -4,26 +4,25 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
-  Coffee,
-  CoffeeIcon,
-  ExternalLink,
   Heart,
-  HeartIcon,
-  ShieldCheck,
-  Users,
+  // Coffee,
+  // CoffeeIcon,
+  // ExternalLink,
+  // HeartIcon,
+  // ShieldCheck,
+  // Users,
 } from "lucide-react";
 
 export default function DonationPage() {
   const router = useRouter();
-  const DONATION_WEB_URL = "https://ko-fi.com/zelonkim";
+  // const DONATION_WEB_URL = "https://ko-fi.com/zelonkim";
 
-  const handleOpenWebPage = () => {
-    window.open(DONATION_WEB_URL, "_blank", "noopener,noreferrer");
-  };
+  // const handleOpenWebPage = () => {
+  //   window.open(DONATION_WEB_URL, "_blank", "noopener,noreferrer");
+  // };
 
   return (
     <div className="bg-orange-50 min-h-screen  text-slate-900">
-      {/* 상단 커스텀 헤더 */}
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-red-100 bg-white/80 px-4 backdrop-blur-md">
         <button
           type="button"
@@ -34,17 +33,14 @@ export default function DonationPage() {
           <ChevronLeft className="h-6 w-6" />
         </button>
         <h1 className="text-[22px] font-bold text-slate-900">함께하기</h1>
-        <div className="w-10" /> {/* 좌우 대칭용 여백 */}
+        <div className="w-10" />
       </header>
 
-      {/* 메인 스크롤 콘텐츠 영역 */}
       <main className=" mx-auto flex max-w-lg flex-col items-center   px-6 py-8">
-        {/* 중앙 하트 아이콘 */}
         <div className="mb-6 mt-4 flex h-24 w-24 items-center justify-center rounded-full bg-red-100">
           <Heart className="h-12 w-12 fill-red-500 text-red-500" />
         </div>
 
-        {/* 타이틀 및 메인 설명 문구 (16px 이상 시원한 폰트) */}
         <h2 className="mb-3 text-center text-2xl font-bold text-[#1E2E2A] sm:text-3xl">
           WelfareAI와 함께해 주세요
         </h2>

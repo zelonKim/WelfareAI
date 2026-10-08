@@ -11,7 +11,6 @@ export function CustomAppleLoginButton({ onPress }: SocialLoginButtonProps) {
       className="w-full h-12 px-4 bg-black border border-white rounded-xl flex items-center justify-center hover:bg-neutral-900 transition-colors active:opacity-80"
     >
       <div className="flex items-center justify-center gap-2">
-        {/* Apple Logo SVG */}
         <svg
           className="w-5 h-5 fill-white mb-0.5"
           viewBox="0 0 170 170"

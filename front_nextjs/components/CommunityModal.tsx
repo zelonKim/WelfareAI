@@ -19,7 +19,7 @@ export default function CommunityModal({
   createCommunityPending = false,
   handleCreateCommunity,
 }: CommunityModalProps) {
-  // ESC 키로 모달 닫기 및 배경 스크롤 방지
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -38,17 +38,16 @@ export default function CommunityModal({
 
   if (!visible) return null;
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-sm animate-fade-in">
-      {/* 모달 카드의 바깥 영역 클릭 시 닫기 */}
       <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
 
-      {/* 모달 메인 Card */}
       <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
-        {/* 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
-          <h2 className="text-xl sm:text-2xl font-bold text-[#1A1A1A]">
-            {modalType === "tabs" ? "모임 만들기" : "모임 수정하기"}
+          <h2 className="text-xl sm:text-2xl font-bold text-[#1A3A3A]">
+            {modalType === "tabs" ? "👥 모임 만들기" : "👥 모임 수정하기"}
           </h2>
           <button
             type="button"
@@ -60,9 +59,7 @@ export default function CommunityModal({
           </button>
         </div>
 
-        {/* 폼 스크롤 영역 */}
         <div className="p-6 overflow-y-auto space-y-5 flex-1">
-          {/* 1. 모임 성격 선택 (tabs 모달일 때) */}
           {modalType === "tabs" && setCommunityType && (
             <div className="space-y-2">
               <label className="block text-base font-semibold text-gray-800">
@@ -98,7 +95,6 @@ export default function CommunityModal({
             </div>
           )}
 
-          {/* 2. 모임 제목 */}
           <div className="space-y-2">
             <label className="block text-base font-semibold text-gray-800">
               제목
@@ -108,11 +104,10 @@ export default function CommunityModal({
               placeholder="예: 치매 어르신 가족 소통방"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-white transition-all"
+              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-orange-50 transition-all"
             />
           </div>
 
-          {/* 3. 상세 내용 */}
           <div className="space-y-2">
             <label className="block text-base font-semibold text-gray-800">
               내용
@@ -122,11 +117,10 @@ export default function CommunityModal({
               rows={4}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-white transition-all resize-none"
+              className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-orange-50 transition-all resize-none"
             />
           </div>
 
-          {/* 4. 공지사항 (detail 모달일 때) */}
           {modalType === "detail" && setNotice && (
             <div className="space-y-2">
               <label className="block text-base font-semibold text-gray-800">
@@ -137,12 +131,11 @@ export default function CommunityModal({
                 rows={3}
                 value={notice}
                 onChange={(e) => setNotice(e.target.value)}
-                className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-white transition-all resize-none"
+                className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-orange-50 transition-all resize-none"
               />
             </div>
           )}
 
-          {/* 버튼 영역 */}
           <div className="flex items-center gap-3 pt-3">
             <button
               type="button"

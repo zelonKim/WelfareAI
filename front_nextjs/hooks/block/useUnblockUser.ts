@@ -1,6 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-import { client } from "../../api/client";
 import { unblockUser } from "@/api/block/unblockUser";
 
 export const useUnblockUser = () => {

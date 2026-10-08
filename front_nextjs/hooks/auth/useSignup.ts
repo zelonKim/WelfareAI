@@ -13,7 +13,6 @@ export const useSignup = () => {
     mutationFn: (dto: SignupDto) => signupApi(dto),
     onSuccess: async (data) => {
       await setAccessToken(data.accessToken);
-      alert("WelfareAI에 오신것을 환영해요.🦊");
       router.replace("/");
     },
     onError: (error: AxiosError<ApiErrorRes>) => {

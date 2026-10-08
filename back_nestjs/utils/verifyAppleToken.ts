@@ -8,6 +8,8 @@ const client = jwksClient({
   rateLimit: true,
 });
 
+//////////////////////////////////////////////////////////////////////////////
+
 const getAppleSigningKey = (kid: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     client.getSigningKey(kid, (err, key) => {
@@ -26,14 +28,17 @@ const getAppleSigningKey = (kid: string): Promise<string> => {
   });
 };
 
+//////////////////////////////////////////////////////////////////////////////
+
 export async function verifyAppleToken(identityToken: string) {
   try {
     const decodedToken: any = jwt.decode(identityToken, { complete: true });
-    if (!decodedToken || !decodedToken.header?.kid) {
+    const kid = decodedToken.header.kid;
+
+    if (!decodedToken || !decodedToken.header?.kid || typeof kid !== 'string') {
       throw new UnauthorizedException('유효하지 않은 애플 토큰입니다.');
     }
 
-    const kid = decodedToken.header.kid;
     const key = await getAppleSigningKey(kid);
 
     const verifiedPayload: any = jwt.verify(identityToken, key, {

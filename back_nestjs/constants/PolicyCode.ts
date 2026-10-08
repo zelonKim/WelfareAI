@@ -1,4 +1,4 @@
-// 관심주제 코드표 (IntrsThemaArray)
+// 관심주제 코드표
 export const INTRS_THEMA_MAP: Record<string, string> = {
   '신체건강': '010',
   '정신건강': '020',
@@ -31,7 +31,7 @@ export const INTRS_THEMA_MAP: Record<string, string> = {
   '에너지': '160',
 };
 
-// 생애주기 코드표 (lifeArray)
+// 생애주기 코드표 
 export const LIFE_CYCLE_MAP: Record<string, string> = {
   '전생애': '000',
   '구분없음': '000',
@@ -44,7 +44,7 @@ export const LIFE_CYCLE_MAP: Record<string, string> = {
   '임신출산': '007',
 };
 
-// 가구유형 코드표 (trgterIndvdlArray)
+// 가구유형 코드표
 export const TRGTER_INDVDL_MAP: Record<string, string> = {
   '다문화': '010',
   '탈북민': '010',

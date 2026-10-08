@@ -11,46 +11,10 @@ export default function PolicyPage() {
   const [keyword, setKeyword] = useState<string>("");
   const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<Category>("전체");
-
-  // 맨 위로 가기 버튼 노출 상태
   const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
-
   const observerTargetRef = useRef<HTMLDivElement>(null);
 
-  // 디바운스 처리
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedKeyword(keyword);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [keyword]);
-
-  // 스크롤 위치 감지 (300px 이상 스크롤 시 버튼 표시)
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // 맨 위로 이동 함수
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const handleSelectCategory = (name: Category) => {
-    setSelectedCategory(name);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  ////////////////////////////////////////////////////////////////////////////////////
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching } =
     useInfiniteQuery({
@@ -77,6 +41,8 @@ export default function PolicyPage() {
   const totalCount = data?.pages[0]?.totalCount;
   const policiesList = data?.pages.flatMap((page) => page.items) || [];
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
       const [target] = entries;
@@ -86,6 +52,8 @@ export default function PolicyPage() {
     },
     [fetchNextPage, hasNextPage, isFetchingNextPage],
   );
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
     const element = observerTargetRef.current;
@@ -98,6 +66,45 @@ export default function PolicyPage() {
     observer.observe(element);
     return () => observer.unobserve(element);
   }, [handleObserver]);
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [keyword]);
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  const handleSelectCategory = (name: Category) => {
+    setSelectedCategory(name);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <div className="relative min-h-screen bg-[#F2F6F6] text-[#1A3A3A]">
@@ -113,9 +120,8 @@ export default function PolicyPage() {
       </header>
 
       <div className="lg:mx-24 xl:mx-48 px-4 sm:px-6 pb-20">
-        {/* 검색어 입력 필드 */}
         <section className="mt-4 mb-3">
-          <div className="relative flex items-center bg-white rounded-xl border border-gray-200 shadow-xs focus-within:border-[#FF7F66] transition-colors">
+          <div className="relative flex items-center bg-white rounded-xl  border-gray-100 shadow-xs focus-within:border-[#FF7F66]  border-2 transition-colors">
             <Search className="absolute left-4 w-5 h-5 text-gray-400" />
             <input
               type="text"
@@ -127,7 +133,6 @@ export default function PolicyPage() {
           </div>
         </section>
 
-        {/* 가로 스크롤 카테고리 바 */}
         <section className="mb-6 mx-auto overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-2 py-1 w-max">
             {CATEGORIES.map((cate) => {
@@ -161,7 +166,6 @@ export default function PolicyPage() {
           </div>
         </section>
 
-        {/* 정책 리스트 영역 */}
         <main className="space-y-4">
           {policiesList.length > 0 ? (
             policiesList.map((item) => (
@@ -179,22 +183,19 @@ export default function PolicyPage() {
             </div>
           ) : null}
 
-          {/* 하단 스크롤 감지 및 추가 로딩 인디케이터 */}
           <div
             ref={observerTargetRef}
-            className="flex items-center justify-center py-6 h-12"
+            className="flex items-center justify-center py-12 h-24"
           >
             {isFetchingNextPage || (isFetching && !data) ? (
               <div className="flex items-center gap-2 text-gray-500 font-medium text-sm sm:text-base">
-                <Loader2 className="w-5 h-5 animate-spin text-[#FF7F66]" />
-                <span>지원 정책을 불러오는 중...</span>
+                <Loader2 className="w-8 h-8 animate-spin text-[#1A3A3]" />
               </div>
             ) : null}
           </div>
         </main>
       </div>
 
-      {/* 우측 하단 맨 위로 가기 플로팅 버튼 */}
       {showScrollTop && (
         <button
           type="button"

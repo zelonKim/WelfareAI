@@ -1,4 +1,4 @@
-export type CommunityType = "ALL" | "VOLUNTEER" | "SELF_HELP";
+import { CommunityType } from "./CommunityType";
 
 export interface CommunityPost {
   id: string;

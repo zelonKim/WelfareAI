@@ -10,6 +10,8 @@ export const PolicyListItem = ({ item }: { item: PolicyItem }) => {
       window.open(item.detailUrl, "_blank", "noopener,noreferrer");
     }
   };
+  
+  ////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <div
@@ -18,13 +20,10 @@ export const PolicyListItem = ({ item }: { item: PolicyItem }) => {
         item.detailUrl ? "cursor-pointer" : "cursor-default"
       }`}
     >
-      {/* 좌측 강조 바 */}
       <div className="w-1.5 bg-[#1A3A3A] shrink-0 group-hover:bg-[#FF7F66] transition-colors" />
 
-      {/* 카드 본문 콘텐츠 */}
       <div className="flex-1 p-5 sm:p-6 flex flex-col justify-between">
         <div>
-          {/* 헤더: 제목 & 온라인 신청 배지 */}
           <div className="flex items-center justify-between gap-3 mb-2">
             <h3 className="text-base sm:text-lg font-bold text-[#0f172a] truncate tracking-tight group-hover:text-[#FF7F66] transition-colors">
               {item.title}
@@ -36,13 +35,11 @@ export const PolicyListItem = ({ item }: { item: PolicyItem }) => {
             )}
           </div>
 
-          {/* 요약 내용 */}
           <p className="text-sm sm:text-base text-[#475569] leading-relaxed line-clamp-2 mb-4">
             {item.summary || "상세 내용을 확인하려면 클릭하세요."}
           </p>
         </div>
 
-        {/* 푸터: 담당 부서 & 지원 주기 */}
         <div className="pt-3 border-t border-[#1665341F]  flex items-center justify-between text-xs sm:text-sm font-medium text-[#64748b]">
           <div className="flex items-center gap-1">
             <Building size={14} style={{ marginBottom: 2 }} />

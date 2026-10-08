@@ -34,7 +34,7 @@ export class CommunityGateway
   
   //////////////////////////////////////////////////////////////////////////
 
-  // 1. 특정 커뮤니티 채팅방 입장
+  //  특정 커뮤니티 채팅방 입장
   @SubscribeMessage('joinRoom')
   handleJoinRoom(
     @ConnectedSocket() client: Socket,
@@ -46,7 +46,7 @@ export class CommunityGateway
 
   //////////////////////////////////////////////////////////////////////////
 
-  // 2. 특정 커뮤니티 채팅방 퇴장
+  //  특정 커뮤니티 채팅방 퇴장
   @SubscribeMessage('leaveRoom')
   handleLeaveRoom(
     @ConnectedSocket() client: Socket,
@@ -58,7 +58,7 @@ export class CommunityGateway
 
   //////////////////////////////////////////////////////////////////////////
 
-  // 3. 메시지 전송
+  //  메시지 전송
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @ConnectedSocket() client: Socket,
@@ -78,7 +78,7 @@ export class CommunityGateway
 
   //////////////////////////////////////////////////////////////////////////
 
-  // 4. 메시지 삭제
+  //  메시지 삭제
   @SubscribeMessage('deleteMessage')
   async handleDeleteMessage(
     @ConnectedSocket() client: Socket,

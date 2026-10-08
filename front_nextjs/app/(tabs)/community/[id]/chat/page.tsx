@@ -18,13 +18,12 @@ import { ChatMessage } from "@/types/community/ChatMessage";
 import { UserProfile } from "@/types/user/UserProfile";
 
 export default function CommunityChatScreen() {
-  const params = useParams();
-  const postId = params?.id as string;
+  const { id: postId } = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
+  const isSendingRef = useRef(false);
 
   const [isReportModalVisible, setIsReportModalVisible] = useState(false);
   const [initialUserName, setInitialUserName] = useState("");
@@ -33,7 +32,8 @@ export default function CommunityChatScreen() {
     null,
   );
 
-  // 자동 스크롤 함수
+  //////////////////////////////////////////////////////////////////////////////
+
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
@@ -43,6 +43,8 @@ export default function CommunityChatScreen() {
     }
   };
 
+  //////////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     if (!postId) return;
 
@@ -50,6 +52,7 @@ export default function CommunityChatScreen() {
     const socket = io(SOCKET_URL, {
       transports: ["websocket"],
     });
+
     socketRef.current = socket;
 
     socket.on("connect", () => {
@@ -80,7 +83,8 @@ export default function CommunityChatScreen() {
     };
   }, [postId, queryClient]);
 
-  // 내 정보 조회
+  //////////////////////////////////////////////////////////////////////////////
+
   const { data: myInfo } = useQuery<UserProfile>({
     queryKey: ["myInfo"],
     queryFn: getMyInfo,
@@ -88,7 +92,8 @@ export default function CommunityChatScreen() {
 
   const currentUserId = myInfo?.id;
 
-  // 모임 상세 정보 조회
+  //////////////////////////////////////////////////////////////////////////////
+
   const { data: post } = useQuery({
     queryKey: ["communityDetail", postId],
     queryFn: () => getCommunityDetail(postId!),
@@ -97,7 +102,8 @@ export default function CommunityChatScreen() {
 
   const postTitle = post?.title || "모임 대화방";
 
-  // 메시지 목록 조회
+  //////////////////////////////////////////////////////////////////////////////
+
   const {
     data: messages = [],
     isLoading,
@@ -108,17 +114,25 @@ export default function CommunityChatScreen() {
     enabled: !!postId,
   });
 
-  // 메시지가 불러와졌을 때 스크롤 맨 아래로 이동
   useEffect(() => {
     if (messages.length > 0) {
       scrollToBottom("auto");
     }
   }, [messages.length]);
 
-  // 메시지 전송
-  const handleSend = (e?: React.FormEvent) => {
+  //////////////////////////////////////////////////////////////////////////////
+
+  const handleSend = (e?: React.SubmitEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
-    if (!inputText.trim() || !postId || !socketRef.current) return;
+    if (
+      !inputText.trim() ||
+      !postId ||
+      !socketRef.current ||
+      isSendingRef.current
+    )
+      return;
+
+    isSendingRef.current = true;
 
     socketRef.current.emit("sendMessage", {
       postId,
@@ -127,17 +141,23 @@ export default function CommunityChatScreen() {
     });
 
     setInputText("");
+
+    setTimeout(() => {
+      isSendingRef.current = false;
+    }, 100);
   };
 
-  // 엔터키 전송 처리 (Shift + Enter는 줄바꿈)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.nativeEvent.isComposing) return;
+    
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  // 메시지 삭제
+  //////////////////////////////////////////////////////////////////////////////
+
   const handleDelete = (messageId: string) => {
     if (confirm("이 메시지를 삭제하시겠습니까?")) {
       if (postId && socketRef.current) {
@@ -150,12 +170,15 @@ export default function CommunityChatScreen() {
     }
   };
 
+  //////////////////////////////////////////////////////////////////////////////
+
   const handleProfilePress = (item: ChatMessage) => {
     if (item.user.id === myInfo?.id) return;
     setActivePopoverItemId((prev) => (prev === item.id ? null : item.id));
   };
 
-  // 차단하기
+  //////////////////////////////////////////////////////////////////////////////
+
   const { mutate: blockUserMutation } = useBlockUser();
 
   const handleBlockPress = (nickname: string) => {
@@ -168,20 +191,24 @@ export default function CommunityChatScreen() {
     }
   };
 
+  //////////////////////////////////////////////////////////////////////////////
+
   const { data: blockedList = [] } = useQuery<BlockedItem[]>({
     queryKey: ["blockedUsers"],
     queryFn: getBlockedUsers,
   });
 
-  // 신고하기
+  //////////////////////////////////////////////////////////////////////////////
+
   const handleReportPress = (nickname: string) => {
     setIsReportModalVisible(true);
     setInitialUserName(nickname);
   };
 
+  //////////////////////////////////////////////////////////////////////////////
+
   return (
     <div className="mx-auto flex h-screen max-w-5xl flex-col bg-slate-50 text-slate-900 shadow-sm">
-      {/* 헤더 */}
       <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 shadow-xs">
         <button
           onClick={() => router.back()}
@@ -205,7 +232,6 @@ export default function CommunityChatScreen() {
         </button>
       </header>
 
-      {/* 채팅 메시지 목록 */}
       <main
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto px-5 py-4 space-y-4"
@@ -245,7 +271,6 @@ export default function CommunityChatScreen() {
         )}
       </main>
 
-      {/* 메시지 입력창 */}
       <footer className="sticky bottom-0 z-10 border-t border-slate-200 bg-white p-3 sm:p-4">
         <form onSubmit={handleSend} className="flex items-end gap-2.5">
           <textarea
@@ -269,7 +294,6 @@ export default function CommunityChatScreen() {
         </form>
       </footer>
 
-      {/* 신고 모달 */}
       <ReportModal
         visible={isReportModalVisible}
         onClose={() => setIsReportModalVisible(false)}

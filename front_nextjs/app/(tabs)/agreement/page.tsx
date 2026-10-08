@@ -1,19 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { CheckSquare, Square, Loader2 } from "lucide-react";
 import { client } from "@/api/client";
-import { updateAgreementAndNickname } from "@/api/auth/updateAgreementAndNickname";
-import TermsModal from "@/components/TermsModal"; // 기존 컴포넌트 import
-import { ApiErrorRes } from "@/types/common/ApiErrorRes";
-import { AxiosError } from "axios";
+import TermsModal from "@/components/TermsModal";
+import { useSignupComplete } from "@/hooks/user/useSignupComplete";
+
 
 export default function AgreementPage() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-
   const [nickname, setNickname] = useState("");
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
@@ -22,7 +17,8 @@ export default function AgreementPage() {
     "terms" | "privacy" | "marketing" | null
   >(null);
 
-  // 내 정보 조회
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { data: myInfo } = useQuery({
     queryKey: ["myInfo"],
     queryFn: async () => {
@@ -37,30 +33,12 @@ export default function AgreementPage() {
     }
   }, [myInfo]);
 
-  // 전체 동의 토글
-  const handleAllAgree = () => {
-    const nextState = !(termsAgreed && privacyAgreed && marketingAgreed);
-    setTermsAgreed(nextState);
-    setPrivacyAgreed(nextState);
-    setMarketingAgreed(nextState);
-  };
+  //////////////////////////////////////////////////////////////////////////////
 
-  // 회원가입 완료 mutation
   const { mutate: signupCompleteMutation, isPending: signupCompletePending } =
-    useMutation({
-      mutationFn: () => updateAgreementAndNickname(nickname, marketingAgreed),
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: ["myInfo"] });
-        router.replace("/");
-      },
-      onError: (error: AxiosError<ApiErrorRes>) => {
-        const message = error.response?.data?.message;
-        const displayMessage = Array.isArray(message) ? message[0] : message;
-        alert(displayMessage || "처리 중 오류가 발생했습니다.");
-      },
-    });
+    useSignupComplete();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!nickname.trim()) {
       alert("사용하실 별명을 입력해 주세요.");
@@ -70,17 +48,29 @@ export default function AgreementPage() {
       alert("필수 약관에 모두 동의해 주세요.");
       return;
     }
-    signupCompleteMutation();
+    signupCompleteMutation({ nickname, marketingAgreed });
   };
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  // 전체 동의 토글
+  const handleAllAgree = () => {
+    const nextState = !(termsAgreed && privacyAgreed && marketingAgreed);
+    setTermsAgreed(nextState);
+    setPrivacyAgreed(nextState);
+    setMarketingAgreed(nextState);
+  };
+
+  const isAllChecked = termsAgreed && privacyAgreed && marketingAgreed;
 
   const isFormValid =
     nickname.trim().length > 0 && termsAgreed && privacyAgreed;
-  const isAllChecked = termsAgreed && privacyAgreed && marketingAgreed;
+
+  //////////////////////////////////////////////////////////////////////////////
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-orange-50 px-4 py-12 text-slate-900">
       <main className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm border border-slate-100 sm:p-8">
-        {/* 헤더 섹션 */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
             거의 다 완료됐어요 🦊
@@ -91,7 +81,6 @@ export default function AgreementPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          {/* 별명 입력 섹션 */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="nickname"
@@ -117,9 +106,7 @@ export default function AgreementPage() {
             </div>
           </div>
 
-          {/* 약관 동의 카드 영역 */}
           <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5">
-            {/* 전체 동의 버튼 */}
             <button
               type="button"
               onClick={handleAllAgree}
@@ -137,9 +124,7 @@ export default function AgreementPage() {
 
             <hr className="border-slate-100" />
 
-            {/* 개별 약관 목록 */}
             <div className="flex flex-col gap-4">
-              {/* 필수 1: 서비스 이용약관 */}
               <div className="flex items-center justify-between gap-2">
                 <button
                   type="button"
@@ -167,7 +152,6 @@ export default function AgreementPage() {
                 </button>
               </div>
 
-              {/* 필수 2: 개인정보 처리방침 */}
               <div className="flex items-center justify-between gap-2">
                 <button
                   type="button"
@@ -195,7 +179,6 @@ export default function AgreementPage() {
                 </button>
               </div>
 
-              {/* 선택 1: 마케팅 정보 수신 */}
               <div className="flex items-center justify-between gap-2">
                 <button
                   type="button"
@@ -223,7 +206,6 @@ export default function AgreementPage() {
             </div>
           </div>
 
-          {/* 제출 버튼 */}
           <button
             type="submit"
             disabled={!isFormValid || signupCompletePending}
@@ -242,7 +224,6 @@ export default function AgreementPage() {
         </form>
       </main>
 
-      {/* 기존 TermsModal 컴포넌트 연결 */}
       <TermsModal
         visible={modalType !== null}
         type={modalType}

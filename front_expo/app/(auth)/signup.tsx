@@ -35,7 +35,6 @@ export default function SignupScreen() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
   const [isTermsAgreed, setIsTermsAgreed] = useState(false);
   const [isPrivacyAgreed, setIsPrivacyAgreed] = useState(false);
   const [isMarketingAgreed, setIsMarketingAgreed] = useState(false);
@@ -57,7 +56,7 @@ export default function SignupScreen() {
     setNickname(newNickname);
   };
 
-  //////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   const { mutate: signupMutation, isPending: signupPending } = useSignup();
 
@@ -180,7 +179,6 @@ export default function SignupScreen() {
               <View style={styles.inputWrapper}>
                 <Text style={styles.label}>별명</Text>
 
-                {/* 입력창과 버튼을 옆으로 배치하는 Container */}
                 <View style={styles.nicknameRow}>
                   <View style={styles.nicknameInputContainer}>
                     <User size={18} color="#6E8B8B" style={styles.inputIcon} />
@@ -193,7 +191,6 @@ export default function SignupScreen() {
                     />
                   </View>
 
-                  {/* 외부에 분리된 랜덤 생성 버튼 */}
                   <TouchableOpacity
                     onPress={handleAutoGenerateNickname}
                     style={styles.randomButton}
@@ -209,7 +206,6 @@ export default function SignupScreen() {
             <View style={styles.termsSection}>
               <Text style={styles.label}>약관 동의</Text>
 
-              {/* 전체 동의 버튼 */}
               <TouchableOpacity
                 style={styles.checkboxRow}
                 onPress={handleAllAgree}
@@ -228,7 +224,6 @@ export default function SignupScreen() {
                 </Text>
               </TouchableOpacity>
 
-              {/* 구분선 */}
               <View style={styles.divider} />
 
               <View style={styles.agreeText}>

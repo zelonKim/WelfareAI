@@ -22,14 +22,13 @@ export class NotificationService {
     body,
     data,
   }: SendPushNotificationDto) {
-    // 1. DB에서 targetUserId의 pushToken 조회
     const user = await this.prisma.user.findUnique({
       where: { id: targetUserId },
     });
 
     const pushToken = user?.pushToken;
 
-    // 2. 푸시 토큰 유효성 검사
+    // 푸시 토큰 유효성 검사
     if (!pushToken || !Expo.isExpoPushToken(pushToken)) {
       console.log(
         `${targetUserId}에 대한 푸시 토큰이 없거나, 유효하지 않습니다.`,
@@ -37,7 +36,7 @@ export class NotificationService {
       return;
     }
 
-    // 3. Expo 푸시 알림 발송
+    // Expo 푸시 알림 발송
     try {
       const tickets = await this.expo.sendPushNotificationsAsync([
         {
@@ -56,7 +55,8 @@ export class NotificationService {
     }
   }
 
-  ///////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////
+
 
   async sendMultiplePushNotifications({
     tokens,
@@ -64,7 +64,7 @@ export class NotificationService {
     body,
     data,
   }: SendMultiplePushNotificationsDto) {
-    // 1. 유효한 Expo 푸시 토큰만 필터링
+    // 유효한 Expo 푸시 토큰만 필터링
     const validTokens = tokens.filter((token) => Expo.isExpoPushToken(token));
 
     if (validTokens.length === 0) {
@@ -72,7 +72,7 @@ export class NotificationService {
       return [];
     }
 
-    // 2. 메시지 객체 배열 생성
+    // 메시지 객체 배열 생성
     const messages: ExpoPushMessage[] = validTokens.map((token) => ({
       to: token,
       sound: 'default',
@@ -83,7 +83,7 @@ export class NotificationService {
       priority: 'high',
     }));
 
-    // 3. Expo 서버 배치 전송 크기에 맞게 청크(Chunk) 분할 및 발송
+    // Expo 서버 배치 전송 크기에 맞게 청크 분할 및 발송
     const chunks = this.expo.chunkPushNotifications(messages);
     const tickets: ExpoPushTicket[] = [];
 

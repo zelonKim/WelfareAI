@@ -17,8 +17,8 @@ export class BlockService {
         blockerId,
       },
       select: {
-        id: true, // Block 레코드 ID
-        blockedId: true, // 차단당한 유저 ID
+        id: true, 
+        blockedId: true, 
         createdAt: true,
         blockedUser: {
           select: {
@@ -70,7 +70,6 @@ export class BlockService {
   ////////////////////////////////////////////////////////////////////////
 
   async unblockUser(blockerId: string, blockedId: string) {
-    // 차단 이력이 존재하는지 확인
     const blockRecord = await this.prisma.block.findFirst({
       where: {
         blockerId,

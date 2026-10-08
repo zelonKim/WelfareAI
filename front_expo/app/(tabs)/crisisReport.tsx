@@ -5,7 +5,6 @@ import Colors from "@/constants/Colors";
 import { useUploadImage } from "@/hooks/common/useUploadImage";
 import { useCreateCrisisReport } from "@/hooks/crisisReport/useCreateCrisisReport";
 import { CrisisReport } from "@/types/crisisReport/CrisisReport";
-import { formatDate } from "@/utils/formatDate";
 import { handleGetCurrentLocation } from "@/utils/handleGetCurrentLocation";
 import { handlePickImage } from "@/utils/handlePickImage";
 import { useQuery } from "@tanstack/react-query";
@@ -202,10 +201,12 @@ export default function CrisisReportScreen() {
               onPress={() => handleCardPress(item.id)}
             >
               <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.createdAtText}>
-                  {formatDate(item.createdAt)}
+                <Text style={styles.cardTitle} numberOfLines={1}>
+                  {item.title}
                 </Text>
+                {/* <Text style={styles.createdAtText}>
+                  {formatDate(item.createdAt)}
+                </Text> */}
               </View>
 
               <Text style={styles.cardContent} numberOfLines={2}>
@@ -461,7 +462,7 @@ const styles = StyleSheet.create({
   activeTab: { backgroundColor: Colors.card },
   tabText: { fontSize: 13, color: "#6E8B8B", fontWeight: "600" },
   activeTabText: { color: Colors.primary, fontWeight: "700" },
-  listContent: { paddingHorizontal: 20, paddingBottom: 40 },
+  listContent: { paddingHorizontal: 20, paddingBottom: 80 },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   reportCard: {
     backgroundColor: "#FFFFFF",
@@ -483,6 +484,7 @@ const styles = StyleSheet.create({
     color: "#6E8B8B",
     marginTop: 6,
     marginBottom: 12,
+    lineHeight: 20,
   },
   addressRow: {
     flexDirection: "row",
@@ -490,7 +492,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     gap: 4,
   },
-  addressText: { fontSize: 12, color: "#6E8B8B" },
+  addressText: { fontSize: 13, color: "#6E8B8B" },
   emptyContainer: { alignItems: "center", marginTop: 80, gap: 10 },
   emptyText: { color: "#6E8B8B", fontSize: 14 },
   fab: {

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { X, User, Loader2 } from "lucide-react";
-
 import { getBlockedUsers } from "@/api/block/getBlockedUsers";
 import { useBlockUser } from "@/hooks/block/useBlockUser";
 import { useUnblockUser } from "@/hooks/block/useUnblockUser";
@@ -14,7 +13,6 @@ import { BlockModalProps } from "@/types/block/BlockModalProps";
 export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
   const [usernameInput, setUsernameInput] = useState("");
 
-  // ESC 키 누르면 모달 닫기
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && visible) {
@@ -25,14 +23,16 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [visible, onClose]);
 
-  // 차단 유저 목록 조회
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { data: blockedList = [], isLoading } = useQuery<BlockedItem[]>({
     queryKey: ["blockedUsers"],
     queryFn: getBlockedUsers,
     enabled: !!visible,
   });
 
-  // 유저 차단 Mutation
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: blockUserMutation, isPending: blockUserPending } =
     useBlockUser();
 
@@ -51,7 +51,8 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
     });
   };
 
-  // 차단 해제 Mutation
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: unblockUserMutation, isPending: unblockUserPending } =
     useUnblockUser();
 
@@ -63,31 +64,29 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
 
   if (!visible) return null;
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* 배경 오버레이 (클릭 시 닫기) */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* 모달 컨테이너 */}
       <div className="relative z-10 w-full max-w-lg transform rounded-2xl bg-white p-6 shadow-xl transition-all">
-        {/* 헤더 */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
           <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <span>🚫</span> 차단 관리
           </h2>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            className="cursor-pointer rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
             aria-label="닫기"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        {/* 유저 차단 입력 폼 */}
         <div className="mb-6">
           <label
             htmlFor="username-input"
@@ -107,7 +106,7 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
             <button
               type="submit"
               disabled={blockUserPending}
-              className="flex items-center justify-center rounded-xl bg-red-500 px-5 py-3 text-base font-semibold text-white transition-colors hover:bg-red-600 disabled:opacity-50 min-w-[90px]"
+              className="cursor-pointer flex items-center justify-center rounded-xl bg-red-500 px-5 py-3 text-base font-semibold text-white transition-colors hover:bg-red-600 disabled:opacity-50 min-w-[90px]"
             >
               {blockUserPending ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -118,7 +117,6 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
           </form>
         </div>
 
-        {/* 차단된 유저 목록 */}
         <div>
           <h3 className="text-base font-semibold text-slate-700 mb-3">
             차단된 유저 목록 ({blockedList.length})
@@ -141,7 +139,6 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
                     className="flex items-center justify-between rounded-xl bg-slate-50 p-3"
                   >
                     <div className="flex items-center gap-3">
-                      {/* 아바타 이미지 또는 플레이스홀더 */}
                       <div className="relative h-10 w-10 overflow-hidden rounded-full bg-slate-200 flex-shrink-0">
                         {item.blockedUser.profileImage ? (
                           <Image
@@ -151,7 +148,7 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-indigo-50 text-orange-500">
+                          <div className="flex h-full w-full items-center justify-center bg-green-50 text-[#1A3A3A]">
                             <User className="h-5 w-5" />
                           </div>
                         )}
@@ -166,7 +163,7 @@ export const BlockModal: React.FC<BlockModalProps> = ({ visible, onClose }) => {
                         handleUnblock(item.blockedId, item.blockedUser.nickname)
                       }
                       disabled={unblockUserPending}
-                      className="rounded-lg bg-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-300 disabled:opacity-50"
+                      className="cursor-pointer rounded-lg bg-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-300 disabled:opacity-50"
                     >
                       해제하기
                     </button>

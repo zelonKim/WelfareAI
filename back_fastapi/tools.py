@@ -5,7 +5,6 @@ import httpx
 
 
 async def search_welfare_policy(keyword: str) -> str:
-    # 공공데이터포털 인증키
     service_key = os.getenv("PUBLIC_WELFARE_API_KEY")
 
     list_url = "https://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001"
@@ -26,7 +25,6 @@ async def search_welfare_policy(keyword: str) -> str:
             if list_res.status_code != 200:
                 return f"목록 API 호출 실패 (상태 코드: {list_res.status_code})"
 
-            # XML을 파이썬 dict로 변환
             list_data = xmltodict.parse(list_res.text)
             wanted_list = list_data.get("wantedList", {})
 
@@ -39,7 +37,6 @@ async def search_welfare_policy(keyword: str) -> str:
             if not serv_list:
                 return f"'{keyword}'에 대한 검색 결과가 없습니다."
 
-            # 만약 결과가 단건(dict)이면 리스트화
             if isinstance(serv_list, dict):
                 serv_list = [serv_list]
 
@@ -48,19 +45,19 @@ async def search_welfare_policy(keyword: str) -> str:
             if not target_serv_id:
                 return "서비스 ID(servId)를 찾을 수 없습니다."
 
-            # 2. 상세 정보 조회 요청 (callTp="D")
+            # 상세 정보 조회 요청 (callTp="D")
             detail_params = {
                 "serviceKey": service_key,
                 "callTp": "D",  # 상세 조회
                 "servId": target_serv_id,  # 추출한 서비스 ID
             }
 
-            # 3. 추출한 servId로 상세 조회 요청
+            # 추출한 servId로 상세 조회 요청
             detail_res = await client.get(detail_url, params=detail_params)
             if detail_res.status_code != 200:
                 return f"상세 API 호출 실패 (상태 코드: {detail_res.status_code})"
 
-            # 상세 조회 XML 응답을 그대로 반환 (GPT 프롬프트로 전달하여 요약/분석)
+            # 상세 조회 XML 응답을 그대로 반환
             detail_data = xmltodict.parse(detail_res.text)
             wanted_detail = detail_data.get("wantedDtl", {})
 
@@ -75,7 +72,6 @@ async def search_welfare_policy(keyword: str) -> str:
                 or wanted_detail.get("alwServDtlURL")
             )
 
-            # 2. URL이 존재하면 해당 URL을 사용하고, 없을 때만 기본 복지로 메인 URL 지정
             if raw_url and str(raw_url).strip():
                 url_link = str(raw_url).strip()
                 if not url_link.startswith("http"):
@@ -92,5 +88,5 @@ async def search_welfare_policy(keyword: str) -> str:
                 ※ 답변 작성 시 위 '상세 URL'을 바탕으로 마크다운 링크([신청 바로가기]({url_link}))를 답변 맨 아래에 반드시 작성해 주세요.
             """
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         return f"복지 API 연동 처리 중 오류 발생: {e}"

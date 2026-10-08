@@ -10,7 +10,6 @@ import {
   Send,
   User,
   Loader2,
-  Trash2,
   RotateCcw,
   ArrowUp,
 } from "lucide-react";
@@ -27,37 +26,13 @@ export default function AIConsultPage() {
   const router = useRouter();
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showTopBtn, setShowTopBtn] = useState(false);
 
+  const [showTopBtn, setShowTopBtn] = useState(false);
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
-  // 스크롤 감지 이벤트
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+  ////////////////////////////////////////////////////////////////////////////////////
 
-    const handleScroll = () => {
-      if (container.scrollTop > 300) {
-        setShowTopBtn(true);
-      } else {
-        setShowTopBtn(false);
-      }
-    };
-
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // 맨 위로 스크롤하는 함수
-  const scrollToTop = () => {
-    scrollContainerRef.current?.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  // 내 정보 조회 및 로그인/약관 동의 체크
   const { data: myInfo } = useQuery({
     queryKey: ["myInfo"],
     queryFn: async () => {
@@ -72,12 +47,8 @@ export default function AIConsultPage() {
     }
   }, [myInfo, router]);
 
-  // 메시지 목록 추가 시 자동 하단 스크롤
-  useEffect(() => {
-    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  ////////////////////////////////////////////////////////////////////////////////////
 
-  // 상담 내역 가져오기
   const { data: consultings, isPending: isFetchingHistory } = useQuery<
     ConsultingItem[]
   >({
@@ -113,20 +84,22 @@ export default function AIConsultPage() {
     setMessages(formattedMessages);
   }, [consultings]);
 
-  // AI에게 문의하기
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: consultMutation, isPending: consultPending } =
     useCreateConsulting({
       setMessages,
       setInputText,
     });
 
-  const handleSend = (e?: React.FormEvent) => {
+  const handleSend = (e?: React.SubmitEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
     if (!inputText.trim() || consultPending) return;
     consultMutation(inputText.trim());
   };
 
-  // 삭제 처리 (우클릭 또는 웹 삭제 컨텍스트용)
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: deleteConsulting } = useDeleteConsulting();
 
   const handleContextMenu = (e: React.MouseEvent, id: string) => {
@@ -140,12 +113,45 @@ export default function AIConsultPage() {
     }
   };
 
-  const { mutate: deleteAllMutation, isPending: deleteAllPending } =
-    useDeleteAllConsulting();
+  const { mutate: deleteAllMutation } = useDeleteAllConsulting();
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (container.scrollTop > 300) {
+        setShowTopBtn(true);
+      } else {
+        setShowTopBtn(false);
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  const scrollToTop = () => {
+    scrollContainerRef.current?.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <div className="flex flex-col h-screen mx-auto bg-[#F2F6F6] border-x border-[#1A3A3A]/10">
-      {/* 1. 상단 헤더 */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         <header className="flex items-center justify-between px-6 py-4  bg-white/80 border-b border-[#1A3A3A]/10 shrink-0">
           <div className="flex items-center gap-3">
@@ -173,7 +179,6 @@ export default function AIConsultPage() {
           </button>
         </header>
 
-        {/* 2. 대화 목록 영역 */}
         <div className="scrollbar-none max-w-5xl mx-auto flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6">
           {isFetchingHistory ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-[#6E8B8B]">
@@ -217,34 +222,34 @@ export default function AIConsultPage() {
                         <div className="prose prose-slate max-w-none text-[#1A3A3A] text-base leading-relaxed font-normal">
                           <ReactMarkdown
                             components={{
-                              h3: ({ node, ...props }) => (
+                              h3: ({ ...props }) => (
                                 <h3
                                   className="text-lg font-bold text-[#1A3A3A] mt-3 mb-1"
                                   {...props}
                                 />
                               ),
-                              p: ({ node, ...props }) => (
+                              p: ({ ...props }) => (
                                 <p
                                   className="mb-2 last:mb-0 leading-relaxed text-base"
                                   {...props}
                                 />
                               ),
-                              strong: ({ node, ...props }) => (
+                              strong: ({ ...props }) => (
                                 <strong
                                   className="font-bold text-[#1A3A3A]"
                                   {...props}
                                 />
                               ),
-                              ul: ({ node, ...props }) => (
+                              ul: ({ ...props }) => (
                                 <ul
                                   className="list-disc pl-5 my-2 space-y-1"
                                   {...props}
                                 />
                               ),
-                              li: ({ node, ...props }) => (
+                              li: ({ ...props }) => (
                                 <li className="text-base" {...props} />
                               ),
-                              a: ({ node, children, ...props }) => (
+                              a: ({ children, ...props }) => (
                                 <a
                                   className="font-bold text-[#FF7F66] hover:underline hover:text-[#e66f57] transition-colors break-all"
                                   target="_blank"
@@ -271,7 +276,6 @@ export default function AIConsultPage() {
                 </div>
               ))}
 
-              {/* AI 답변 대기 로딩 표시 */}
               {consultPending && (
                 <div className="flex items-start gap-3 justify-start">
                   <div className="w-9 h-9 rounded-full bg-[#1A3A3A] flex items-center justify-center shrink-0 mt-1">
@@ -302,9 +306,7 @@ export default function AIConsultPage() {
         </button>
       )}
 
-      {/* 3. 하단 입력 영역 */}
       <div className="p-3 pt-2.5 bg-[#F2F6F6] border-t border-[#1A3A3A]/10 shrink-0">
-        {/* Quick Prompts Chip 목록 */}
         <div className="flex gap-2 overflow-x-auto pb-2.5 no-scrollbar">
           {AutoPrompts.map((prompt, index) => (
             <button

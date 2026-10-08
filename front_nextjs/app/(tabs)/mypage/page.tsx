@@ -1,21 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   Settings,
   User,
-  Bell,
   Heart,
-  AlertTriangle,
   Ban,
   ChevronRight,
   Loader2,
   Siren,
   Info,
-  FileUser,
   UserKey,
 } from "lucide-react";
 import { removeAccessToken } from "@/api/token";
@@ -34,20 +31,22 @@ export default function MyPageScreen() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [targetUserId, setTargetUserId] = useState<string>("");
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
 
-  // 내 정보 조회
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { data: myInfo, isPending: myInfoPending } = useQuery<UserProfile>({
     queryKey: ["myInfo"],
     queryFn: getMyInfo,
   });
 
-  // 모달 제어
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const handleOpenEditModal = () => setIsEditModalOpen(true);
   const handleCloseEditModal = () => setIsEditModalOpen(false);
 
-  // 프로필 수정
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { saveProfile, isSaving } = useSaveProfile({
     onSuccessCallback: handleCloseEditModal,
   });
@@ -63,23 +62,27 @@ export default function MyPageScreen() {
     });
   };
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const handleRemoveProfileImage = () => {
     setSelectedImageUri(null);
   };
 
-  // 회원 탈퇴
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: deleteAccountMutation, isPending: deleteAccountPending } =
     useDeleteAccount();
 
   const handleDeleteAccount = () => {
     if (
-      window.confirm("정말로 탈퇴하시겠습니까? 계정 정보는 복구할 수 없습니다.")
+      window.confirm("정말로 탈퇴하시겠습니까? 탈퇴한 계정 정보는 복구할 수 없습니다.")
     ) {
       deleteAccountMutation();
     }
   };
 
-  // 로그아웃
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const onPressLogout = async () => {
     await removeAccessToken();
     router.replace("/login");
@@ -91,7 +94,8 @@ export default function MyPageScreen() {
     }
   };
 
-  // 로딩 화면
+  ////////////////////////////////////////////////////////////////////////////////////
+
   if (myInfoPending) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -100,9 +104,10 @@ export default function MyPageScreen() {
     );
   }
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20 text-slate-800">
-      {/* 헤더 */}
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFEFEA]">
@@ -112,9 +117,7 @@ export default function MyPageScreen() {
         </div>
       </header>
 
-      {/* 메인 콘텐츠 영역 */}
       <main className="mx-auto max-w-4xl px-4 pt-6">
-        {/* 프로필 카드 */}
         <section className="relative mb-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
           <button
             onClick={handleOpenEditModal}
@@ -124,7 +127,6 @@ export default function MyPageScreen() {
           </button>
 
           <div className="flex flex-col items-center">
-            {/* 아바타 */}
             <div className="mb-4">
               {myInfo?.profileImage ? (
                 <Image
@@ -141,7 +143,6 @@ export default function MyPageScreen() {
               )}
             </div>
 
-            {/* 유저 정보 */}
             <div className="text-center">
               <h2 className="text-xl font-bold text-slate-800 mb-1">
                 {myInfo?.nickname}
@@ -153,14 +154,12 @@ export default function MyPageScreen() {
           </div>
         </section>
 
-        {/* 앱 설정 섹션 */}
         <section className="mb-8">
           <h3 className="mb-3 px-1 text-base font-bold text-slate-600">
             앱 설정
           </h3>
 
           <div className="divide-y divide-slate-100 rounded-2xl bg-white px-5 shadow-sm ring-1 ring-slate-100">
-            {/* 1. 후원하기 */}
             <button
               onClick={() => router.push("/together")}
               className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
@@ -179,7 +178,6 @@ export default function MyPageScreen() {
               <ChevronRight className="h-5 w-5 text-slate-400" />
             </button>
 
-            {/* 2. 신고하기 */}
             <button
               onClick={() => setIsReportModalOpen(true)}
               className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
@@ -198,7 +196,6 @@ export default function MyPageScreen() {
               <ChevronRight className="h-5 w-5 text-slate-400" />
             </button>
 
-            {/* 3. 차단하기 */}
             <button
               onClick={() => setIsBlockModalOpen(true)}
               className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
@@ -217,7 +214,6 @@ export default function MyPageScreen() {
               <ChevronRight className="h-5 w-5 text-slate-400" />
             </button>
 
-            {/* 4. 서비스 이용약관 */}
             <button
               onClick={() => router.push("/terms")}
               className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
@@ -236,7 +232,6 @@ export default function MyPageScreen() {
               <ChevronRight className="h-5 w-5 text-slate-400" />
             </button>
 
-            {/* 5. 차단하기 */}
             <button
               onClick={() => router.push("/privacy")}
               className="cursor-pointer flex w-full items-center justify-between py-4 text-left transition hover:opacity-70"
@@ -257,7 +252,6 @@ export default function MyPageScreen() {
           </div>
         </section>
 
-        {/* 계정 관리 */}
         <div className="flex items-center justify-center gap-3 text-[15px]">
           <button
             onClick={handleLogout}
@@ -275,7 +269,6 @@ export default function MyPageScreen() {
           </button>
         </div>
 
-        {/* 모달 components */}
         <BlockModal
           visible={isBlockModalOpen}
           onClose={() => setIsBlockModalOpen(false)}
@@ -284,7 +277,6 @@ export default function MyPageScreen() {
         <ReportModal
           visible={isReportModalOpen}
           onClose={() => setIsReportModalOpen(false)}
-          reportedUserId={targetUserId}
         />
 
         <ProfileEditModal

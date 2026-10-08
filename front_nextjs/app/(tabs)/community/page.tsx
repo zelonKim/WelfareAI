@@ -3,14 +3,13 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Users, Plus, Loader2 } from "lucide-react";
-
 import { getAllCommunityPosts } from "@/api/community/getAllCommunityPosts";
 import { getMyCommunityPosts } from "@/api/community/getMyCommunityPosts";
 import { CommunityItem } from "@/components/CommunityItem";
 import CommunityModal from "@/components/CommunityModal";
 import { CommunityTabs } from "@/constants/CommunityTabs";
 import { useCreateCommunity } from "@/hooks/community/useCreateCommunity";
-import { CommunityType } from "@/types/community/CommunityPost";
+import { CommunityType } from "@/types/community/CommunityType";
 
 export default function CommunityPage() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -19,9 +18,9 @@ export default function CommunityPage() {
   const [images, setImages] = useState<string[]>([]);
   const [communityType, setCommunityType] =
     useState<CommunityType>("SELF_HELP");
-
-  // 모임 게시글 조회
   const [selectedType, setSelectedType] = useState<"ALL" | "MY">("ALL");
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   const {
     data: posts = [],
@@ -39,14 +38,14 @@ export default function CommunityPage() {
     },
   });
 
-  // 모임 작성 훅
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: createCommunityMutation, isPending: createCommunityPending } =
     useCreateCommunity(() => {
       handleCloseModal();
       refetch();
     });
 
-  // 모임 생성 제출 핸들러
   const handleCreateCommunity = () => {
     if (!title.trim()) {
       alert("제목을 입력해 주세요.");
@@ -66,6 +65,8 @@ export default function CommunityPage() {
     });
   };
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const handleOpenModal = () => {
     setModalVisible(true);
   };
@@ -78,9 +79,10 @@ export default function CommunityPage() {
     setCommunityType("SELF_HELP");
   };
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <div className="min-h-screen bg-[#F2F5F6] text-[#1A252C] flex flex-col">
-      {/* 1. 상단 타이틀 헤더 */}
       <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-[#1A3A3A]/10 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -92,16 +94,13 @@ export default function CommunityPage() {
             </h1>
           </div>
 
-          {/* 새로고침 버튼 (옵션) */}
           {isRefetching && (
             <Loader2 className="w-5 h-5 text-[#FF7F66] animate-spin" />
           )}
         </div>
       </header>
 
-      {/* 메인 컨텐츠 영역 */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 pb-28">
-        {/* 2. 세그먼트형 필터 탭 */}
         <div className="mb-6">
           <div className="flex bg-[#E4ECEF] p-1.5 rounded-2xl gap-1">
             {CommunityTabs.map((tab) => {
@@ -125,7 +124,6 @@ export default function CommunityPage() {
           </div>
         </div>
 
-        {/* 3. 모임 카드 목록 */}
         {isPending ? (
           <div className="flex flex-col items-center justify-center py-32 text-gray-500 gap-3">
             <Loader2 className="w-8 h-8 animate-spin text-[#FF7F66]" />
@@ -163,19 +161,17 @@ export default function CommunityPage() {
         )}
       </main>
 
-      {/* 4. 우측 하단 플로팅 모임 만들기 버튼  */}
       <div className="fixed bottom-8 right-6 sm:right-10 z-30">
         <button
           type="button"
           onClick={handleOpenModal}
-          className="flex items-center gap-2 px-5 py-3.5 bg-[#FF7F66] hover:bg-[#e66f57] active:scale-95 text-white rounded-full shadow-lg transition-all cursor-pointer"
+          className="flex items-center gap-2 px-5 py-3.5 bg-[#FF7F66] hover:bg-[#e66f57] outline-none active:scale-95 text-white rounded-full shadow-lg transition-all cursor-pointer"
         >
           <Plus className="w-5 h-5 stroke-[2.5]" />
           <span className="text-base font-bold">모임 만들기</span>
         </button>
       </div>
 
-      {/* 5. 모임 작성 모달 */}
       <CommunityModal
         modalType="tabs"
         visible={modalVisible}

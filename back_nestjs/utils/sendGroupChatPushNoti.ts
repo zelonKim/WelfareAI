@@ -9,7 +9,6 @@ export async function sendGroupChatPushNoti(
   message: string,
   senderNickname: string,
 ) {
-  // 모임 정보 및 승인된 멤버(APPROVED) 목록 조회
   const community = await prisma.communityPost.findUnique({
     where: { id: postId },
     select: {
@@ -24,22 +23,20 @@ export async function sendGroupChatPushNoti(
 
   if (!community) return;
 
-  // 알림을 받을 대상 사용자 ID 추출 (방장 + 승인된 멤버 전체 중 '나' 제외)
   const allMemberIds = new Set([
     community.hostId,
     ...community.members.map((m) => m.userId),
   ]);
-  allMemberIds.delete(senderId); // 메시지 작성자 본인 제외
+  allMemberIds.delete(senderId);
 
   const targetUserIds = Array.from(allMemberIds);
 
   if (targetUserIds.length === 0) return;
 
-  // 대상 유저들의 pushToken 및 유저 정보 조회
   const targetUsers = await prisma.user.findMany({
     where: {
       id: { in: targetUserIds },
-      pushToken: { not: null }, // pushToken이 등록된 유저만
+      pushToken: { not: null },
     },
     select: { pushToken: true },
   });

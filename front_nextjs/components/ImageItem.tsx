@@ -12,14 +12,12 @@ export const ImageItem = ({ uri, onRemove }: ImageItemProps) => {
 
   return (
     <div className="relative shrink-0 w-20 h-20 group">
-      {/* 로딩 스피너 오버레이 */}
       {loading && (
         <div className="absolute inset-0 bg-gray-100 rounded-xl flex items-center justify-center z-10">
           <Loader2 className="w-5 h-5 text-[#6E8B8B] animate-spin" />
         </div>
       )}
 
-      {/* 이미지 */}
       <div className="relative w-full h-full rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
         <Image
           src={uri}
@@ -34,7 +32,6 @@ export const ImageItem = ({ uri, onRemove }: ImageItemProps) => {
         />
       </div>
 
-      {/* 이미지 삭제 버튼 */}
       <button
         type="button"
         onClick={onRemove}

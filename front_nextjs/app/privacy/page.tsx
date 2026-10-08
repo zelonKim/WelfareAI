@@ -1,11 +1,7 @@
 "use client";
 
+import { Section } from "@/types/common/Section";
 import { useRouter } from "next/navigation";
-
-interface Section {
-  title: string;
-  body: string;
-}
 
 const PRIVACY_SECTIONS: Section[] = [
   {
@@ -38,13 +34,14 @@ const PRIVACY_SECTIONS: Section[] = [
   },
 ];
 
+////////////////////////////////////////////////////////////////////////////////////
+
 export default function PrivacyPage() {
   const router = useRouter();
 
   return (
     <div className="min-h-screen bg-[#F4F7F6] text-[#193E3B] px-4 py-8 md:py-12">
       <div className="max-w-2xl mx-auto bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[#E2ECE9]">
-        {/* 헤더 영역 */}
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#E2ECE9]">
           <h1 className="text-xl md:text-2xl font-bold text-[#193E3B] flex items-center gap-2">
             <span className="text-[#FF6B5B]">🔒</span> 개인정보 처리방침 및 고객
@@ -58,7 +55,6 @@ export default function PrivacyPage() {
           </button>
         </div>
 
-        {/* 브랜드 및 서문 */}
         <div className="mb-6 p-4 rounded-xl bg-[#F0F6F5] border border-[#DCEBE8]">
           <p className="text-xs font-bold text-[#FF6B5B] uppercase tracking-wider mb-1">
             Privacy Policy & Support
@@ -78,7 +74,6 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        {/* 개인정보 처리방침 본문 */}
         <div className="space-y-5 text-[#385B56] leading-relaxed text-sm md:text-[15px] mt-6">
           {PRIVACY_SECTIONS.map((section, index) => (
             <section key={index} className="space-y-1.5">
@@ -93,7 +88,6 @@ export default function PrivacyPage() {
           ))}
         </div>
 
-        {/* 푸터 영역 */}
         <div className="mt-10 pt-4 border-t border-[#E2ECE9] text-center text-xs text-[#7A9A95]">
           시행 일자: 2026년 10월 2일 · OpenWelfare
         </div>

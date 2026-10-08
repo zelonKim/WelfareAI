@@ -36,13 +36,12 @@ import { UserProfile } from "@/types/user/UserProfile";
 import { formatDate } from "@/utils/formatDate";
 import { handleGetCurrentLocation } from "@/utils/handleGetCurrentLocation";
 import { handlePickImage } from "@/utils/handlePickImage";
+import { getStatusBadge } from "@/utils/getStatusBadge";
 
 export default function CrisisReportDetailPage() {
-  const params = useParams();
-  const id = params?.id as string;
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  // 수정 모달 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -50,8 +49,6 @@ export default function CrisisReportDetailPage() {
   const [latitude, setLatitude] = useState<number | undefined>(undefined);
   const [longitude, setLongitude] = useState<number | undefined>(undefined);
   const [images, setImages] = useState<string[]>([]);
-
-  // 댓글 및 신고 상태
   const [commentInput, setCommentInput] = useState("");
   const [isReportModalVisible, setIsReportModalVisible] = useState(false);
   const [initialUserName, setInitialUserName] = useState("");
@@ -60,7 +57,8 @@ export default function CrisisReportDetailPage() {
   >(null);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
-  // 제보 상세 조회
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const {
     data: report,
     isLoading,
@@ -69,12 +67,13 @@ export default function CrisisReportDetailPage() {
     queryKey: ["crisisReport", id],
     queryFn: () => getCrisisReportById(id),
     enabled: !!id,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
   });
 
-  // 내 정보 조회
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { data: myInfo } = useQuery<UserProfile>({
     queryKey: ["myInfo"],
     queryFn: getMyInfo,
@@ -82,29 +81,8 @@ export default function CrisisReportDetailPage() {
 
   const isAuthor = myInfo?.id === report?.user.id;
 
-  // 차단 유저 목록
-  const { data: blockedList = [] } = useQuery<BlockedItem[]>({
-    queryKey: ["blockedUsers"],
-    queryFn: getBlockedUsers,
-  });
+  ////////////////////////////////////////////////////////////////////////////////////
 
-  // 프로필 클릭 핸들러
-  const handleProfilePress = (comment: Comment) => {
-    if (comment.user.id === myInfo?.id) return;
-    setActivePopoverCommentId((prev) =>
-      prev === comment.id ? null : comment.id,
-    );
-  };
-
-  // 이미지 업로드
-  const { mutate: uploadImageMutation, isPending: uploadImagePending } =
-    useUploadImage();
-
-  const handleRemoveImage = (indexToRemove: number) => {
-    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
-  };
-
-  // 제보 수정
   const { mutate: updateReportMutation, isPending: updateReportPending } =
     useUpdateCrisisReport({
       id,
@@ -122,6 +100,17 @@ export default function CrisisReportDetailPage() {
     });
   };
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  const { mutate: uploadImageMutation, isPending: uploadImagePending } =
+    useUploadImage();
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const handleEditReport = () => {
     if (!report) return;
     setTitle(report.title ?? "");
@@ -134,17 +123,19 @@ export default function CrisisReportDetailPage() {
     setIsModalOpen(true);
   };
 
-  // 제보 삭제
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: deleteReportMutation } = useDeleteCrisisReport();
 
   const handleDeleteReport = () => {
     setShowMoreMenu(false);
-    if (window.confirm("정말 이 제보를 삭제하시겠습니까?")) {
+    if (window.confirm("정말로 이 제보를 삭제하시겠습니까?")) {
       deleteReportMutation(id);
     }
   };
 
-  // 댓글 작성
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: createCommentMutation, isPending: createCommentPending } =
     useCreateCrisisComment({
       reportId: id,
@@ -152,22 +143,40 @@ export default function CrisisReportDetailPage() {
     });
 
   const handleSendComment = () => {
-    if (!commentInput.trim()) return;
+    if (!commentInput.trim() || createCommentPending) return;
     createCommentMutation(commentInput.trim());
   };
 
-  // 댓글 삭제
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: deleteCommentMutation } = useDeleteCrisisComment({
     reportId: id,
   });
 
   const handleDeleteComment = (commentId: string) => {
-    if (window.confirm("정말 이 댓글을 삭제하시겠습니까?")) {
+    if (window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
       deleteCommentMutation(commentId);
     }
   };
 
-  // 차단하기
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  const handleProfilePress = (comment: Comment) => {
+    if (comment.user.id === myInfo?.id) return;
+    setActivePopoverCommentId((prev) =>
+      prev === comment.id ? null : comment.id,
+    );
+  };
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  const { data: blockedList = [] } = useQuery<BlockedItem[]>({
+    queryKey: ["blockedUsers"],
+    queryFn: getBlockedUsers,
+  });
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: blockUserMutation } = useBlockUser();
 
   const handleBlockPress = (nickname: string) => {
@@ -180,11 +189,14 @@ export default function CrisisReportDetailPage() {
     }
   };
 
-  // 신고하기
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const handleReportPress = (nickname: string) => {
     setIsReportModalVisible(true);
     setInitialUserName(nickname);
   };
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   if (isLoading) {
     return (
@@ -204,24 +216,12 @@ export default function CrisisReportDetailPage() {
     );
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "PENDING":
-        return { label: "제보 접수", style: "bg-amber-100 text-amber-800" };
-      case "IN_PROGRESS":
-        return { label: "조치 중", style: "bg-blue-100 text-blue-800" };
-      case "RESOLVED":
-        return { label: "조치 완료", style: "bg-green-100 text-green-800" };
-      default:
-        return { label: "접수", style: "bg-amber-100 text-amber-800" };
-    }
-  };
-
   const badge = getStatusBadge(report.status);
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-5xl mx-auto border-x border-gray-100 shadow-sm">
-      {/* 1. 헤더 */}
       <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <button
           type="button"
@@ -243,7 +243,6 @@ export default function CrisisReportDetailPage() {
               <MoreVertical className="w-6 h-6 text-gray-800" />
             </button>
 
-            {/* 드롭다운 메뉴 */}
             {showMoreMenu && (
               <>
                 <div
@@ -284,9 +283,7 @@ export default function CrisisReportDetailPage() {
         )}
       </header>
 
-      {/* 2. 상세 본문 영역 */}
       <main className="flex-1 p-5 space-y-6 overflow-y-auto pb-24">
-        {/* 상태 태그 및 작성일 */}
         <div className="flex items-center justify-between">
           <span
             className={`px-3 py-1 rounded-md text-xs sm:text-sm font-semibold ${badge.style}`}
@@ -301,12 +298,10 @@ export default function CrisisReportDetailPage() {
           </div>
         </div>
 
-        {/* 제보 제목 */}
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-snug">
           {report.title}
         </h2>
 
-        {/* 이미지 갤러리 */}
         {report.images && report.images.length > 0 && (
           <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
             {report.images.map((imgUri, index) => (
@@ -326,12 +321,10 @@ export default function CrisisReportDetailPage() {
           </div>
         )}
 
-        {/* 제보 본문 */}
         <div className="text-base sm:text-lg text-gray-800 leading-relaxed whitespace-pre-line">
           {report.content}
         </div>
 
-        {/* 위치 및 제보자 정보 카드 */}
         <div className="p-4 sm:p-5 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
           <div className="flex items-center gap-3">
             <MapPin className="w-5 h-5 text-[#1A3A3A] shrink-0" />
@@ -356,15 +349,13 @@ export default function CrisisReportDetailPage() {
           </div>
         </div>
 
-        {/* 댓글 헤더 */}
-        <div className="flex items-center gap-2 pt-4">
+        <div className="flex items-center gap-2 pt-6 mt-10 border-t-2 border-slate-100 ">
           <MessageCircleMore className="w-5 h-5 text-[#FF7F66]" />
           <h3 className="text-base sm:text-lg font-bold text-gray-900">
             댓글 ({report.comments ? report.comments.length : 0})
           </h3>
         </div>
 
-        {/* 댓글 목록 */}
         {report.comments && report.comments.length > 0 ? (
           <div className="divide-y divide-gray-100">
             {report.comments
@@ -422,7 +413,6 @@ export default function CrisisReportDetailPage() {
         )}
       </main>
 
-      {/* 3. 하단 댓글 고정 입력창 */}
       <footer className="sticky bottom-0 z-30 p-3 sm:p-4 bg-white border-t border-gray-100 max-w-5xl w-full mx-auto">
         <div className="flex items-center gap-2">
           <input
@@ -431,12 +421,14 @@ export default function CrisisReportDetailPage() {
             value={commentInput}
             onChange={(e) => setCommentInput(e.target.value)}
             onKeyDown={(e) => {
+              if (e.nativeEvent.isComposing) return;
+
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 handleSendComment();
               }
             }}
-            className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm sm:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1A3A3A] transition-colors"
+            className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-full text-sm sm:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF7F66] transition-colors"
           />
           <button
             type="button"
@@ -453,7 +445,6 @@ export default function CrisisReportDetailPage() {
         </div>
       </footer>
 
-      {/* 모달 컴포넌트들 */}
       <ReportModal
         visible={isReportModalVisible}
         onClose={() => setIsReportModalVisible(false)}

@@ -14,7 +14,6 @@ app = FastAPI()
 
 client = AsyncOpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
-
 @app.get("/")
 def read_root():
     return {"message": "AI server is running"}
@@ -70,7 +69,6 @@ async def consult(payload: ConsultRequest):
     ]
 
     try:
-        # system 프롬프트 배치
         formatted_messages: list[Any] = [{"role": "system", "content": system_prompt}]
 
         # 이전 대화 기록(history)을 messages에 추가
@@ -124,7 +122,7 @@ async def consult(payload: ConsultRequest):
                     f" 해당 정책({keyword}) 정보를 조회하는 중 오류가 발생했습니다."
                 )
 
-            # 이전 AI 응답 및 함수 실행 결과를 메시지에 추가
+            # 이전 AI 응답 및 결과를 메시지에 추가
             formatted_messages.append(
                 {
                     "role": "tool",
@@ -147,7 +145,7 @@ async def consult(payload: ConsultRequest):
 
         return {"answer": ai_answer}
 
-    except Exception as e:
+    except Exception as e: # noqa: BLE001
         print(f"OpenAI API Error: {e}")
         raise HTTPException(
             status_code=500, detail="AI 응답 처리 중 오류가 발생했습니다."

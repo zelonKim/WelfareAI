@@ -16,15 +16,42 @@ import { handlePickImage } from "@/utils/handlePickImage";
 
 export default function CrisisReportPage() {
   const router = useRouter();
+
   const [activeTab, setActiveTab] = useState<"all" | "my">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [address, setAddress] = useState("");
   const [latitude, setLatitude] = useState<number | undefined>();
   const [longitude, setLongitude] = useState<number | undefined>();
   const [images, setImages] = useState<string[]>([]);
+
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  const {
+    data: allReports,
+    isPending: allReportsPending,
+    isRefetching: allReportsRefetching,
+  } = useQuery<CrisisReport[]>({
+    queryKey: ["crisisReports", "all"],
+    queryFn: getAllCrisisReports,
+  });
+
+  const {
+    data: myReports,
+    isPending: myReportsPending,
+    isRefetching: myReportsRefetching,
+  } = useQuery<CrisisReport[]>({
+    queryKey: ["crisisReports", "my"],
+    queryFn: getMyCrisisReports,
+  });
+
+  const reports = activeTab === "all" ? allReports : myReports;
+  const isPending = activeTab === "all" ? allReportsPending : myReportsPending;
+  const isRefetching =
+    activeTab === "all" ? allReportsRefetching : myReportsRefetching;
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -36,7 +63,6 @@ export default function CrisisReportPage() {
     setImages([]);
   };
 
-  // 위기 제보하기
   const { mutate: createReportMutation, isPending: createReportPending } =
     useCreateCrisisReport();
 
@@ -68,7 +94,8 @@ export default function CrisisReportPage() {
     handleCloseModal();
   };
 
-  // 이미지 업로드 Mutation
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const { mutate: uploadImageMutation, isPending: uploadImagePending } =
     useUploadImage();
 
@@ -76,41 +103,10 @@ export default function CrisisReportPage() {
     setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  // 1. 전체 제보 조회
-  const {
-    data: allReports,
-    isPending: allReportsPending,
-    isRefetching: allReportsRefetching,
-    refetch: allReportsRefetch,
-  } = useQuery<CrisisReport[]>({
-    queryKey: ["crisisReports", "all"],
-    queryFn: getAllCrisisReports,
-  });
-
-  // 2. 내 제보 조회
-  const {
-    data: myReports,
-    isPending: myReportsPending,
-    isRefetching: myReportsRefetching,
-    refetch: myReportsRefetch,
-  } = useQuery<CrisisReport[]>({
-    queryKey: ["crisisReports", "my"],
-    queryFn: getMyCrisisReports,
-  });
-
-  const reports = activeTab === "all" ? allReports : myReports;
-  const isPending = activeTab === "all" ? allReportsPending : myReportsPending;
-  const isRefetching =
-    activeTab === "all" ? allReportsRefetching : myReportsRefetching;
-  const refetch = activeTab === "all" ? allReportsRefetch : myReportsRefetch;
-
-  const handleCardPress = (id: string) => {
-    router.push(`/crisisReport/${id}`);
-  };
+  ////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <div className="min-h-screen bg-[#F2F6F6] text-[#1A3A3A] relative pb-28">
-      {/* 헤더 */}
       <header className="flex items-center justify-between px-6 py-4  bg-white/80 border-b border-[#1A3A3A]/10 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#FF7F66]/15 flex items-center justify-center">
@@ -123,7 +119,6 @@ export default function CrisisReportPage() {
       </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        {/* 탭 전환 (전체 제보 / 내 제보) */}
         <div className="flex bg-[#E4ECEC] p-1.5 rounded-xl my-4">
           <button
             type="button"
@@ -149,7 +144,6 @@ export default function CrisisReportPage() {
           </button>
         </div>
 
-        {/* 로딩 / 목록 영역 */}
         {isPending || isRefetching ? (
           <div className="flex flex-col items-center justify-center py-20 text-[#6E8B8B] gap-3">
             <Loader2 className="w-8 h-8 animate-spin text-[#FF7F66]" />
@@ -161,7 +155,7 @@ export default function CrisisReportPage() {
               reports.map((item) => (
                 <article
                   key={item.id}
-                  onClick={() => handleCardPress(item.id)}
+                  onClick={() => router.push(`/crisisReport/${item.id}`)}
                   className="bg-white p-5 rounded-2xl  border-[#1A3A3A]/10  hover:border-[#FF7F66]/60 border-2 shadow-xs transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
@@ -199,19 +193,17 @@ export default function CrisisReportPage() {
         )}
       </div>
 
-      {/*  제보하기 */}
       <div className="fixed bottom-6 right-6 sm:right-10 z-30">
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-[#FF7F66] hover:bg-[#e66f57] text-white px-5 py-3.5 rounded-full shadow-lg transition-transform active:scale-95 cursor-pointer"
+          className="flex items-center gap-2 bg-[#FF7F66] hover:bg-[#e66f57] outline-none text-white px-5 py-3.5 rounded-full shadow-lg transition-transform active:scale-95 cursor-pointer"
         >
           <Plus className="w-5 h-5" />
           <span className="font-bold text-base sm:text-lg">제보하기</span>
         </button>
       </div>
 
-      {/* 모달 컴포넌트 */}
       <CrisisReportModal
         visible={isModalOpen}
         onClose={handleCloseModal}

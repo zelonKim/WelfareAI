@@ -2,19 +2,10 @@
 
 import React, { useEffect } from "react";
 import { X } from "lucide-react";
+import { Section } from "@/types/common/Section";
+import { TermsModalProps } from "@/types/auth/TermsModalProps";
 
-interface TermsModalProps {
-  visible: boolean;
-  type: "terms" | "privacy" | "marketing" | null;
-  onClose: () => void;
-}
-
-interface Section {
-  title: string;
-  body: string;
-}
-
-// 1. 서비스 이용약관 데이터
+// 서비스 이용약관
 const TERMS_SECTIONS: Section[] = [
   {
     title: "제 1 조 (목적)",
@@ -34,7 +25,7 @@ const TERMS_SECTIONS: Section[] = [
   },
 ];
 
-// 2. 개인정보 처리방침 데이터
+// 개인정보 처리방침
 const PRIVACY_SECTIONS: Section[] = [
   {
     title: "제 1 조 (수집하는 개인정보 항목)",
@@ -66,7 +57,7 @@ const PRIVACY_SECTIONS: Section[] = [
   },
 ];
 
-// 3. 마케팅 수신 동의 데이터
+// 마케팅 수신 동의
 const MARKETING_SECTIONS: Section[] = [
   {
     title: "제 1 조 (마케팅 정보 수신 동의)",
@@ -78,12 +69,14 @@ const MARKETING_SECTIONS: Section[] = [
   },
 ];
 
+////////////////////////////////////////////////////////////////////////////////////
+
 export default function TermsModal({
   visible,
   type,
   onClose,
 }: TermsModalProps) {
-  // ESC 키 클릭 시 모달 닫기 & 스크롤 방지
+  
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -102,6 +95,8 @@ export default function TermsModal({
 
   if (!visible || !type) return null;
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   const title =
     type === "terms"
       ? "서비스 이용 약관"
@@ -116,17 +111,17 @@ export default function TermsModal({
         ? PRIVACY_SECTIONS
         : MARKETING_SECTIONS;
 
+  ////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
-      {/* 모달 창 영역 (내부 클릭 시 닫히지 않도록 stopPropagation 설정) */}
       <div
         className="relative w-full max-w-lg max-h-[85vh] bg-white rounded-2xl p-6 shadow-xl border border-gray-100 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 상단 헤더 */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100">
           <h2 className="text-lg sm:text-xl font-bold text-[#1A3A3A]">
             {title}
@@ -141,7 +136,6 @@ export default function TermsModal({
           </button>
         </div>
 
-        {/* 스크롤 본문 영역 */}
         <div className="flex-1 overflow-y-auto my-4 pr-1 space-y-4">
           {sections.map((section, index) => (
             <div
@@ -158,7 +152,6 @@ export default function TermsModal({
           ))}
         </div>
 
-        {/* 하단 확인 버튼 */}
         <button
           type="button"
           onClick={onClose}

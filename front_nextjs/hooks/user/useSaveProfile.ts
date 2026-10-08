@@ -25,7 +25,6 @@ export const useSaveProfile = (options?: UseSaveProfileOptions) => {
   }: SaveProfileParams) => {
     const trimmedNickname = nickname.trim();
 
-    // 유효성 검사
     if (trimmedNickname.length < 2 || trimmedNickname.length > 12) {
       alert("별명은 2~12자 사이로 입력해 주세요.");
       return;
@@ -42,7 +41,6 @@ export const useSaveProfile = (options?: UseSaveProfileOptions) => {
         uploadedImageUrl = await uploadProfileImage(selectedImageUri);
       }
 
-      // 프로필 정보 업데이트
       updateProfileMutation({
         nickname: trimmedNickname,
         profileImage: uploadedImageUrl,

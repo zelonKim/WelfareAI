@@ -3,12 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { UserIcon, Users } from "lucide-react";
-import { CommunityPost } from "@/types/community/CommunityPost";
 import Image from "next/image";
-
-interface CommunityItemProps {
-  item: CommunityPost;
-}
+import { CommunityItemProps } from "@/types/community/CommunityItemProps";
 
 export const CommunityItem = ({ item }: CommunityItemProps) => {
   const approvedCount = item._count?.members ?? 0;
@@ -19,7 +15,6 @@ export const CommunityItem = ({ item }: CommunityItemProps) => {
       href={`/community/${item.id}`}
       className="block bg-white rounded-2xl p-5 mb-3.5  hover:border-[#FF7F66]/60 border-2 shadow-xs transition-all duration-200  border-gray-100/80 group cursor-pointer"
     >
-      {/* 카드 상단: 태그 & 제목 */}
       <div className="flex items-center gap-2.5 mb-2.5">
         <span className="shrink-0 px-2.5 py-1 rounded-md text-xs sm:text-sm font-bold bg-[#FFEFEA] text-[#FF7F66]">
           {isVolunteer ? "봉사" : "소통"}
@@ -30,12 +25,10 @@ export const CommunityItem = ({ item }: CommunityItemProps) => {
         </h3>
       </div>
 
-      {/* 카드 본문 (2줄 제한) */}
       <p className="text-sm sm:text-base text-[#5C6870] leading-relaxed line-clamp-2 mb-4">
         {item.content}
       </p>
 
-      {/* 카드 푸터: 작성자 & 참여 인원 */}
       <div className="flex items-center justify-between pt-3 border-t border-[#F2F6F6]">
         <div className="flex items-center gap-2">
           {item.host?.profileImage ? (

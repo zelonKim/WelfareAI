@@ -42,7 +42,7 @@ export class UserService {
     return user;
   }
 
-  ////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 
   async updateProfile(userId: string, dto: UpdateUserDto) {
     const {
@@ -82,7 +82,6 @@ export class UserService {
         data: {
           ...(nickname && { nickname }),
           ...profileData,
-          // 문자열로 넘어온 날짜를 Date 객체로 변환하여 저장
           ...(termsAgreedAt && { termsAgreedAt: new Date(termsAgreedAt) }),
           ...(privacyAgreedAt && {
             privacyAgreedAt: new Date(privacyAgreedAt),
@@ -103,7 +102,8 @@ export class UserService {
       });
     }
   }
-  ////////////////////////////////////
+
+  //////////////////////////////////////////////////////////////////////////////
 
   async deleteAccount(userId: string) {
     await this.prisma.user.delete({
@@ -112,7 +112,7 @@ export class UserService {
     return { message: '회원 탈퇴가 완료되었습니다.' };
   }
 
-  ////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 
   async uploadImage(
     userId: string,
@@ -140,7 +140,7 @@ export class UserService {
     }
   }
 
-  /////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 
   async updatePushToken(userId: string, pushToken: string) {
     return this.prisma.user.update({
@@ -149,7 +149,7 @@ export class UserService {
     });
   }
 
-  /////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 
   async deletePushToken(userId: string) {
     await this.prisma.user.update({

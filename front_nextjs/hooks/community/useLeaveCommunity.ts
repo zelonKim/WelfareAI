@@ -1,12 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { leaveCommunity } from "@/api/community/leaveCommunity";
-
-import { UseLeaveCommunityOptions } from "@/types/community/UseLeaveCommunityOptions";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { ApiErrorRes } from "@/types/common/ApiErrorRes";
 
-export const useLeaveCommunity = (options?: UseLeaveCommunityOptions) => {
+export const useLeaveCommunity = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
 

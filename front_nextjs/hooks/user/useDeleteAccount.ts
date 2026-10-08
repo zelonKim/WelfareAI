@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 import { deleteAccount } from "@/api/user/deleteAccount";
 import { removeAccessToken } from "@/api/token";
 import { useRouter } from "next/navigation";

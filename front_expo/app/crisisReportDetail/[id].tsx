@@ -689,6 +689,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 20,
+    marginTop: 3,
   },
   sectionTitle: {
     fontSize: 14,
@@ -698,7 +699,7 @@ const styles = StyleSheet.create({
   },
   contentText: {
     fontSize: 15,
-    color: "#333333",
+    color: "#334155",
     lineHeight: 22,
   },
 

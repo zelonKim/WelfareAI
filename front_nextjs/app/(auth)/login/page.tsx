@@ -13,19 +13,18 @@ import { GOOGLE_CLIENT_ID } from "@/constants/SocialLoginCredentials";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function LoginContent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  //////////////////////////////////////////////////////////////////////////////
+
   const { mutate: loginMutation, isPending: loginPending } = useLogin();
 
-  const { mutate: socialLoginMutation, isPending: socialLoginPending } =
-    useSocialLogin();
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
       alert("이메일과 비밀번호를 모두 입력해 주세요.");
@@ -34,12 +33,19 @@ function LoginContent() {
     loginMutation({ email: email.trim(), password });
   };
 
+  //////////////////////////////////////////////////////////////////////////////
+
+  const { mutate: socialLoginMutation, isPending: socialLoginPending } =
+    useSocialLogin();
+
   useEffect(() => {
     const idToken = searchParams.get("id_token");
     if (idToken) {
       socialLoginMutation({ idToken, provider: "apple" });
     }
   }, [searchParams, socialLoginMutation]);
+
+  //////////////////////////////////////////////////////////////////////////////
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
@@ -227,12 +233,14 @@ function LoginContent() {
   );
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+
 export default function LoginPage() {
   return (
     <Suspense
       fallback={
         <div className="min-h-screen bg-black text-white flex items-center justify-center">
-          로딩 중...
+          화면을 불러오는 중...
         </div>
       }
     >

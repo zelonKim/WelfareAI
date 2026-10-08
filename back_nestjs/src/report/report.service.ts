@@ -13,12 +13,13 @@ import { PrismaService } from 'prisma/prisma.service';
 export class ReportService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // 신고하기
   async createReport(reporterId: string, dto: CreateReportDto) {
     const { reportedUserName, reason, details } = dto;
 
     const targetUser = await this.prisma.user.findFirst({
       where: {
-        nickname: reportedUserName, 
+        nickname: reportedUserName,
       },
     });
 
@@ -28,12 +29,10 @@ export class ReportService {
 
     const reportedUserId = targetUser.id;
 
-    //  자기 자신 신고 방지
     if (reporterId === reportedUserId) {
       throw new BadRequestException('자기 자신을 신고할 수 없습니다.');
     }
 
-    // DB 저장 및 중복 신고 처리
     try {
       const newReport = await this.prisma.report.create({
         data: {
@@ -49,7 +48,6 @@ export class ReportService {
         reportId: newReport.id,
       };
     } catch (error) {
-      // Prisma Unique constraint violation 에러 코드 (P2002)
       if (
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2002'
@@ -64,9 +62,7 @@ export class ReportService {
 
   ////////////////////////////////////////////////////////////////////////
 
-  /**
-   * (관리자용) 전체 신고 목록 조회
-   */
+  // 전체 신고 목록 조회 (관리자용)
   async getReports(status?: ReportStatus) {
     return await this.prisma.report.findMany({
       where: status ? { status } : undefined,
@@ -92,9 +88,9 @@ export class ReportService {
     });
   }
 
-  /**
-   * (관리자용) 신고 단건 상세 조회
-   */
+  ////////////////////////////////////////////////////////////////////////
+
+  // 신고 단건 상세 조회 (관리자용)
   async getReportById(reportId: string) {
     const report = await this.prisma.report.findUnique({
       where: { id: reportId },
@@ -115,11 +111,11 @@ export class ReportService {
     return report;
   }
 
-  /**
-   * (관리자용) 신고 처리 상태 업데이트 (RESOLVED / DISMISSED)
-   */
+  ////////////////////////////////////////////////////////////////////////
+
+  //  신고 처리 상태 업데이트 (관리자용)
   async updateReportStatus(reportId: string, status: ReportStatus) {
-    await this.getReportById(reportId); // 존재 여부 검증
+    await this.getReportById(reportId);
 
     return this.prisma.report.update({
       where: { id: reportId },

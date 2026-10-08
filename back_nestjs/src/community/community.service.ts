@@ -46,7 +46,7 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 2. 모임 조회
+  // 모임 조회
   async getAllPosts() {
     return await this.prisma.communityPost.findMany({
       orderBy: { createdAt: 'desc' },
@@ -72,7 +72,7 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 나의 모임 목록 조회 (PENDING, APPROVED 상태인 모임)
+  // 나의 모임 목록 조회 
   async getMyPosts(userId: string) {
     return await this.prisma.communityPost.findMany({
       where: {
@@ -118,7 +118,7 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 3. 모임 상세 조회
+  // 모임 상세 조회
   async getPostById(postId: string) {
     const post = await this.prisma.communityPost.findUnique({
       where: { id: postId },
@@ -155,7 +155,7 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 4. 모임 변경
+  // 모임 변경
   async updatePost(
     hostId: string,
     postId: string,
@@ -181,7 +181,7 @@ export class CommunityService {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  // 5. 모임 삭제
+  // 모임 삭제
   async deletePost(hostId: string, postId: string) {
     const post = await this.getPostById(postId);
 
@@ -265,7 +265,7 @@ export class CommunityService {
       throw new BadRequestException('방장은 모임에서 나갈 수 없습니다.');
     }
 
-    // 2. 멤버 목록에서 삭제
+    // 멤버 목록에서 삭제
     const member = await this.prisma.communityMember.findUnique({
       where: {
         postId_userId: {

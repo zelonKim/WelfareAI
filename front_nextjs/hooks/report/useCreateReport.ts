@@ -1,6 +1,5 @@
 import { submitReport } from "@/api/report/submitReport";
-import { CreateReportPayload } from "@/types/report/CreateReportPayload";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 export const useCreateReport = (onSuccessCallback?: () => void) => {
   return useMutation({
