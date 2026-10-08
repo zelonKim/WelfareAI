@@ -41,8 +41,8 @@ export const CommunityItem = ({ item }: CommunityItemProps) => {
               />
             </div>
           ) : (
-            <div className="w-[34px] h-[34px] rounded-full bg-primary-light flex items-center justify-center">
-              <UserIcon className="w-5 h-5 text-primary" />
+            <div className="w-[34px] h-[34px] rounded-full bg-[#1665341F] flex items-center justify-center">
+              <UserIcon className="w-5 h-5 text-[#1A3A3A]" />
             </div>
           )}
           <span className="text-sm sm:text-sm font-medium text-[#8E99A3]">
