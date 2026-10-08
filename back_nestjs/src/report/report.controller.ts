@@ -28,7 +28,7 @@ export class ReportController {
     return this.reportService.createReport(reporterId, dto);
   }
 
-  // 신고 목록 조회  (관리자용) 
+  // 신고 목록 조회 (관리자용) 
   @Get()
   async getReports(@Query('status') status?: ReportStatus) {
     return this.reportService.getReports(status);

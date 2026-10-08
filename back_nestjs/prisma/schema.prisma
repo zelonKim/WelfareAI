@@ -240,7 +240,6 @@ model Block {
 
   createdAt DateTime @default(now())
 
-  // 복합 유니크 제약: 동일 유저를 중복 차단할 수 없도록 보장
   @@unique([blockerId, blockedId])
   @@index([blockerId])
   @@index([blockedId])

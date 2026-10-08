@@ -3,7 +3,6 @@ import requests
 import xmltodict
 import httpx
 
-
 async def search_welfare_policy(keyword: str) -> str:
     service_key = os.getenv("PUBLIC_WELFARE_API_KEY")
 
