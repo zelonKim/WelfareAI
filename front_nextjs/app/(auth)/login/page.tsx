@@ -11,6 +11,7 @@ import { SocialLoginButtons } from "@/components/SocialLoginButtons";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GOOGLE_CLIENT_ID } from "@/constants/SocialLoginCredentials";
 import { useRouter, useSearchParams } from "next/navigation";
+import AppPreviewModal from "@/components/AppPreviewModal";
 
 function LoginContent() {
   const router = useRouter();
@@ -19,6 +20,8 @@ function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalOS, setModalOS] = useState("");
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -166,14 +169,15 @@ function LoginContent() {
           <div className="pt-8 text-center space-y-4 ">
             <div className="bg-[#1A3A3A]/10 p-3 rounded-xl border border-[#1A3A3A]/20 ">
               <p className="text-sm font-medium text-[#1A3A3A] mb-2">
-                🦊 10월 중 앱 출시 예정
+                🦊 preview 앱 다운로드 가능
               </p>
               <div className="flex justify-center items-center gap-3">
                 <button
                   type="button"
-                  onClick={() =>
-                    alert("안드로이드 앱이 10월 중에 출시될 예정입니다! 📱")
-                  }
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setModalOS("android");
+                  }}
                   className="cursor-pointer hover:scale-103 active:scale-95 transition-transform"
                 >
                   <Image
@@ -187,9 +191,10 @@ function LoginContent() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    alert("iOS 앱이 10월 중에 출시될 예정입니다! 📱")
-                  }
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setModalOS("ios");
+                  }}
                   className="cursor-pointer hover:scale-103 active:scale-95 transition-transform"
                 >
                   <Image
@@ -226,6 +231,14 @@ function LoginContent() {
                 Copyright © 2026 OpenWelfare. All rights reserved.
               </p>
             </div>
+
+            <AppPreviewModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              modalOS={modalOS}
+              androidUrl="https://drive.google.com/file/d/10QU7X6pLmXtl2cfKHSK-tQiC2wOTW7pU/view?usp=drive_link"
+              iosUrl="https://testflight.apple.com/join/eAb4HVMD"
+            />
           </div>
         </div>
       </main>
