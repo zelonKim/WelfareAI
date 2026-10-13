@@ -157,6 +157,13 @@ export default function LoginScreen() {
                 </View>
               </>
             )}
+
+            <TouchableOpacity
+              style={styles.guestBtn}
+              onPress={() => router.push("/guest")}
+            >
+              <Text style={styles.guestText}>로그인 없이 둘러보기</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -321,4 +328,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
   },
+  guestBtn: {
+    marginTop: 16,
+    padding: 10,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  guestText: { color: "#666", fontSize: 13, textDecorationLine: "underline" },
 });

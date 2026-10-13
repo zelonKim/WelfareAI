@@ -91,6 +91,7 @@ function RootLayoutNav() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen name="agreement" options={{ headerShown: false }} />
+              <Stack.Screen name="guest" options={{ headerShown: false }} />
               <Stack.Screen name="modal" options={{ presentation: "modal" }} />
             </Stack>
           </APIProvider>

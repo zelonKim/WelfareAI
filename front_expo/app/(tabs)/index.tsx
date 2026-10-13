@@ -337,6 +337,12 @@ export default function AIConsultScreen() {
               />
             </TouchableOpacity>
           </View>
+          <View style={styles.aiConsentNotice}>
+            <Text style={styles.aiConsentText}>
+              ※ 입력하신 내용은 AI 답변 생성을 위해 외부 서비스(OpenAI)로
+              전송됩니다.
+            </Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -429,7 +435,7 @@ const styles = StyleSheet.create({
   },
   messageRow: {
     flexDirection: "row",
-    marginBottom: 18,
+    marginBottom: 12,
     gap: 8,
   },
   aiRow: {
@@ -492,7 +498,19 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 18,
+  },
+  // 💡 심사 필수 안내 문구 스타일 추가
+  aiConsentNotice: {
+    marginBottom: 8,
+    marginTop: -5,
+    alignItems: "center",
+  },
+  aiConsentText: {
+    fontSize: 9.5,
+    color: "#94a3b8",
+    textAlign: "center",
+    letterSpacing: -0.2,
   },
   autoPromptScroll: {
     maxHeight: 36,
@@ -534,7 +552,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     fontSize: 14,
-
     color: "#1A3A3A",
   },
   sendButton: {
