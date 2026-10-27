@@ -11,8 +11,6 @@ export default function AppPreviewModal({
 }: AppPreviewModalProps) {
   if (!isOpen) return null;
 
-  const currentQrImage = "/WelfareAI_Android_QR.png";
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-sm rounded-3xl bg-[#FFEFEA] p-7 shadow-2xl border border-teal-900/10 transition-all">
@@ -35,7 +33,7 @@ export default function AppPreviewModal({
         <div className="mt-2 flex flex-col items-center justify-center  p-6  ">
           <div className="bg-white p-3.5 rounded-2xl shadow-md border border-teal-950/5 transition-transform hover:scale-[1.02]">
             <Image
-              src={currentQrImage}
+              src="/welfareAI_android_qr.png"
               alt="App Download QR Code"
               width={200}
               height={200}
