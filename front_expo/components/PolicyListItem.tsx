@@ -4,6 +4,7 @@ import { ExternalLink } from "lucide-react-native";
 import React from "react";
 import {
   Linking,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -47,16 +48,13 @@ export const PolicyListItem = ({ item }: { item: PolicyItem }) => {
         {/* 3. 공식 출처 URL (구글 심사용 핵심 요소) */}
         <View style={styles.infoRow}>
           <View style={styles.urlWrapper}>
-            <Text style={styles.sourceLabel}>
-              <ExternalLink
-                size={11}
-                color={Colors.primary}
-                style={{ marginLeft: 3 }}
-              />{" "}
-              공식 출처 :
-            </Text>
+            <ExternalLink
+              size={11}
+              color={Colors.primary}
+              style={{ marginTop: 1, marginRight: 4 }}
+            />
             <Text style={styles.sourceUrl} numberOfLines={1}>
-              {displayUrl}
+              출처: {displayUrl}
             </Text>
           </View>
         </View>
@@ -127,7 +125,7 @@ const styles = StyleSheet.create({
   summary: {
     fontSize: 12.5,
     color: "#475569",
-    lineHeight: 18, 
+    lineHeight: 18,
   },
   infoRow: {
     marginTop: 2,
@@ -140,22 +138,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   sourceLabel: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "600",
     color: "#a1a1aa",
-    marginRight: 4,
+    marginRight: 2,
   },
   sourceUrl: {
     flexShrink: 1,
-    fontSize: 11,
+    fontSize: 10.5,
     color: "#475569",
-    fontWeight: "500",
-    textDecorationLine: "underline",
+    fontWeight: "400",
+    // textDecorationLine: "underline",
   },
   disclaimerText: {
-    fontSize: 9,
+    fontSize: Platform.OS === "ios" ? 8.5 : 7.8,
     color: "#a1a1aa",
-    letterSpacing: -0.3,
-    marginTop: 1,
+    letterSpacing: -0.6,
+    marginTop: 2,
   },
 });

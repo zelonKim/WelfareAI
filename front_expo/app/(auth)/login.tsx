@@ -329,10 +329,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   guestBtn: {
-    marginTop: 16,
+    marginTop: 12,
     padding: 10,
     flexDirection: "row",
     justifyContent: "center",
   },
-  guestText: { color: "#666", fontSize: 13, textDecorationLine: "underline" },
+  guestText: {
+    color: "#666",
+    fontSize: 12,
+    textDecorationLine: "underline",
+  },
 });

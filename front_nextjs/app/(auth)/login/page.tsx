@@ -169,7 +169,7 @@ function LoginContent() {
           <div className="pt-8 text-center space-y-4 ">
             <div className="bg-[#1A3A3A]/10 p-3 rounded-xl border border-[#1A3A3A]/20 ">
               <p className="text-sm font-medium text-[#1A3A3A] mb-2">
-                🦊 preview 앱 다운로드 가능
+                🦊 AppStore 정식 출시
               </p>
               <div className="flex justify-center items-center gap-3">
                 <button
@@ -191,10 +191,12 @@ function LoginContent() {
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsModalOpen(true);
-                    setModalOS("ios");
-                  }}
+                  onClick={() =>
+                    window.open(
+                      "https://apps.apple.com/kr/app/id6819568785",
+                      "_blank",
+                    )
+                  }
                   className="cursor-pointer hover:scale-103 active:scale-95 transition-transform"
                 >
                   <Image

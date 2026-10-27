@@ -17,6 +17,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -57,6 +58,7 @@ export default function GuestScreen() {
         { text: "취소", style: "cancel" },
         {
           text: "로그인 페이지로 이동",
+
           onPress: () => router.replace("/login"),
         },
       ],
@@ -267,10 +269,10 @@ export default function GuestScreen() {
           <Text style={styles.tabLabel}>제보</Text>
         </TouchableOpacity>
 
-        {/* 3. AI 상담 (로그인 필요) */}
+        {/* 3. 상담 (로그인 필요) */}
         <TouchableOpacity
           style={styles.tabItem}
-          onPress={() => handleRequireLogin("AI 상담")}
+          onPress={() => handleRequireLogin("상담")}
         >
           <View style={styles.iconContainer}>
             <BotMessageSquare size={24} color={Colors.inactive || "#94a3b8"} />
@@ -308,3 +310,205 @@ export default function GuestScreen() {
     </SafeAreaView>
   );
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F2F6F6",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#F2F6F6",
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 20,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    gap: 52,
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(26, 58, 58, 0.06)",
+  },
+  headerTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  aiBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 24,
+    backgroundColor: "#FFEFEA",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1A3A3A",
+  },
+
+  // Search
+  searchContainer: {
+    marginBottom: 12,
+  },
+  searchInputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    height: 46,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchIcon: {
+    marginRight: 8,
+    marginTop: 6,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: "#1e293b",
+    paddingVertical: 0,
+  },
+
+  categoryWrapper: {
+    marginBottom: 14,
+    marginHorizontal: -16,
+  },
+  categoryContainer: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  categoryChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  selectedChip: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+    shadowColor: Colors.primaryLight,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  categoryText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#64748b",
+  },
+  selectedCategoryText: {
+    color: "#ffffff",
+    fontWeight: "700",
+  },
+
+  listContent: {
+    paddingBottom: 100, // 탭바에 아이템이 가려지지 않도록 여백
+    gap: 12,
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 120,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: 8,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#334155",
+  },
+  emptySub: {
+    fontSize: 13,
+    color: "#94a3b8",
+    marginTop: 4,
+  },
+  countText: {
+    fontSize: 11,
+    fontWeight: "500",
+  },
+  loadingContainer: {
+    flex: 1,
+    paddingVertical: 200,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backButton: {
+    padding: 4,
+  },
+
+  /* 탭바 관련 추가 스타일 */
+  tabBarContainer: {
+    position: "absolute",
+    bottom: Platform.OS === "ios" ? "5%" : "6%",
+    width: "90%",
+    marginHorizontal: "5%",
+    height: 68,
+    borderRadius: 32,
+    backgroundColor: Colors.card || "#ffffff",
+    borderTopWidth: 0,
+    elevation: 4,
+    marginBottom: Platform.OS === "android" ? 12 : 3,
+    shadowColor: Colors.primary || "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  blurContainer: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 32,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: Colors.card || "#ffffff",
+  },
+  tabItem: {
+    height: 64,
+    paddingTop: 6,
+    paddingBottom: 6,
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+  },
+  iconContainer: {
+    width: 36,
+    height: 32,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  activeIconBg: {
+    backgroundColor: "rgba(22, 101, 52, 0.12)",
+  },
+  tabLabel: {
+    fontSize: Platform.OS === "ios" ? 12 : 9,
+    fontWeight: "600",
+    marginTop: 4,
+    color: Colors.inactive || "#94a3b8",
+  },
+  activeTabLabel: {
+    color: Colors.primary || "#1A3A3A",
+    fontWeight: "700",
+  },
+});

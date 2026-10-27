@@ -500,14 +500,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 18,
   },
-  // 💡 심사 필수 안내 문구 스타일 추가
   aiConsentNotice: {
-    marginBottom: 8,
-    marginTop: -5,
+    marginBottom: Platform.OS === "ios" ? 12 : 24,
+    marginTop: Platform.OS === "ios" ? -5 : -15,
     alignItems: "center",
   },
   aiConsentText: {
-    fontSize: 9.5,
+    fontSize: Platform.OS === "ios" ? 9.5 : 9,
     color: "#94a3b8",
     textAlign: "center",
     letterSpacing: -0.2,
