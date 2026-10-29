@@ -15,23 +15,24 @@ import {
 } from "lucide-react";
 import { client } from "@/api/client";
 import { getConsultings } from "@/api/consult/getConsultings";
-import { AutoPrompts } from "@/constants/AutoPrompts";
 import { useCreateConsulting } from "@/hooks/consult/useCreateConsulting";
 import { useDeleteConsulting } from "@/hooks/consult/useDeleteConsulting";
 import { ConsultingItem } from "@/types/consult/ConsultingItem";
 import { Message } from "@/types/consult/Message";
 import { useDeleteAllConsulting } from "@/hooks/consult/useDeleteAllConsulting";
+import { useAIConsultLanguage } from "@/hooks/languages/useAIConsultLanguage";
+import { AutoPrompts } from "@/constants/AutoPrompts";
 
 export default function AIConsultPage() {
   const router = useRouter();
+  const { t } = useAIConsultLanguage();
+
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   const { data: myInfo } = useQuery({
     queryKey: ["myInfo"],
@@ -47,8 +48,6 @@ export default function AIConsultPage() {
     }
   }, [myInfo, router]);
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const { data: consultings, isPending: isFetchingHistory } = useQuery<
     ConsultingItem[]
   >({
@@ -57,34 +56,32 @@ export default function AIConsultPage() {
   });
 
   useEffect(() => {
-    if (!consultings) return;
     const formattedMessages: Message[] = [
       {
         id: "welcome",
         sender: "ai",
-        text: "안녕하세요! 맞춤 복지 상담 AI비서 웰폭스입니다.🦊 궁금한 복지 혜택 및 제도를 편하게 말씀해 주세요.",
+        text: t.welcomeMessage,
       },
     ];
 
-    const historyItems = [...consultings].reverse();
-
-    historyItems.forEach((item) => {
-      formattedMessages.push({
-        id: `q-${item.id}`,
-        sender: "user",
-        text: item.question,
+    if (consultings) {
+      const historyItems = [...consultings].reverse();
+      historyItems.forEach((item) => {
+        formattedMessages.push({
+          id: `q-${item.id}`,
+          sender: "user",
+          text: item.question,
+        });
+        formattedMessages.push({
+          id: `a-${item.id}`,
+          sender: "ai",
+          text: item.answer,
+        });
       });
-      formattedMessages.push({
-        id: `a-${item.id}`,
-        sender: "ai",
-        text: item.answer,
-      });
-    });
+    }
 
     setMessages(formattedMessages);
-  }, [consultings]);
-
-  ////////////////////////////////////////////////////////////////////////////////////
+  }, [consultings, t.welcomeMessage]);
 
   const { mutate: consultMutation, isPending: consultPending } =
     useCreateConsulting({
@@ -98,8 +95,6 @@ export default function AIConsultPage() {
     consultMutation(inputText.trim());
   };
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const { mutate: deleteConsulting } = useDeleteConsulting();
 
   const handleContextMenu = (e: React.MouseEvent, id: string) => {
@@ -108,14 +103,13 @@ export default function AIConsultPage() {
 
     if (rawId === "welcome") return;
 
-    if (confirm("정말로 해당 상담 내역을 삭제하시겠습니까?")) {
+    if (confirm(t.deleteItemConfirm)) {
+      // 👈 다국어 적용
       deleteConsulting(rawId);
     }
   };
 
   const { mutate: deleteAllMutation } = useDeleteAllConsulting();
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -133,13 +127,9 @@ export default function AIConsultPage() {
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   const scrollToTop = () => {
     scrollContainerRef.current?.scrollTo({
@@ -148,32 +138,26 @@ export default function AIConsultPage() {
     });
   };
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   return (
     <div className="flex flex-col h-screen mx-auto bg-[#F2F6F6] border-x border-[#1A3A3A]/10">
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
-        <header className="flex items-center justify-between px-6 py-4  bg-white/80 border-b border-[#1A3A3A]/10 shrink-0">
+        <header className="flex items-center justify-between px-6 py-4 bg-white/80 border-b border-[#1A3A3A]/10 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#FF7F66]/15 flex items-center justify-center">
               <BotMessageSquare className="w-6 h-6 text-[#FF7F66]" />
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-[#1A3A3A]">
-              AI 복지 상담
+              {t.headerTitle}
             </h1>
           </div>
           <button
             onClick={() => {
-              if (
-                window.confirm(
-                  "대화 내역을 모두 삭제하고, 초기화 하시겠습니까?",
-                )
-              ) {
+              if (window.confirm(t.deleteAllConfirm)) {
                 deleteAllMutation();
               }
             }}
-            className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
-            title="대화 내역 초기화"
+            className="cursor-pointer flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-3xl transition-colors border border-transparent hover:border-red-100"
+            title={t.deleteAllTooltip}
           >
             <RotateCcw className="w-4.5 h-4.5" />
           </button>
@@ -183,9 +167,7 @@ export default function AIConsultPage() {
           {isFetchingHistory ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-[#6E8B8B]">
               <Loader2 className="w-8 h-8 animate-spin text-[#FF7F66]" />
-              <p className="text-base font-medium">
-                이전 상담 내역을 가져오는 중...
-              </p>
+              <p className="text-base font-medium">{t.fetchingHistory}</p>
             </div>
           ) : (
             <>
@@ -205,7 +187,7 @@ export default function AIConsultPage() {
                   <div
                     className="max-w-[85%] md:max-w-[90%]"
                     onContextMenu={(e) => handleContextMenu(e, item.id)}
-                    title="우클릭 시 메시지 삭제 가능"
+                    title={t.messageTooltip}
                   >
                     <div
                       className={`p-4 rounded-2xl text-base leading-relaxed ${
@@ -284,7 +266,7 @@ export default function AIConsultPage() {
                   <div className="p-4 rounded-2xl bg-white border border-[#1A3A3A]/10 shadow-sm rounded-tl-none flex items-center gap-3">
                     <Loader2 className="w-5 h-5 animate-spin text-[#FF7F66]" />
                     <span className="text-sm sm:text-base text-[#6E8B8B] font-medium">
-                      AI가 관련 복지 정책을 찾아보고 있어요.🦊
+                      {t.aiLoading}
                     </span>
                   </div>
                 </div>
@@ -299,8 +281,8 @@ export default function AIConsultPage() {
         <button
           onClick={scrollToTop}
           className="absolute right-25 lg:right-6 bottom-28 lg:bottom-24 z-20 w-14 h-14 bg-[#1A3A3A] text-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#2C5252] transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 cursor-pointer"
-          aria-label="맨 위로 이동"
-          title="맨 위로 이동"
+          aria-label={t.scrollToTop}
+          title={t.scrollToTop}
         >
           <ArrowUp className="w-6 h-6" />
         </button>
@@ -322,11 +304,11 @@ export default function AIConsultPage() {
 
         <form
           onSubmit={handleSend}
-          className=" flex items-center bg-white rounded-2xl px-4 py-1 border border-[#1A3A3A]/15 shadow-sm focus-within:border-[#FF7F66]  transition-colors"
+          className="flex items-center bg-white rounded-2xl px-4 py-1 border border-[#1A3A3A]/15 shadow-sm focus-within:border-[#FF7F66] transition-colors"
         >
           <input
             type="text"
-            placeholder="상담받고 싶은 내용을 입력해 보세요..."
+            placeholder={t.inputPlaceholder}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             disabled={consultPending}
@@ -340,7 +322,7 @@ export default function AIConsultPage() {
                 ? "cursor-pointer bg-[#FF7F66] text-white hover:bg-[#e66f57]"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
-            aria-label="보내기"
+            aria-label={t.sendButton}
           >
             <Send className="w-5 h-5" />
           </button>

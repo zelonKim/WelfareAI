@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { Camera, MapPin, X, Loader2 } from "lucide-react";
 import { CrisisReportModalProps } from "@/types/crisisReport/CrisisReportModalProps";
 import { ImageItem } from "./ImageItem";
+import { useCrisisReportModalLanguage } from "@/hooks/languages/useCrisisReportModalLanguage"; // 👈 훅 임포트
 
 export default function CrisisReportModal({
   visible,
@@ -27,7 +28,7 @@ export default function CrisisReportModal({
   handleCreateReport,
 }: CrisisReportModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const { t } = useCrisisReportModalLanguage();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,8 +39,6 @@ export default function CrisisReportModal({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [visible, onClose]);
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -54,8 +53,6 @@ export default function CrisisReportModal({
 
   if (!visible) return null;
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="absolute inset-0" onClick={onClose} />
@@ -63,13 +60,13 @@ export default function CrisisReportModal({
       <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-            📢 위기 이웃 제보하기
+            {t.modalTitle}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
-            aria-label="닫기"
+            aria-label={t.closeAria}
           >
             <X className="w-5 h-5" />
           </button>
@@ -78,11 +75,11 @@ export default function CrisisReportModal({
         <div className="p-6 overflow-y-auto space-y-5">
           <div className="space-y-2">
             <label className="block text-sm sm:text-base font-semibold text-gray-800">
-              제목
+              {t.titleLabel}
             </label>
             <input
               type="text"
-              placeholder="예: 단전/단수가 의심되는 가구 제보"
+              placeholder={t.titlePlaceholder}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:bg-orange-50 focus:outline-none focus:border-[#FF7F66] transition-colors"
@@ -91,11 +88,11 @@ export default function CrisisReportModal({
 
           <div className="space-y-2">
             <label className="block text-sm sm:text-base font-semibold text-gray-800">
-              상세 내용
+              {t.contentLabel}
             </label>
             <textarea
               rows={4}
-              placeholder="위기 상황에 대해 자세히 적어주세요."
+              placeholder={t.contentPlaceholder}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:bg-orange-50 focus:outline-none focus:border-[#FF7F66] transition-colors resize-none"
@@ -104,12 +101,12 @@ export default function CrisisReportModal({
 
           <div className="space-y-2">
             <label className="block text-sm sm:text-base font-semibold text-gray-800">
-              위치
+              {t.locationLabel}
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="위치를 입력해주세요"
+                placeholder={t.locationPlaceholder}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 className="flex-1 px-4 py-3 bg-[#F8F9FA] border-2 border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 focus:bg-orange-50 focus:outline-none focus:border-[#FF7F66] transition-colors"
@@ -126,7 +123,7 @@ export default function CrisisReportModal({
                 className="flex items-center gap-1.5 px-4 py-3 bg-[#FF7F66] hover:bg-[#e66f57] text-white text-sm sm:text-base font-semibold rounded-xl shrink-0 transition-colors cursor-pointer"
               >
                 <MapPin className="w-4 h-4" />
-                <span>현위치</span>
+                <span>{t.currentLocation}</span>
               </button>
             </div>
           </div>
@@ -134,7 +131,7 @@ export default function CrisisReportModal({
           <div className="space-y-2">
             <div className="flex items-center gap-1">
               <label className="text-sm sm:text-base font-semibold text-gray-800">
-                현장 사진
+                {t.photoLabel}
               </label>
               <span className="text-sm sm:text-base font-semibold text-gray-500">
                 ({images.length})
@@ -162,7 +159,7 @@ export default function CrisisReportModal({
                 ) : (
                   <>
                     <Camera className="w-5 h-5" />
-                    <span className="text-xs font-medium">사진 추가</span>
+                    <span className="text-xs font-medium">{t.addPhoto}</span>
                   </>
                 )}
               </button>
@@ -183,7 +180,7 @@ export default function CrisisReportModal({
               onClick={onClose}
               className="flex-2 py-3.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-base rounded-xl transition-colors cursor-pointer"
             >
-              취소
+              {t.cancelButton}
             </button>
             <button
               type="button"
@@ -194,10 +191,10 @@ export default function CrisisReportModal({
               {createReportPending ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>제출 중...</span>
+                  <span>{t.submitting}</span>
                 </>
               ) : (
-                <span>제출하기</span>
+                <span>{t.submitButton}</span>
               )}
             </button>
           </div>

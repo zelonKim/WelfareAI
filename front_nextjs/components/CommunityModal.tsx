@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { X, MessagesCircle, HeartHandshake, Loader2 } from "lucide-react";
 import { CommunityModalProps } from "@/types/community/CommunityModalProps";
+import { useCommunityModalLanguage } from "@/hooks/languages/useCommunityModalLanguage"; // 👈 훅 임포트
 
 export default function CommunityModal({
   modalType,
@@ -19,6 +20,7 @@ export default function CommunityModal({
   createCommunityPending = false,
   handleCreateCommunity,
 }: CommunityModalProps) {
+  const { t } = useCommunityModalLanguage();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,8 +40,6 @@ export default function CommunityModal({
 
   if (!visible) return null;
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-sm animate-fade-in">
       <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
@@ -47,15 +47,15 @@ export default function CommunityModal({
       <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
           <h2 className="text-xl sm:text-2xl font-bold text-[#1A3A3A]">
-            {modalType === "tabs" ? "👥 모임 만들기" : "👥 모임 수정하기"}
+            {modalType === "tabs" ? t.createTitle : t.editTitle}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg transition-colors cursor-pointer"
-            aria-label="닫기"
+            className="hover:bg-gray-100 p-1.5 text-gray-400 hover:text-gray-700 rounded-2xl transition-colors cursor-pointer"
+            aria-label={t.closeAria}
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -63,7 +63,7 @@ export default function CommunityModal({
           {modalType === "tabs" && setCommunityType && (
             <div className="space-y-2">
               <label className="block text-base font-semibold text-gray-800">
-                모임 성격
+                {t.natureLabel}
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -76,7 +76,7 @@ export default function CommunityModal({
                   }`}
                 >
                   <MessagesCircle className="w-5 h-5" />
-                  <span>소통 모임</span>
+                  <span>{t.selfHelpTab}</span>
                 </button>
 
                 <button
@@ -89,7 +89,7 @@ export default function CommunityModal({
                   }`}
                 >
                   <HeartHandshake className="w-5 h-5" />
-                  <span>봉사 모임</span>
+                  <span>{t.volunteerTab}</span>
                 </button>
               </div>
             </div>
@@ -97,11 +97,11 @@ export default function CommunityModal({
 
           <div className="space-y-2">
             <label className="block text-base font-semibold text-gray-800">
-              제목
+              {t.titleLabel}
             </label>
             <input
               type="text"
-              placeholder="예: 치매 어르신 가족 소통방"
+              placeholder={t.titlePlaceholder}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full px-4 py-3 bg-[#F8F9FA] border-2 border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF6C4B] focus:bg-orange-50 transition-all"
@@ -110,10 +110,10 @@ export default function CommunityModal({
 
           <div className="space-y-2">
             <label className="block text-base font-semibold text-gray-800">
-              내용
+              {t.contentLabel}
             </label>
             <textarea
-              placeholder="모임 내용에 대해 적어주세요."
+              placeholder={t.contentPlaceholder}
               rows={4}
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -124,10 +124,10 @@ export default function CommunityModal({
           {modalType === "detail" && setNotice && (
             <div className="space-y-2">
               <label className="block text-base font-semibold text-gray-800">
-                공지사항
+                {t.noticeLabel}
               </label>
               <textarea
-                placeholder="공지사항에 대해 입력해주세요."
+                placeholder={t.noticePlaceholder}
                 rows={3}
                 value={notice}
                 onChange={(e) => setNotice(e.target.value)}
@@ -142,7 +142,7 @@ export default function CommunityModal({
               onClick={onClose}
               className="flex-1 py-3.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold text-base transition-colors cursor-pointer"
             >
-              취소
+              {t.cancelButton}
             </button>
             <button
               type="button"
@@ -155,9 +155,9 @@ export default function CommunityModal({
               {createCommunityPending ? (
                 <Loader2 className="w-5 h-5 animate-spin text-white" />
               ) : modalType === "tabs" ? (
-                "개설하기"
+                t.createButton
               ) : (
-                "보완하기"
+                t.editButton
               )}
             </button>
           </div>

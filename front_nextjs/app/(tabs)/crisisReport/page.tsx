@@ -13,9 +13,11 @@ import { CrisisReport } from "@/types/crisisReport/CrisisReport";
 import { formatDate } from "@/utils/formatDate";
 import { handleGetCurrentLocation } from "@/utils/handleGetCurrentLocation";
 import { handlePickImage } from "@/utils/handlePickImage";
+import { useCrisisReportLanguage } from "@/hooks/languages/useCrisisReportLanguage";
 
 export default function CrisisReportPage() {
   const router = useRouter();
+  const { t } = useCrisisReportLanguage();
 
   const [activeTab, setActiveTab] = useState<"all" | "my">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,8 +27,6 @@ export default function CrisisReportPage() {
   const [latitude, setLatitude] = useState<number | undefined>();
   const [longitude, setLongitude] = useState<number | undefined>();
   const [images, setImages] = useState<string[]>([]);
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   const {
     data: allReports,
@@ -51,8 +51,6 @@ export default function CrisisReportPage() {
   const isRefetching =
     activeTab === "all" ? allReportsRefetching : myReportsRefetching;
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setTitle("");
@@ -68,17 +66,17 @@ export default function CrisisReportPage() {
 
   const handleCreateReport = () => {
     if (!title.trim()) {
-      alert("제목을 입력해 주세요.");
+      alert(t.alertTitle);
       return;
     }
 
     if (!content.trim()) {
-      alert("상세 내용을 입력해 주세요.");
+      alert(t.alertContent);
       return;
     }
 
     if (!address.trim()) {
-      alert("위치를 입력해 주세요.");
+      alert(t.alertAddress);
       return;
     }
 
@@ -94,8 +92,6 @@ export default function CrisisReportPage() {
     handleCloseModal();
   };
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const { mutate: uploadImageMutation, isPending: uploadImagePending } =
     useUploadImage();
 
@@ -103,17 +99,15 @@ export default function CrisisReportPage() {
     setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   return (
     <div className="min-h-screen bg-[#F2F6F6] text-[#1A3A3A] relative pb-28">
-      <header className="flex items-center justify-between px-6 py-4  bg-white/80 border-b border-[#1A3A3A]/10 shrink-0">
+      <header className="flex items-center justify-between px-6 py-4 bg-white/80 border-b border-[#1A3A3A]/10 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#FF7F66]/15 flex items-center justify-center">
             <Bell className="w-5 h-5 text-[#FF7F66]" />
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#1A3A3A]">
-            위기 이웃 제보
+            {t.headerTitle}
           </h1>
         </div>
       </header>
@@ -129,7 +123,7 @@ export default function CrisisReportPage() {
                 : "text-[#6E8B8B] hover:text-[#1A3A3A]"
             }`}
           >
-            전체 제보
+            {t.allTab}
           </button>
           <button
             type="button"
@@ -140,14 +134,14 @@ export default function CrisisReportPage() {
                 : "text-[#6E8B8B] hover:text-[#1A3A3A]"
             }`}
           >
-            내가 쓴 제보
+            {t.myTab}
           </button>
         </div>
 
         {isPending || isRefetching ? (
           <div className="flex flex-col items-center justify-center py-20 text-[#6E8B8B] gap-3">
             <Loader2 className="w-8 h-8 animate-spin text-[#FF7F66]" />
-            <p className="text-base font-medium">제보 내역을 불러오는 중...</p>
+            <p className="text-base font-medium">{t.loadingReports}</p>{" "}
           </div>
         ) : (
           <main className="space-y-3.5">
@@ -156,7 +150,7 @@ export default function CrisisReportPage() {
                 <article
                   key={item.id}
                   onClick={() => router.push(`/crisisReport/${item.id}`)}
-                  className="bg-white p-5 rounded-2xl  border-[#1A3A3A]/10  hover:border-[#FF7F66]/60 border-2 shadow-xs transition-all cursor-pointer group"
+                  className="bg-white p-5 rounded-2xl border-[#1A3A3A]/10 hover:border-[#FF7F66]/60 border-2 shadow-xs transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <h2 className="text-base sm:text-lg font-bold text-[#1A3A3A] group-hover:text-[#FF7F66] transition-colors line-clamp-1">
@@ -183,9 +177,7 @@ export default function CrisisReportPage() {
               <div className="flex flex-col items-center justify-center py-20 text-center text-[#6E8B8B] gap-3">
                 <AlertCircle className="w-10 h-10 text-[#A3B8B8]" />
                 <p className="text-base font-medium">
-                  {activeTab === "all"
-                    ? "등록된 제보 내역이 없습니다."
-                    : "작성한 제보 내역이 없습니다."}
+                  {activeTab === "all" ? t.emptyAll : t.emptyMy}{" "}
                 </p>
               </div>
             )}
@@ -200,7 +192,9 @@ export default function CrisisReportPage() {
           className="flex items-center gap-2 bg-[#FF7F66] hover:bg-[#e66f57] outline-none text-white px-5 py-3.5 rounded-full shadow-lg transition-transform active:scale-95 cursor-pointer"
         >
           <Plus className="w-5 h-5" />
-          <span className="font-bold text-base sm:text-lg">제보하기</span>
+          <span className="font-bold text-base sm:text-lg">
+            {t.reportButton}
+          </span>{" "}
         </button>
       </div>
 

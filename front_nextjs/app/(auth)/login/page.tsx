@@ -12,10 +12,12 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GOOGLE_CLIENT_ID } from "@/constants/SocialLoginCredentials";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppPreviewModal from "@/components/AppPreviewModal";
+import { useLoginLanguage } from "@/hooks/languages/useLoginLanguage";
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLoginLanguage();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,20 +25,16 @@ function LoginContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalOS, setModalOS] = useState("");
 
-  //////////////////////////////////////////////////////////////////////////////
-
   const { mutate: loginMutation, isPending: loginPending } = useLogin();
 
   const handleLogin = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      alert("이메일과 비밀번호를 모두 입력해 주세요.");
+      alert(t.alertEmpty);
       return;
     }
     loginMutation({ email: email.trim(), password });
   };
-
-  //////////////////////////////////////////////////////////////////////////////
 
   const { mutate: socialLoginMutation, isPending: socialLoginPending } =
     useSocialLogin();
@@ -47,8 +45,6 @@ function LoginContent() {
       socialLoginMutation({ idToken, provider: "apple" });
     }
   }, [searchParams, socialLoginMutation]);
-
-  //////////////////////////////////////////////////////////////////////////////
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
@@ -69,48 +65,46 @@ function LoginContent() {
               <span className="text-[#FF7F66]">W</span>elfare
               <span className="text-[#FF7F66]">A</span>I
             </h1>
-            <p className="text-base text-[#6E8B8B] font-medium">
-              도움이 필요할때 언제든지 와요
+            <p className="text-[15px] text-[#6E8B8B] font-medium">
+              {t.subtitle}
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label className="block text-sm sm:text-base font-semibold text-[#1A3A3A]">
-                이메일
+              <label className="block text-sm sm:text-[15px] font-semibold text-[#1A3A3A]">
+                {t.emailLabel}
               </label>
               <div className="relative flex items-center">
                 <Mail className="absolute left-3.5 w-5 h-5 text-[#6E8B8B]" />
                 <input
                   type="email"
-                  placeholder="hong@gildong.com"
+                  placeholder={t.emailPlaceholder}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-12 pl-11 pr-4 bg-[#F8FAFA] text-base text-[#1A3A3A] placeholder-[#A3B8B8] rounded-xl border border-[#1A3A3A]/10 focus:outline-none focus:border  focus:border-[#FF7F66] transition-colors"
+                  className="w-full h-12 pl-11 pr-4 bg-[#F8FAFA] text-base text-[#1A3A3A] placeholder-[#A3B8B8] rounded-xl border border-[#1A3A3A]/10 focus:outline-none focus:border focus:border-[#FF7F66] transition-colors"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm sm:text-base font-semibold text-[#1A3A3A]">
-                비밀번호
+              <label className="block text-sm sm:text-[15px] font-semibold text-[#1A3A3A]">
+                {t.passwordLabel}
               </label>
               <div className="relative flex items-center">
                 <Lock className="absolute left-3.5 w-5 h-5 text-[#6E8B8B]" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="비밀번호 입력"
+                  placeholder={t.passwordPlaceholder}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-12 pl-11 pr-12 bg-[#F8FAFA] text-base text-[#1A3A3A] placeholder-[#A3B8B8] rounded-xl border border-[#1A3A3A]/10 focus:outline-none focus:border  focus:border-[#FF7F66] transition-colors"
+                  className="w-full h-12 pl-11 pr-12 bg-[#F8FAFA] text-base text-[#1A3A3A] placeholder-[#A3B8B8] rounded-xl border border-[#1A3A3A]/10 focus:outline-none focus:border focus:border-[#FF7F66] transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3.5 p-1 text-[#6E8B8B] hover:text-[#1A3A3A] transition-colors"
-                  aria-label={
-                    showPassword ? "비밀번호 숨기기" : "비밀번호 보이기"
-                  }
+                  aria-label={showPassword ? t.hidePassword : t.showPassword}
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -129,25 +123,25 @@ function LoginContent() {
               {loginPending ? (
                 <Loader2 className="w-5 h-5 animate-spin text-white" />
               ) : (
-                "로그인"
+                t.loginButton
               )}
             </button>
           </form>
 
-          <div className="flex items-center justify-center gap-2 mt-6 text-sm sm:text-base">
-            <span className="text-[#6E8B8B]">계정이 없으신가요?</span>
+          <div className="flex items-center justify-center gap-2 mt-6 text-sm sm:text-[15px]">
+            <span className="text-[#6E8B8B]">{t.noAccount}</span>
             <Link
               href="/signup"
               className="font-bold text-[#FF7F66] hover:underline"
             >
-              회원가입
+              {t.signup}
             </Link>
           </div>
 
           <div className="flex items-center my-6">
             <div className="flex-1 h-px bg-[#E5E7EB]" />
             <span className="px-3 text-sm text-[#9CA3AF] font-medium">
-              간편 로그인
+              {t.socialLogin}
             </span>
             <div className="flex-1 h-px bg-[#E5E7EB]" />
           </div>
@@ -169,7 +163,7 @@ function LoginContent() {
           <div className="pt-8 text-center space-y-4 ">
             <div className="bg-[#1A3A3A]/10 p-3 rounded-xl border border-[#1A3A3A]/20 ">
               <p className="text-sm font-medium text-[#1A3A3A] mb-2">
-                🦊 AppStore 정식 출시
+                {t.appRelease}
               </p>
               <div className="flex justify-center items-center gap-3">
                 <button
@@ -215,17 +209,17 @@ function LoginContent() {
                 <button
                   type="button"
                   onClick={() => router.push("/terms")}
-                  className=" transition hover:underline underline-offset-3 hover:font-semibold cursor-pointer"
+                  className="transition hover:underline underline-offset-3 hover:font-semibold cursor-pointer"
                 >
-                  서비스 이용약관
+                  {t.terms}
                 </button>
                 <span>|</span>
                 <button
                   type="button"
                   onClick={() => router.push("/privacy")}
-                  className=" transition hover:underline underline-offset-3 hover:font-semibold cursor-pointer"
+                  className="transition hover:underline underline-offset-3 hover:font-semibold cursor-pointer"
                 >
-                  개인정보 처리방침
+                  {t.privacy}
                 </button>
               </div>
 
@@ -248,14 +242,13 @@ function LoginContent() {
   );
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-
 export default function LoginPage() {
+  const { t } = useLoginLanguage();
   return (
     <Suspense
       fallback={
         <div className="min-h-screen bg-black text-white flex items-center justify-center">
-          화면을 불러오는 중...
+          {t.loading}
         </div>
       }
     >

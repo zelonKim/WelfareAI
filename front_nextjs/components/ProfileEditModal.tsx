@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { User, Camera, X, Loader2 } from "lucide-react";
 import { ProfileEditModalProps } from "@/types/user/ProfileEditModalProps";
+import { useProfileEditModalLanguage } from "@/hooks/languages/useProfileEditModalLanguage"; // 👈 훅 임포트
 
 export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   visible,
@@ -17,6 +18,8 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   onRemoveImage,
   selectedImageUri,
 }) => {
+  const { t } = useProfileEditModalLanguage();
+
   const [nicknameInput, setNicknameInput] = useState(initialNickname);
   const [initialAvatar, setInitialAvatar] = useState(initialAvatarUri);
 
@@ -60,7 +63,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
       <div className="relative z-10 w-full max-w-md transform rounded-2xl bg-white p-6 shadow-xl transition-all">
         <h2 className="text-xl font-bold text-slate-900 text-center mb-6">
-          내 정보 변경
+          {t.modalTitle}
         </h2>
 
         <form onSubmit={handleSave} className="space-y-6">
@@ -70,13 +73,13 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                 type="button"
                 onClick={onPickImage}
                 disabled={isLoading || onPending}
-                className="cursor-pointer group relative flex h-28 w-28 items-center justify-center rounded-full bg-[#1665341F]  ring-slate-100  transition hover:opacity-80 focus:outline-none disabled:cursor-not-allowed"
+                className="cursor-pointer group relative flex h-28 w-28 items-center justify-center rounded-full bg-[#1665341F] ring-slate-100 transition hover:opacity-80 focus:outline-none disabled:cursor-not-allowed"
               >
                 <div className="relative h-full w-full overflow-hidden rounded-full flex items-center justify-center">
                   {displayAvatarUri ? (
                     <Image
                       src={displayAvatarUri}
-                      alt="프로필 미리보기"
+                      alt="Profile Preview"
                       fill
                       className="object-cover"
                     />
@@ -98,7 +101,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                   }}
                   disabled={isLoading || onPending}
                   className="cursor-pointer absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-white shadow-md transition hover:bg-orange-600 disabled:opacity-50"
-                  aria-label="프로필 사진 삭제"
+                  aria-label={t.removePhotoAria}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -111,14 +114,14 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               htmlFor="nickname-input"
               className="block text-sm font-semibold text-slate-700"
             >
-              별명
+              {t.nicknameLabel}
             </label>
             <input
               id="nickname-input"
               type="text"
               value={nicknameInput}
               onChange={(e) => setNicknameInput(e.target.value)}
-              placeholder="별명 (2~12자)"
+              placeholder={t.nicknamePlaceholder}
               maxLength={12}
               disabled={isLoading || onPending}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-400 disabled:opacity-50"
@@ -132,7 +135,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               disabled={onPending}
               className="cursor-pointer flex-1 rounded-xl bg-slate-100 py-3.5 text-base font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50"
             >
-              취소
+              {t.cancelButton}
             </button>
 
             <button
@@ -143,7 +146,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               {onPending ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                "변경하기"
+                t.saveButton
               )}
             </button>
           </div>

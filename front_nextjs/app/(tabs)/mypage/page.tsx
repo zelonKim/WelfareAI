@@ -24,9 +24,11 @@ import { useDeleteAccount } from "@/hooks/user/useDeleteAccount";
 import { useSaveProfile } from "@/hooks/user/useSaveProfile";
 import { UserProfile } from "@/types/user/UserProfile";
 import { handlePickProfileImage } from "@/utils/handlePickProfileImage";
+import { useMyPageLanguage } from "@/hooks/languages/useMyPageLanguage";
 
 export default function MyPageScreen() {
   const router = useRouter();
+  const { t } = useMyPageLanguage();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
@@ -74,9 +76,7 @@ export default function MyPageScreen() {
     useDeleteAccount();
 
   const handleDeleteAccount = () => {
-    if (
-      window.confirm("정말로 탈퇴하시겠습니까? 탈퇴한 계정 정보는 복구할 수 없습니다.")
-    ) {
+    if (window.confirm(t.confirmDeleteAccount)) {
       deleteAccountMutation();
     }
   };
@@ -89,7 +89,7 @@ export default function MyPageScreen() {
   };
 
   const handleLogout = () => {
-    if (window.confirm("정말 로그아웃 하시겠습니까?")) {
+    if (window.confirm(t.confirmLogout)) {
       onPressLogout();
     }
   };
@@ -113,7 +113,7 @@ export default function MyPageScreen() {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFEFEA]">
             <Settings className="h-6 w-6 text-[#FF7F66]" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">환경 설정</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{t.headerTitle}</h1>
         </div>
       </header>
 
@@ -121,9 +121,9 @@ export default function MyPageScreen() {
         <section className="relative mb-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
           <button
             onClick={handleOpenEditModal}
-            className="cursor-pointer absolute right-5 top-5 rounded-md px-3 py-1.5 text-xs font-semibold text-slate-500 transition bg-slate-100   hover:bg-slate-200"
+            className="cursor-pointer absolute right-5 top-5 rounded-md px-3 py-1.5 text-xs font-semibold text-slate-500 transition bg-slate-100 hover:bg-slate-200"
           >
-            변경하기
+            {t.editProfile}
           </button>
 
           <div className="flex flex-col items-center">
@@ -131,7 +131,7 @@ export default function MyPageScreen() {
               {myInfo?.profileImage ? (
                 <Image
                   src={myInfo.profileImage}
-                  alt="프로필 이미지"
+                  alt="Profile"
                   width={96}
                   height={96}
                   className="h-24 w-24 rounded-full object-cover ring-2 ring-slate-100"
@@ -156,7 +156,7 @@ export default function MyPageScreen() {
 
         <section className="mb-8">
           <h3 className="mb-3 px-1 text-base font-bold text-slate-600">
-            앱 설정
+            {t.appSettings}
           </h3>
 
           <div className="divide-y divide-slate-100 rounded-2xl bg-white px-5 shadow-sm ring-1 ring-slate-100">
@@ -168,11 +168,11 @@ export default function MyPageScreen() {
                 <div className="flex items-center gap-2 mb-1">
                   <Heart className="h-5 w-5 text-red-500" />
                   <span className="text-[18px] font-semibold text-slate-800">
-                    함께하기
+                    {t.menuTogetherTitle}
                   </span>
                 </div>
                 <p className="text-[15px] text-slate-500 pl-7">
-                  서비스 운영과 발전에 함께합니다.
+                  {t.menuTogetherDesc}
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />
@@ -185,12 +185,12 @@ export default function MyPageScreen() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Siren className="h-5 w-5 text-red-600" />
-                  <span className="text-[18px]  font-semibold text-slate-800">
-                    신고하기
+                  <span className="text-[18px] font-semibold text-slate-800">
+                    {t.menuReportTitle}
                   </span>
                 </div>
                 <p className="text-[15px] text-slate-500 pl-7">
-                  악성 댓글 및 대화를 신고합니다.
+                  {t.menuReportDesc}
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />
@@ -203,12 +203,12 @@ export default function MyPageScreen() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Ban className="h-5 w-5 text-slate-500" />
-                  <span className="text-[18px]  font-semibold text-slate-800">
-                    차단하기
+                  <span className="text-[18px] font-semibold text-slate-800">
+                    {t.menuBlockTitle}
                   </span>
                 </div>
                 <p className="text-[15px] text-slate-500 pl-7">
-                  악성 댓글 및 대화를 차단합니다.
+                  {t.menuBlockDesc}
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />
@@ -221,12 +221,12 @@ export default function MyPageScreen() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Info className="h-5 w-5 text-orange-500" />
-                  <span className="text-[18px]  font-semibold text-slate-800">
-                    서비스 이용약관
+                  <span className="text-[18px] font-semibold text-slate-800">
+                    {t.menuTermsTitle}
                   </span>
                 </div>
                 <p className="text-[15px] text-slate-500 pl-7">
-                  서비스 약관에 대해 살펴봅니다.
+                  {t.menuTermsDesc}
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />
@@ -239,12 +239,12 @@ export default function MyPageScreen() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <UserKey className="h-5 w-5 text-blue-800" />
-                  <span className="text-[18px]  font-semibold text-slate-800">
-                    개인정보 처리방침
+                  <span className="text-[18px] font-semibold text-slate-800">
+                    {t.menuPrivacyTitle}
                   </span>
                 </div>
                 <p className="text-[15px] text-slate-500 pl-7">
-                  개인정보 처리에 대해 살펴봅니다.
+                  {t.menuPrivacyDesc}
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />
@@ -252,12 +252,12 @@ export default function MyPageScreen() {
           </div>
         </section>
 
-        <div className="flex items-center justify-center gap-3 text-[15px]">
+        <div className="flex items-center justify-center gap-3 text-sm">
           <button
             onClick={handleLogout}
             className="cursor-pointer text-slate-500 hover:underline underline-offset-4 hover:text-slate-800"
           >
-            로그아웃
+            {t.logout}
           </button>
           <span className="text-slate-300">|</span>
           <button
@@ -265,7 +265,7 @@ export default function MyPageScreen() {
             disabled={deleteAccountPending}
             className="cursor-pointer text-red-500 hover:underline underline-offset-4 hover:text-red-600 disabled:opacity-50"
           >
-            회원탈퇴
+            {t.deleteAccount}
           </button>
         </div>
 

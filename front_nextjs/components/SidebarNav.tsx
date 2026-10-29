@@ -12,14 +12,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-
-const NAV_ITEMS = [
-  { name: "상담", href: "/", icon: BotMessageSquare },
-  { name: "제보", href: "/crisisReport", icon: Bell },
-  { name: "정책", href: "/policy", icon: FileText },
-  { name: "모임", href: "/community", icon: Users },
-  { name: "설정", href: "/mypage", icon: Settings },
-];
+import { useSidebarLanguage } from "@/hooks/languages/useSidebarLanguage";
 
 const ALLOWED_PATHS = [
   "/",
@@ -29,10 +22,10 @@ const ALLOWED_PATHS = [
   "/mypage",
 ];
 
-////////////////////////////////////////////////////////////////////////////////////
-
 export default function SidebarNav() {
   const pathname = usePathname();
+  const { t } = useSidebarLanguage();
+
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -51,6 +44,14 @@ export default function SidebarNav() {
     return null;
   }
 
+  const NAV_ITEMS = [
+    { name: t.consult, href: "/", icon: BotMessageSquare },
+    { name: t.crisisReport, href: "/crisisReport", icon: Bell },
+    { name: t.policy, href: "/policy", icon: FileText },
+    { name: t.community, href: "/community", icon: Users },
+    { name: t.mypage, href: "/mypage", icon: Settings },
+  ];
+
   ////////////////////////////////////////////////////////////////////////////////////
 
   return (
@@ -62,7 +63,7 @@ export default function SidebarNav() {
             : "hidden"
         } lg:flex flex-col items-center gap-3 rounded-3xl border border-slate-200/80 bg-white/90 p-3 shadow-xl shadow-[#1A3A3A]/10 backdrop-blur-xl mb-3 lg:mb-0`}
       >
-      {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive =
             item.href === "/"
@@ -105,7 +106,7 @@ export default function SidebarNav() {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        aria-label="메뉴 열기/닫기"
+        aria-label={t.menuAria}
         className="hover:opacity-90 cursor-pointer flex lg:hidden h-14 w-14 items-center justify-center rounded-full bg-[#1A3A3A] text-white shadow-sm shadow-[#1E2E2A]/30 transition-transform active:scale-90"
       >
         {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

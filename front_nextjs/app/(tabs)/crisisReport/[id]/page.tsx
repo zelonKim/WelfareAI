@@ -37,10 +37,12 @@ import { formatDate } from "@/utils/formatDate";
 import { handleGetCurrentLocation } from "@/utils/handleGetCurrentLocation";
 import { handlePickImage } from "@/utils/handlePickImage";
 import { getStatusBadge } from "@/utils/getStatusBadge";
+import { useCrisisReportDetailLanguage } from "@/hooks/languages/useCrisisReportDetailLanguage"; // 👈 훅 임포트
 
 export default function CrisisReportDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { t, locale } = useCrisisReportDetailLanguage();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState<string>("");
@@ -57,8 +59,6 @@ export default function CrisisReportDetailPage() {
   >(null);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const {
     data: report,
     isLoading,
@@ -72,16 +72,12 @@ export default function CrisisReportDetailPage() {
     refetchOnWindowFocus: true,
   });
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const { data: myInfo } = useQuery<UserProfile>({
     queryKey: ["myInfo"],
     queryFn: getMyInfo,
   });
 
   const isAuthor = myInfo?.id === report?.user.id;
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   const { mutate: updateReportMutation, isPending: updateReportPending } =
     useUpdateCrisisReport({
@@ -100,16 +96,12 @@ export default function CrisisReportDetailPage() {
     });
   };
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const { mutate: uploadImageMutation, isPending: uploadImagePending } =
     useUploadImage();
 
   const handleRemoveImage = (indexToRemove: number) => {
     setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   const handleEditReport = () => {
     if (!report) return;
@@ -123,18 +115,14 @@ export default function CrisisReportDetailPage() {
     setIsModalOpen(true);
   };
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const { mutate: deleteReportMutation } = useDeleteCrisisReport();
 
   const handleDeleteReport = () => {
     setShowMoreMenu(false);
-    if (window.confirm("정말로 이 제보를 삭제하시겠습니까?")) {
+    if (window.confirm(t.deleteReportConfirm)) {
       deleteReportMutation(id);
     }
   };
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   const { mutate: createCommentMutation, isPending: createCommentPending } =
     useCreateCrisisComment({
@@ -147,19 +135,15 @@ export default function CrisisReportDetailPage() {
     createCommentMutation(commentInput.trim());
   };
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const { mutate: deleteCommentMutation } = useDeleteCrisisComment({
     reportId: id,
   });
 
   const handleDeleteComment = (commentId: string) => {
-    if (window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
+    if (window.confirm(t.deleteCommentConfirm)) {
       deleteCommentMutation(commentId);
     }
   };
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   const handleProfilePress = (comment: Comment) => {
     if (comment.user.id === myInfo?.id) return;
@@ -168,35 +152,27 @@ export default function CrisisReportDetailPage() {
     );
   };
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const { data: blockedList = [] } = useQuery<BlockedItem[]>({
     queryKey: ["blockedUsers"],
     queryFn: getBlockedUsers,
   });
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   const { mutate: blockUserMutation } = useBlockUser();
 
   const handleBlockPress = (nickname: string) => {
     if (
       window.confirm(
-        `정말 ${nickname}님을 차단하시겠습니까?\n차단한 사용자의 댓글은 더 이상 보이지 않습니다.`,
+        `${t.blockConfirmPrefix}${nickname}${t.blockConfirmSuffix}`,
       )
     ) {
       blockUserMutation(nickname);
     }
   };
 
-  ////////////////////////////////////////////////////////////////////////////////////
-
   const handleReportPress = (nickname: string) => {
     setIsReportModalVisible(true);
     setInitialUserName(nickname);
   };
-
-  ////////////////////////////////////////////////////////////////////////////////////
 
   if (isLoading) {
     return (
@@ -209,16 +185,12 @@ export default function CrisisReportDetailPage() {
   if (isError || !report) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white">
-        <p className="text-base text-gray-500">
-          제보 내역을 불러올 수 없습니다.
-        </p>
+        <p className="text-base text-gray-500">{t.loadingError}</p>{" "}
       </div>
     );
   }
 
-  const badge = getStatusBadge(report.status);
-
-  ////////////////////////////////////////////////////////////////////////////////////
+  const badge = getStatusBadge(report.status, locale);
 
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-5xl mx-auto border-x border-gray-100 shadow-sm">
@@ -227,11 +199,11 @@ export default function CrisisReportDetailPage() {
           type="button"
           onClick={() => router.back()}
           className="p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
-          aria-label="뒤로가기"
+          aria-label={t.backAria}
         >
           <ChevronLeft className="w-6 h-6 text-gray-800" />
         </button>
-        <h1 className="text-lg font-bold text-gray-900">위기 제보 상세</h1>
+        <h1 className="text-[19px] font-bold text-gray-900">{t.headerTitle}</h1>
 
         {isAuthor ? (
           <div className="relative">
@@ -239,6 +211,7 @@ export default function CrisisReportDetailPage() {
               type="button"
               onClick={() => setShowMoreMenu((prev) => !prev)}
               className="p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+              aria-label={t.moreAria}
             >
               <MoreVertical className="w-6 h-6 text-gray-800" />
             </button>
@@ -255,14 +228,14 @@ export default function CrisisReportDetailPage() {
                     onClick={handleEditReport}
                     className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
                   >
-                    수정하기
+                    {t.editButton}
                   </button>
                   <button
                     type="button"
                     onClick={handleDeleteReport}
                     className="w-full px-4 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                   >
-                    삭제하기
+                    {t.deleteButton}
                   </button>
                 </div>
               </>
@@ -276,7 +249,7 @@ export default function CrisisReportDetailPage() {
               setInitialUserName(report.user.nickname);
             }}
             className="p-1.5 rounded-full hover:bg-red-50 transition-colors cursor-pointer"
-            aria-label="신고하기"
+            aria-label={t.reportAria}
           >
             <Siren className="w-5 h-5 text-red-500" />
           </button>
@@ -290,15 +263,22 @@ export default function CrisisReportDetailPage() {
           >
             {badge.label}
           </span>
-          <div className="flex items-center gap-1.5 text-gray-400 text-xs sm:text-sm">
+          <div className="flex items-center gap-1.5 text-gray-400 text-xs sm:text-[13px]">
             <Clock className="w-4 h-4" />
             <span>
-              {new Date(report.createdAt).toLocaleDateString("ko-KR")}
+              {new Date(report.createdAt).toLocaleDateString(
+                locale === "ko" ? "ko-KR" : "en-US",
+                {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                },
+              )}
             </span>
           </div>
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-snug">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 leading-snug">
           {report.title}
         </h2>
 
@@ -311,7 +291,7 @@ export default function CrisisReportDetailPage() {
               >
                 <Image
                   src={imgUri}
-                  alt={`제보 이미지 ${index + 1}`}
+                  alt={`Report Image ${index + 1}`}
                   fill
                   sizes="240px"
                   className="object-cover"
@@ -321,17 +301,17 @@ export default function CrisisReportDetailPage() {
           </div>
         )}
 
-        <div className="text-base sm:text-lg text-gray-800 leading-relaxed whitespace-pre-line">
+        <div className="text-[15px] sm:text-base text-gray-800 leading-relaxed whitespace-pre-line">
           {report.content}
         </div>
 
         <div className="p-4 sm:p-5 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
           <div className="flex items-center gap-3">
             <MapPin className="w-5 h-5 text-[#1A3A3A] shrink-0" />
-            <span className="text-sm sm:text-base font-semibold text-gray-400 w-16 shrink-0">
-              제보 위치
+            <span className="text-sm sm:text-[15px] font-semibold text-gray-400 w-24 shrink-0">
+              {t.locationLabel}
             </span>
-            <span className="text-sm sm:text-base text-gray-800 font-medium truncate">
+            <span className="text-sm sm:text-[15px] text-gray-800 font-medium truncate">
               {report.address}
             </span>
           </div>
@@ -340,19 +320,19 @@ export default function CrisisReportDetailPage() {
 
           <div className="flex items-center gap-3">
             <User className="w-5 h-5 text-[#1A3A3A] shrink-0" />
-            <span className="text-sm sm:text-base font-semibold text-gray-400 w-16 shrink-0">
-              제보자
+            <span className="text-sm sm:text-[15px] font-semibold text-gray-400 w-24 shrink-0">
+              {t.authorLabel}
             </span>
-            <span className="text-sm sm:text-base text-gray-900 font-bold">
+            <span className="text-sm sm:text-[15px] text-gray-900 font-bold">
               {report.user.nickname}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 pt-6 mt-10 border-t-2 border-slate-100 ">
+        <div className="flex items-center gap-2 pt-6 mt-10 border-t-2 border-slate-100">
           <MessageCircleMore className="w-5 h-5 text-[#FF7F66]" />
-          <h3 className="text-base sm:text-lg font-bold text-gray-900">
-            댓글 ({report.comments ? report.comments.length : 0})
+          <h3 className="text-[15px] sm:text-base font-bold text-gray-900">
+            {t.commentsTitle} ({report.comments ? report.comments.length : 0})
           </h3>
         </div>
 
@@ -379,7 +359,7 @@ export default function CrisisReportDetailPage() {
                         onBlockPress={handleBlockPress}
                       />
                       <span className="text-sm sm:text-base font-bold text-gray-900">
-                        {comment.user?.nickname || "사용자"}
+                        {comment.user?.nickname || "User"}
                       </span>
                     </div>
 
@@ -392,7 +372,7 @@ export default function CrisisReportDetailPage() {
                           type="button"
                           onClick={() => handleDeleteComment(comment.id)}
                           className="p-1 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
-                          aria-label="댓글 삭제"
+                          aria-label={t.deleteCommentAria}
                         >
                           <Trash className="w-4 h-4" />
                         </button>
@@ -407,8 +387,8 @@ export default function CrisisReportDetailPage() {
               ))}
           </div>
         ) : (
-          <div className="py-12 text-center text-sm sm:text-base text-gray-400">
-            첫번째 댓글을 남겨보세요!
+          <div className="py-12 text-center text-sm sm:text-[15px] text-gray-400">
+            {t.noComments}
           </div>
         )}
       </main>
@@ -417,7 +397,7 @@ export default function CrisisReportDetailPage() {
         <div className="flex items-center gap-2">
           <input
             type="text"
-            placeholder="댓글을 입력해주세요..."
+            placeholder={t.commentPlaceholder}
             value={commentInput}
             onChange={(e) => setCommentInput(e.target.value)}
             onKeyDown={(e) => {
@@ -428,13 +408,14 @@ export default function CrisisReportDetailPage() {
                 handleSendComment();
               }
             }}
-            className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-full text-sm sm:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF7F66] transition-colors"
+            className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-full text-sm sm:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-orange-400 transition-colors"
           />
           <button
             type="button"
             onClick={handleSendComment}
             disabled={!commentInput.trim() || createCommentPending}
             className="w-11 h-11 bg-[#FF7F66] hover:bg-[#e66f57] disabled:bg-gray-300 text-white rounded-full flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+            aria-label={t.sendAria}
           >
             {createCommentPending ? (
               <Loader2 className="w-5 h-5 animate-spin" />

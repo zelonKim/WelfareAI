@@ -1,61 +1,126 @@
 "use client";
 
-import { Section } from "@/types/common/Section";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Section } from "@/types/common/Section";
 
-const PRIVACY_SECTIONS: Section[] = [
-  {
-    title: "제 1 조 (수집하는 개인정보 항목)",
-    body: "본 서비스는 회원가입, AI 맞춤 복지 추천, 모임 중개 서비스 제공을 위해 최소한의 개인정보(별명, 이메일, 프로필 이미지, 맞춤 추천용 연령대/관심 지역/복지 관심 분야)를 수집합니다.",
+const privacyPageTexts = {
+  ko: {
+    title: "개인정보 처리방침 및 고객 지원",
+    backButton: "뒤로가기",
+    subHeader:
+      "WelfareAI는 이용자의 개인정보를 소중히 다루며, 관련 법령을 준수하여 안전하게 관리하고 있습니다.",
+    emailLabel: "고객 지원 이메일",
+    contactLabel: "담당자",
+    effectiveDate: "시행 일자: 2026년 10월 2일 · OpenWelfare",
+    sections: [
+      {
+        title: "제 1 조 (수집하는 개인정보 항목)",
+        body: "본 서비스는 회원가입, AI 맞춤 복지 추천, 모임 중개 서비스 제공을 위해 최소한의 개인정보(별명, 이메일, 프로필 이미지, 맞춤 추천용 연령대/관심 지역/복지 관심 분야)를 수집합니다.",
+      },
+      {
+        title: "제 2 조 (개인정보의 보유 및 이용 기간)",
+        body: "수집된 개인정보는 회원 탈퇴 시 즉시 파기하는 것을 원칙으로 하며, 관계 법령의 규정에 의하여 보존할 필요가 있는 경우 해당 법령에서 정한 기간 동안 보관합니다.",
+      },
+      {
+        title: "제 3 조 (개인정보의 파기 절차 및 방법)",
+        body: "회원 탈퇴 등 파기 사유가 발생한 개인정보는 복구할 수 없는 기술적 방법을 사용하여 안전하게 삭제합니다.",
+      },
+      {
+        title: "제 4 조 (개인정보의 제3자 제공)",
+        body: "본 플랫폼은 이용자의 동의 없이 개인정보를 외부에 제공하지 않으며, 모임 진행 시 필요한 최소한의 프로필 정보만 참가자 간에 상호 제공됩니다.",
+      },
+      {
+        title: "제 5 조 (개인정보 보호책임자 및 고객 지원 문의처)",
+        body: "서비스 이용 중 발생하는 서비스 지원 문의, 개인정보 보호 관련 불만 처리, 피해구제 등에 관한 사항은 맨 위의 고객 지원 이메일 및 담당자를 통해 문의해 주시면 지체 없이 답변드리겠습니다.",
+      },
+      {
+        title: "제 6 조 (계정 삭제 및 데이터 파기 요청)",
+        body: "사용자는 언제든지 서비스 내 [설정 > 회원 탈퇴] 메뉴를 통해 계정 삭제 및 데이터 파기를 직접 요청할 수 있으며, 탈퇴 즉시 모든 개인 데이터는 지체 없이 파기됩니다.",
+      },
+      {
+        title: "제 7 조 (아동 및 청소년 보호 정책)",
+        body: "본 서비스는 아동 성적 학대 및 착취(CSAM/CSAE) 콘텐츠를 엄격히 금지합니다. 해당 콘텐츠나 사용자가 발견될 경우 사전 경고 없이 즉시 계정이 영구 정지되며, 관련 법률에 따라 관계 기관에 신고될 수 있습니다.",
+      },
+      {
+        title: "제 8 조 (AI 서비스 이용을 위한 외부 데이터 전송)",
+        body: "본 서비스는 맞춤형 복지 상담 기능 제공을 위해 외부 AI 서비스(OpenAI API)를 활용합니다. 사용자가 AI 상담창에 입력한 질문 및 대화 내용은 답변 생성을 위해 OpenAI 서버로 전송되어 처리되며, OpenAI의 개인정보 처리방침 및 데이터 보안 정책에 따라 관리됩니다.",
+      },
+    ] as Section[],
   },
-  {
-    title: "제 2 조 (개인정보의 보유 및 이용 기간)",
-    body: "수집된 개인정보는 회원 탈퇴 시 즉시 파기하는 것을 원칙으로 하며, 관계 법령의 규정에 의하여 보존할 필요가 있는 경우 해당 법령에서 정한 기간 동안 보관합니다.",
+  en: {
+    title: "Privacy Policy & Support",
+    backButton: "Back",
+    subHeader:
+      "WelfareAI values your personal information and manages it safely in compliance with relevant laws and regulations.",
+    emailLabel: "Support Email",
+    contactLabel: "Contact Person",
+    effectiveDate: "Effective Date: October 2, 2026 · OpenWelfare",
+    sections: [
+      {
+        title: "Article 1 (Personal Information Collected)",
+        body: "The Service collects minimal personal info (nickname, email, profile image, age group/area of interest/welfare interests for customized recommendations) for sign-up, AI welfare recommendations, and community services.",
+      },
+      {
+        title: "Article 2 (Retention & Period of Use)",
+        body: "Collected personal info is immediately destroyed upon account deletion, except when retention is required by applicable laws for specified periods.",
+      },
+      {
+        title: "Article 3 (Destruction Procedure & Method)",
+        body: "Personal information subject to destruction is safely deleted using irreversible technical methods.",
+      },
+      {
+        title: "Article 4 (Provision to Third Parties)",
+        body: "The platform does not provide personal information to third parties without user consent. Only minimal profile info is shared between participants during group activities.",
+      },
+      {
+        title: "Article 5 (Privacy Protection Officer & Support Contact)",
+        body: "For service support inquiries, privacy complaints, or remedies, please contact us via the support email and contact person listed above, and we will respond promptly.",
+      },
+      {
+        title: "Article 6 (Account Deletion & Data Erasure)",
+        body: "Users can request account deletion and data erasure at any time via [Settings > Delete Account]. All personal data will be erased without delay upon withdrawal.",
+      },
+      {
+        title: "Article 7 (Child & Youth Protection Policy)",
+        body: "The Service strictly prohibits Child Sexual Abuse Material and Exploitation (CSAM/CSAE). Accounts involved will be permanently banned immediately without warning and reported to relevant authorities in accordance with laws.",
+      },
+      {
+        title: "Article 8 (External Data Transmission for AI Services)",
+        body: "The Service utilizes external AI services (OpenAI API) to provide customized welfare consultation features. Questions and conversations entered by users in the AI chat are transmitted to OpenAI servers to generate responses, and are managed in accordance with OpenAI's privacy policy and data security policies.",
+      },
+    ] as Section[],
   },
-  {
-    title: "제 3 조 (개인정보의 파기 절차 및 방법)",
-    body: "회원 탈퇴 등 파기 사유가 발생한 개인정보는 복구할 수 없는 기술적 방법을 사용하여 안전하게 삭제합니다.",
-  },
-  {
-    title: "제 4 조 (개인정보의 제3자 제공)",
-    body: "본 플랫폼은 이용자의 동의 없이 개인정보를 외부에 제공하지 않으며, 모임 진행 시 필요한 최소한의 프로필 정보만 참가자 간에 상호 제공됩니다.",
-  },
-  {
-    title: "제 5 조 (개인정보 보호책임자 및 고객 지원 문의처)",
-    body: "서비스 이용 중 발생하는 서비스 지원 문의, 개인정보 보호 관련 불만 처리, 피해구제 등에 관한 사항은 맨 위의 고객 지원 이메일 및 담당자를 통해 문의해 주시면 지체 없이 답변드리겠습니다.",
-  },
-  {
-    title: "제 6 조 (계정 삭제 및 데이터 파기 요청)",
-    body: "사용자는 언제든지 서비스 내 [설정 > 회원 탈퇴] 메뉴를 통해 계정 삭제 및 데이터 파기를 직접 요청할 수 있으며, 탈퇴 즉시 모든 개인 데이터는 지체 없이 파기됩니다.",
-  },
-  {
-    title: "제 7 조 (아동 및 청소년 보호 정책)",
-    body: "본 서비스는 아동 성적 학대 및 착취(CSAM/CSAE) 콘텐츠를 엄격히 금지합니다. 해당 콘텐츠나 사용자가 발견될 경우 사전 경고 없이 즉시 계정이 영구 정지되며, 관련 법률에 따라 관계 기관에 신고될 수 있습니다.",
-  },
-  {
-    title: "제 8 조 (AI 서비스 이용을 위한 외부 데이터 전송)",
-    body: "본 서비스는 맞춤형 복지 상담 기능 제공을 위해 외부 AI 서비스(OpenAI API)를 활용합니다. 사용자가 AI 상담창에 입력한 질문 및 대화 내용은 답변 생성을 위해 OpenAI 서버로 전송되어 처리되며, OpenAI의 개인정보 처리방침 및 데이터 보안 정책에 따라 관리됩니다.",
-  },
-];
-
-////////////////////////////////////////////////////////////////////////////////////
+};
 
 export default function PrivacyPage() {
   const router = useRouter();
+
+  const [locale, setLocale] = useState<"ko" | "en">("ko");
+
+  useEffect(() => {
+    const browserLang = navigator.language || navigator.languages[0];
+    if (browserLang && browserLang.toLowerCase().startsWith("ko")) {
+      setLocale("ko");
+    } else {
+      setLocale("en");
+    }
+  }, []);
+
+  const t = privacyPageTexts[locale];
 
   return (
     <div className="min-h-screen bg-[#F4F7F6] text-[#193E3B] px-4 py-8 md:py-12">
       <div className="max-w-2xl mx-auto bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[#E2ECE9]">
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#E2ECE9]">
           <h1 className="text-xl md:text-2xl font-bold text-[#193E3B] flex items-center gap-2">
-            <span className="text-[#FF6B5B]">🔒</span> 개인정보 처리방침 및 고객
-            지원
+            <span className="text-[#FF6B5B]">🔒</span> {t.title}
           </h1>
           <button
             onClick={() => router.back()}
             className="cursor-pointer text-xs font-semibold text-[#5A7A76] hover:text-[#193E3B] hover:bg-[#EAF2F0] transition px-3 py-1.5 rounded-lg bg-[#F4F7F6]"
           >
-            뒤로가기
+            {t.backButton}
           </button>
         </div>
 
@@ -64,22 +129,21 @@ export default function PrivacyPage() {
             Privacy Policy & Support
           </p>
           <p className="text-sm text-[#385B56] leading-relaxed mb-3">
-            WelfareAI는 이용자의 개인정보를 소중히 다루며, 관련 법령을 준수하여
-            안전하게 관리하고 있습니다.
+            {t.subHeader}
           </p>
 
-          <div className="pt-3 font-medium border-t border-[#D0E2DF] text-[15px] text-[#2C4844] space-y-1">
+          <div className="pt-3 font-medium border-t border-[#D0E2DF] text-sm text-[#2C4844] space-y-1">
             <p>
-              <strong>• 고객 지원 이메일:</strong> ksz18601@gmail.com
+              - <strong>{t.emailLabel}:</strong> ksz18601@gmail.com
             </p>
             <p>
-              <strong>• 담당자:</strong> 김성진
+              - <strong>{t.contactLabel}:</strong> 김성진 (Seong-jin Kim)
             </p>
           </div>
         </div>
 
         <div className="space-y-5 text-[#385B56] leading-relaxed text-sm md:text-[15px] mt-6">
-          {PRIVACY_SECTIONS.map((section, index) => (
+          {t.sections.map((section, index) => (
             <section key={index} className="space-y-1.5">
               <h2 className="text-[15px] font-bold text-[#193E3B] flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B5B]"></span>
@@ -93,7 +157,7 @@ export default function PrivacyPage() {
         </div>
 
         <div className="mt-10 pt-4 border-t border-[#E2ECE9] text-center text-xs text-[#7A9A95]">
-          시행 일자: 2026년 10월 2일 · OpenWelfare
+          {t.effectiveDate}
         </div>
       </div>
     </div>
