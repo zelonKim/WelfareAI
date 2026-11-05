@@ -168,10 +168,12 @@ function LoginContent() {
               <div className="flex justify-center items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsModalOpen(true);
-                    setModalOS("android");
-                  }}
+                  onClick={() =>
+                    window.open(
+                      "https://play.google.com/store/apps/details?id=com.zelon.welfareai",
+                      "_blank",
+                    )
+                  }
                   className="cursor-pointer hover:scale-103 active:scale-95 transition-transform"
                 >
                   <Image
