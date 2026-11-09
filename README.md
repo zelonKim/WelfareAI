@@ -1,6 +1,8 @@
 # 🦊 WelfareAI - Civic Tech AI Integrated Welfare Platform (AI 통합 복지 플랫폼)
 
 > **WelfareAI** is an open-source integrated welfare platform that enhances accessibility to public welfare information using AI technology and public data, while fostering connections among local community members.
+
+> ⚠️ **Note on Public API Access**: This application integrates with South Korean Government Public APIs (data.go.kr), which restrict access strictly to South Korean IP addresses due to national security and access control policies.
 >
 > **WelfareAI**는 AI 기술과 공공 데이터를 활용하여 복지 정보의 접근성을 높이고, 지역사회 이웃 간의 연결을 돕는 오픈소스 통합 복지 플랫폼입니다.
 
@@ -52,8 +54,7 @@ WelfareAI provides **four key core services** (WelfareAI는 크게 **4가지 핵
 ### External APIs (외부 API)
 
 - **AI Engine**: OpenAI API (`gpt-4o-mini`)
-- **Open Data**: 대한민국 공공데이터포털 API (South Korean Public Data API)
-  - Note: The live website relies on Korean Public Data APIs (data.go.kr), which are geo-restricted to domestic (South Korea) IP addresses.
+- **Open Data**: South Korean Public Data API (대한민국 공공데이터포털 API)
 
 ### Infrastructure & Deployment (인프라 및 배포)
 
